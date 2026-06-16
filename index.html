@@ -432,18 +432,21 @@
     position: absolute;
     top: 192px;
     right: 80px;
-    width: 128px;
     height: 36px;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: 16px;
     background: none;
     border: none;
     padding: 0;
-    cursor: pointer;
+    cursor: default;
+    pointer-events: none;
     z-index: 5;
   }
+  /* small 6×6 dot that replaces the bracket frame on every section tag */
+  .tag-dot { width: 6px; height: 6px; flex-shrink: 0; background: #000; }
   .cs-journey-label {
     color: #000;
     font-family: Satoshi, sans-serif;
@@ -588,6 +591,8 @@
   .cs-chapter-title.cs-swap { height: 68px; width: 460px; } /* FIX 2: fits the longest title (≤429px) on one line so the incoming layer never wraps */
   .cs-chapter-desc.cs-swap  { height: 40px; }
   .cs-plaque-label.cs-swap  { height: 24px; }
+  /* keep "Open chapter [ 0X ]" on one line so the trailing bracket never wraps to a clipped row */
+  .cs-plaque-label .cs-swap-cur, .cs-plaque-label .cs-swap-new { white-space: nowrap; }
   .cs-swap-cur { display: block; }
   .cs-swap-new {
     display: block; position: absolute; left: 0; top: 0; width: 100%;
@@ -675,9 +680,10 @@
     z-index: 4; will-change: transform;
   }
   .eco-tag {
-    display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0;
-    height: 36px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 16px; flex-shrink: 0;
+    height: 36px; cursor: default; pointer-events: none;
   }
+  .eco-tag .tag-dot { background: #fff; }
   .eco-tag-label {
     color: #fff; font-family: Satoshi, sans-serif;
     font-size: 20px; font-weight: 700; line-height: 24px;
@@ -739,9 +745,10 @@
   /* PROJECTS bracket button — identical mechanic to .cs-journey, centred at the top */
   .epj-btn {
     position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
-    display: inline-flex; align-items: center; gap: 12px;
-    background: none; border: none; padding: 0; cursor: pointer; z-index: 9;
+    display: inline-flex; align-items: center; gap: 16px;
+    background: none; border: none; padding: 0; cursor: default; pointer-events: none; z-index: 9;
   }
+  .epj.is-zoomed .epj-btn .tag-dot { background: #fff; }
   .epj-btn-label {
     color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
     line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase;
@@ -795,16 +802,30 @@
   .epj-card.is-active .epj-content-inner { opacity: 1; }
   /* centred via left/right:0 + flex align (no translate, so nothing ever moves) */
   .epj-tagwrap {
-    position: absolute; top: 316px; left: 0; right: 0;
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    position: absolute; top: 285px; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
   }
-  .epj-tag { display: inline-flex; align-items: center; gap: 12px; height: 32px; }
+  .epj-tag { display: inline-flex; align-items: center; gap: 16px; }
   .epj-tag-label {
-    font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 700; line-height: 20px;
-    letter-spacing: -0.32px; text-transform: uppercase; color: #fff; white-space: nowrap;
+    font-family: Satoshi, sans-serif; font-size: 14px; font-weight: 500; line-height: 18px;
+    letter-spacing: -0.14px; text-transform: uppercase; color: #fff; white-space: nowrap;
   }
-  .epj-tag-bracket { width: 6px; height: 32px; display: block; }
-  .epj-tag-bracket path { stroke: #fff; }
+  .epj-dot { width: 6px; height: 6px; flex-shrink: 0; background: #fff; }
+  /* Learn More button: lives OUTSIDE .epj-content-inner so no opacity<1 ancestor ever disables its
+     backdrop-filter. Anchored 28px below the (80px) name, toggled instantly on is-active — so it
+     always appears already frosted, never as a blur-less transparent flash. */
+  .epj-learn {
+    position: absolute; top: 431px; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 24px; border-radius: 12px; text-decoration: none;
+    opacity: 0; pointer-events: none;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 500; line-height: 20px;
+    letter-spacing: -0.16px; text-transform: capitalize; color: #fff; white-space: nowrap;
+  }
+  .epj-card.is-active .epj-learn { opacity: 1; pointer-events: auto; }
   .epj-name {
     margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; color: #fff;
     font-size: 80px; line-height: 80px; letter-spacing: -3.2px; white-space: nowrap; text-align: center;
@@ -837,8 +858,8 @@
   /* VISION bracket button — identical mechanic to .cs-journey / .epj-btn */
   .fs-btn {
     position: absolute; top: 100px; left: 50%; transform: translate(-50%, 0);
-    display: inline-flex; align-items: center; gap: 12px;
-    background: none; border: none; padding: 0; cursor: pointer; z-index: 3;
+    display: inline-flex; align-items: center; gap: 16px;
+    background: none; border: none; padding: 0; cursor: default; pointer-events: none; z-index: 3;
   }
   .fs-btn-label {
     color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
@@ -1094,11 +1115,11 @@
   .ft-cta-line:hover .ft-brk-r { transform: translateX(6px) scaleY(1.05); }
 
   /* bottom row */
-  .ft-copy, .ft-rights {
-    position: absolute; bottom: 60px; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px;
+  .ft-copy {
+    position: absolute; bottom: 60px; left: 80px; color: #fff;
+    font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px;
   }
-  .ft-copy   { left: 80px; color: #fff; }
-  .ft-rights { left: 50%; transform: translateX(-50%); color: #707070; }
+  .ft-rights { color: #808080; }
 
 </style>
 </head>
@@ -1158,14 +1179,14 @@
               <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Contact</span></span></a>
             </nav>
             <div class="m-social">
-              <a class="fade" href="#" aria-label="LinkedIn">
+              <a class="fade" href="https://www.linkedin.com/in/alexander-w-foster/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
               </a>
-              <a class="fade" href="#" aria-label="Instagram">
+              <a class="fade" href="https://www.instagram.com/alexwfost/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </a>
-              <a class="fade" href="#" aria-label="X">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.297 6.928 14.36 1h-1.2L8.765 6.147 5.253 1H1.203l5.31 7.784L1.203 15h1.2l4.642-5.436L10.754 15h4.05L9.297 6.928Zm-1.643 1.924-.538-.775L2.835 1.91h1.843l3.454 4.977.538.775 4.49 6.47h-1.843L7.654 8.852Z" fill="#fff"/></svg>
+              <a class="fade" href="https://www.youtube.com/@alexwfoster" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.33333 8.00002L7 9.33335V6.66669L9.33333 8.00002Z" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.3335 8.472V7.528C1.3335 5.598 1.3335 4.63266 1.93683 4.012C2.54083 3.39066 3.4915 3.364 5.39216 3.31C6.29216 3.28466 7.21216 3.26666 8.00016 3.26666C8.78816 3.26666 9.7075 3.28466 10.6082 3.31C12.5088 3.364 13.4595 3.39066 14.0628 4.012C14.6662 4.63333 14.6668 5.59866 14.6668 7.528V8.47133C14.6668 10.402 14.6668 11.3667 14.0635 11.988C13.4595 12.6087 12.5095 12.636 10.6082 12.6893C9.70816 12.7153 8.78816 12.7333 8.00016 12.7333C7.21216 12.7333 6.29283 12.7153 5.39216 12.6893C3.4915 12.636 2.54083 12.6093 1.93683 11.988C1.33283 11.3667 1.3335 10.4013 1.3335 8.472Z" stroke="#fff"/></svg>
               </a>
             </div>
           </div>
@@ -1264,21 +1285,10 @@
           vision shaped through every chapter.</p>
         </div>
 
-        <button class="cs-journey">
-          <span class="cs-bracket cs-bracket-l">
-            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="37" viewBox="0 0 7 37" fill="none">
-              <path d="M0.5 6.5V0.5H6.5" stroke="black"/>
-              <path d="M0.5 30.5V36.5H6.5" stroke="black"/>
-            </svg>
-          </span>
+        <span class="cs-journey">
+          <span class="tag-dot"></span>
           <span class="cs-journey-label">Journey</span>
-          <span class="cs-bracket cs-bracket-r">
-            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="37" viewBox="0 0 7 37" fill="none">
-              <path d="M6 6.5V0.5H7.55774e-08" stroke="black"/>
-              <path d="M6 30.5V36.5H7.55774e-08" stroke="black"/>
-            </svg>
-          </span>
-        </button>
+        </span>
 
         <!-- big counters: scroll up from below, fade at center (Phase B) -->
         <div class="cs-counter cs-counter-left">
@@ -1319,9 +1329,8 @@
         <!-- heading: ECOSYSTEM bracket-tag + paragraph -->
         <div class="eco-head">
           <span class="eco-tag">
-            <svg class="eco-bracket eco-bracket-l" width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>
+            <span class="tag-dot"></span>
             <span class="eco-tag-label">Ecosystem</span>
-            <svg class="eco-bracket eco-bracket-r" width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg>
           </span>
           <p class="eco-desc">Alex Foster&rsquo;s projects move across technology, finance, performance and digital culture — each one built with its own direction, but connected by the same founder mindset.</p>
         </div>
@@ -1337,21 +1346,24 @@
           <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 7.webp" alt="" /></div>
         </div>
 
-        <!-- plus → square → fills the viewport (white) -->
+        <!-- Group 42 corner-frame → border draws in → fills solid white → fills the viewport -->
         <div class="eco-morph">
-          <svg class="eco-shape" viewBox="0 0 72 73" preserveAspectRatio="none">
-            <path class="eco-plus" fill="#fff" d="M27 2.5 L45 2.5 L45 27.5 L70 27.5 L70 45.5 L45 45.5 L45 70.5 L27 70.5 L27 45.5 L2 45.5 L2 27.5 L27 27.5 Z" />
+          <svg class="eco-shape" viewBox="0 0 61 61" preserveAspectRatio="none">
+            <path class="eco-corners" fill="none" stroke="#fff" stroke-width="1"
+                  d="M0.5 10.5V0.5H10.5 M0.5 50.5V60.5H10.5 M60.5 10.5V0.5H50.5 M60.5 50.5V60.5H50.5" />
+            <rect class="eco-frame" x="0.5" y="0.5" width="60" height="60" fill="none" stroke="#fff" stroke-width="1"
+                  pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" />
+            <rect class="eco-fill" x="0" y="0" width="61" height="61" fill="#fff" fill-opacity="0" />
           </svg>
         </div>
 
         <!-- Projects: appears on the white canvas once the square fills. State 1 (15-card arc) →
              vertical scroll zooms into the centre trio → State 2 (accordion). No horizontal scroll. -->
         <div class="epj" aria-label="Projects">
-          <button class="epj-btn" type="button">
-            <span class="epj-bracket epj-bracket-l"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+          <span class="epj-btn">
+            <span class="tag-dot"></span>
             <span class="epj-btn-label">Projects</span>
-            <span class="epj-bracket epj-bracket-r"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
-          </button>
+          </span>
 
           <div class="epj-cards">
             <div class="epj-card" data-i="0"><img loading="lazy" decoding="async" src="images/main page/project 1.webp" alt="" /></div>
@@ -1368,14 +1380,14 @@
                 <div class="epj-content-inner">
                   <div class="epj-tagwrap">
                     <span class="epj-tag">
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-dot"></span>
                       <span class="epj-tag-label">Infrastructure of trust</span>
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
                     </span>
                     <h3 class="epj-name">AlphaLedger</h3>
                   </div>
                   <p class="epj-desc">A finance-focused venture exploring systems,<br>transparency and digital infrastructure<br>for a new generation of capital.</p>
                 </div>
+                <a class="epj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
               <span class="epj-num">[ 01 ]</span>
             </div>
@@ -1387,14 +1399,14 @@
                 <div class="epj-content-inner">
                   <div class="epj-tagwrap">
                     <span class="epj-tag">
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-dot"></span>
                       <span class="epj-tag-label">Web3, evolved</span>
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
                     </span>
                     <h3 class="epj-name">Vertus</h3>
                   </div>
                   <p class="epj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
                 </div>
+                <a class="epj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
               <span class="epj-num">[ 02 ]</span>
             </div>
@@ -1406,14 +1418,14 @@
                 <div class="epj-content-inner">
                   <div class="epj-tagwrap">
                     <span class="epj-tag">
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-dot"></span>
                       <span class="epj-tag-label">Performance, reimagined</span>
-                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
                     </span>
                     <h3 class="epj-name">Vanquish</h3>
                   </div>
                   <p class="epj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
                 </div>
+                <a class="epj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
               <span class="epj-num">[ 03 ]</span>
             </div>
@@ -1437,11 +1449,10 @@
         <div class="fs-frame">
 
           <!-- VISION bracket button (top, like PROJECTS / Journey) -->
-          <button class="fs-btn" type="button">
-            <span class="fs-bracket fs-bracket-l"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+          <span class="fs-btn">
+            <span class="tag-dot"></span>
             <span class="fs-btn-label">Vision</span>
-            <span class="fs-bracket fs-bracket-r"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
-          </button>
+          </span>
 
           <!-- heading + subtitle -->
           <div class="fs-head">
@@ -1514,14 +1525,14 @@
       <img class="ft-letter ft-letter-a" loading="lazy" decoding="async" src="images/main page/A.svg" alt="" aria-hidden="true" />
 
       <div class="ft-social">
-        <a href="#" aria-label="LinkedIn">
+        <a href="https://www.linkedin.com/in/alexander-w-foster/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
           <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
         </a>
-        <a href="#" aria-label="Instagram">
+        <a href="https://www.instagram.com/alexwfost/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
           <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <a href="#" aria-label="X">
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.297 6.928 14.36 1h-1.2L8.765 6.147 5.253 1H1.203l5.31 7.784L1.203 15h1.2l4.642-5.436L10.754 15h4.05L9.297 6.928Zm-1.643 1.924-.538-.775L2.835 1.91h1.843l3.454 4.977.538.775 4.49 6.47h-1.843L7.654 8.852Z" fill="#fff"/></svg>
+        <a href="https://www.youtube.com/@alexwfoster" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.33333 8.00002L7 9.33335V6.66669L9.33333 8.00002Z" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.3335 8.472V7.528C1.3335 5.598 1.3335 4.63266 1.93683 4.012C2.54083 3.39066 3.4915 3.364 5.39216 3.31C6.29216 3.28466 7.21216 3.26666 8.00016 3.26666C8.78816 3.26666 9.7075 3.28466 10.6082 3.31C12.5088 3.364 13.4595 3.39066 14.0628 4.012C14.6662 4.63333 14.6668 5.59866 14.6668 7.528V8.47133C14.6668 10.402 14.6668 11.3667 14.0635 11.988C13.4595 12.6087 12.5095 12.636 10.6082 12.6893C9.70816 12.7153 8.78816 12.7333 8.00016 12.7333C7.21216 12.7333 6.29283 12.7153 5.39216 12.6893C3.4915 12.636 2.54083 12.6093 1.93683 11.988C1.33283 11.3667 1.3335 10.4013 1.3335 8.472Z" stroke="#fff"/></svg>
         </a>
       </div>
 
@@ -1546,8 +1557,7 @@
         </a>
       </div>
 
-      <span class="ft-copy">© Copyright 2026</span>
-      <span class="ft-rights">All rights reserved</span>
+      <span class="ft-copy">© 2026 Alex Foster. <span class="ft-rights">All rights reserved.</span></span>
 
       <img class="ft-letter ft-letter-f" loading="lazy" decoding="async" src="images/main page/F.svg" alt="" aria-hidden="true" />
     </footer>
@@ -2187,23 +2197,8 @@
       const cards    = [...sec.querySelectorAll('.eco-card')];
       const ecoMorph = sec.querySelector('.eco-morph');
       const ecoShape = sec.querySelector('.eco-shape');
-      const ecoPlus  = sec.querySelector('.eco-plus');
-      // Real plus→square morph: 12 filled points slide out to the square's corners.
-      // PLUS = axis-aligned cross (looks like an X once the wrapper is rotated 45°);
-      // SQR  = same 12 points collapsed onto the 4 viewBox corners → a full square.
-      const PLUS = [[27,2.5],[45,2.5],[45,27.5],[70,27.5],[70,45.5],[45,45.5],
-                    [45,70.5],[27,70.5],[27,45.5],[2,45.5],[2,27.5],[27,27.5]];
-      const SQR  = [[0,0],[72,0],[72,0],[72,0],[72,73],[72,73],
-                    [72,73],[0,73],[0,73],[0,73],[0,0],[0,0]];
-      const buildD = m => {
-        let d = '';
-        for (let i = 0; i < 12; i++) {
-          const x = lerp(PLUS[i][0], SQR[i][0], m);
-          const y = lerp(PLUS[i][1], SQR[i][1], m);
-          d += (i === 0 ? 'M' : 'L') + x.toFixed(2) + ' ' + y.toFixed(2) + ' ';
-        }
-        return d + 'Z';
-      };
+      const ecoFrame = sec.querySelector('.eco-frame');   // square outline that draws itself in
+      const ecoFill  = sec.querySelector('.eco-fill');     // solid white fill once the border completes
 
       const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
       const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
@@ -2318,23 +2313,13 @@
         });
       };
       const projBtn = proj ? proj.querySelector('.epj-btn') : null;
-      // Open a flank card by clicking anywhere on ITS SIDE of the active card — the thin strip plus
-      // the gap toward the centre and the empty margin out to the screen edge. (Clicking only the
-      // 88px strip itself was too easy to miss, esp. in the gap/edge where you naturally aim.) Pick
-      // the non-active trio card nearest to the click; clicks over the active card do nothing.
-      if (proj) proj.addEventListener('click', (e) => {
-        if (!inState2) return;
-        const x = e.clientX, y = e.clientY;
-        const ar = pcards[activeIdx].getBoundingClientRect();
-        if (y < ar.top || y > ar.bottom) return;        // ignore clicks above/below the cards
-        if (x >= ar.left && x <= ar.right) return;       // clicked the active card → keep it
-        let best = null, bestD = Infinity;
-        TRIO.filter(i => i !== activeIdx).forEach(i => {
-          const r = pcards[i].getBoundingClientRect();
-          const d = x < r.left ? r.left - x : (x > r.right ? x - r.right : 0); // horizontal distance
-          if (d < bestD) { bestD = d; best = i; }
+      // Open a flank card on HOVER: moving the pointer onto either thin side strip expands it into
+      // the active (1064w) card while the others collapse to 88w strips. (Was a click before.)
+      if (proj) TRIO.forEach(i => {
+        pcards[i].addEventListener('mouseenter', () => {
+          if (!inState2 || i === activeIdx) return;
+          setAccordion(i);
         });
-        if (best != null) setAccordion(best);
       });
 
       function apply(s) {
@@ -2347,12 +2332,18 @@
         cards.forEach(c => c.style.opacity = (1 - map(s, 2.60, 3.57)).toFixed(3));
 
         const cx = innerWidth / 2, cy = innerHeight / 2;
-        const morphP = eInOut(map(s, 0.0, 1.764));
-        ecoPlus.setAttribute('d', buildD(morphP));
-        const wx = lerp(636, cx, morphP);
-        const wy = lerp(262, cy, morphP);
-        const ang = lerp(45, 180, morphP);
+        // Group 42 frame travels to centre + rotates (same motion the plus had).
+        const travelP = eInOut(map(s, 0.0, 1.0));
+        const wx = lerp(636, cx, travelP);
+        const wy = lerp(262, cy, travelP);
+        const ang = lerp(45, 180, travelP);
         ecoMorph.style.transform = `translate(${wx.toFixed(1)}px, ${wy.toFixed(1)}px) rotate(${ang.toFixed(1)}deg)`;
+        // Border draws itself in along the perimeter (offset 100 → 0).
+        const drawP = eOut(map(s, 0.5, 1.3));
+        ecoFrame.style.strokeDashoffset = (100 * (1 - drawP)).toFixed(2);
+        // Once the outline is complete it fills solid white.
+        const fillP = map(s, 1.3, 1.764);
+        ecoFill.style.fillOpacity = fillP.toFixed(3);
 
         // FIX 1: white square fullscreen expansion is scroll-driven (no one-shot animation) so it
         // shrinks back naturally as s decreases. Header flips dark once the white covers the screen.
