@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# Local backup (fonts package + originals — not part of the live site)
+_originals_backup/

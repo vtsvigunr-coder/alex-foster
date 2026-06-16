@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alex Foster</title>
+<link rel="icon" type="image/webp" href="images/main page/alex.webp" />
+<style>
+  /* ---------- Satoshi ---------- */
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Regular.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Medium.woff2") format("woff2");
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Bold.woff2") format("woff2");
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  :root { --ease: cubic-bezier(.16, 1, .3, 1); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #000000; }
+  body {
+    font-family: "Satoshi", system-ui, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body.preloading { overflow: hidden; }
+
+  /* ============ Site (hero + menu) ============ */
+  .site { position: relative; background: #000; color: #fff; }
+
+  /* ---- Hero ---- */
+  .hero { position: relative; height: 100vh; overflow: hidden; }
+  .hero-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+  }
+  .hero-veil {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 22%,
+      rgba(0,0,0,0) 52%, rgba(0,0,0,0.6) 100%);
+  }
+
+  /* ---- Top bar (stays crisp above the menu) ---- */
+  /* ---- Hero title ---- */
+  .hero-title {
+    position: absolute; left: 0; right: 0; bottom: clamp(36px, 6vh, 84px);
+    z-index: 10; display: flex; justify-content: center; align-items: flex-start;
+    gap: .55rem; pointer-events: none;
+  }
+  .hero-title h1 {
+    color: #fff; font-weight: 400;
+    font-size: clamp(3rem, 9vw, 100px);
+    line-height: 1; letter-spacing: -0.06em;
+  }
+  .hero-title .sup {
+    font-weight: 400; font-size: clamp(.8rem, 1.6vw, 22px);
+    letter-spacing: -0.01em; margin-top: .5em; opacity: .92;
+  }
+
+  /* ---- Morphing header / menu panel ---- */
+  .panel {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 40; width: 520px; height: 56px; overflow: hidden;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    backdrop-filter: blur(18px);
+    transition: width .5s var(--ease), height .5s var(--ease), background .35s var(--ease);
+  }
+  .panel.is-wide { width: 1280px; }   /* 1) header spreads */
+  .panel.is-tall { height: 480px; }   /* 2) curtain drops  */
+
+  /* adaptive header background: dark blur over light sections, light blur over dark */
+  .header-on-light {
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .header-on-dark {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .panel-bar {
+    position: relative; z-index: 2; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 8px 8px 20px;
+  }
+  .panel-body { z-index: 1; }
+  .nav-toggle {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: none; border: 0; color: #fff; cursor: pointer;
+    font: 500 15px/1 "Satoshi", sans-serif; letter-spacing: -0.01em;
+  }
+  .nav-toggle .icon { position: relative; width: 20px; height: 20px; }
+  .nav-toggle .icon svg {
+    position: absolute; inset: 0;
+    transition: opacity .35s var(--ease), transform .4s var(--ease);
+  }
+  .nav-toggle .ic-close { opacity: 0; transform: rotate(-45deg) scale(.6); }
+  .panel.is-wide .ic-open { opacity: 0; transform: rotate(45deg) scale(.6); }
+  .panel.is-wide .ic-close { opacity: 1; transform: none; }
+
+  .panel-bar .brand {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap;
+  }
+  .nav-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 10px 24px; border-radius: 12px;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 500;
+    white-space: nowrap; transition: background .3s var(--ease);
+  }
+  .nav-cta:hover { background: rgba(255,255,255,.26); }
+
+  /* ---- Panel body (3 menu columns) ---- */
+  .panel-body {
+    position: absolute; left: 0; right: 0; top: 56px; bottom: 0;
+    padding: 0 20px;
+    opacity: 0; transition: opacity .3s var(--ease);
+  }
+  body.menu-open .panel-body { opacity: 1; transition-delay: .1s; }
+  .menu-grid {
+    height: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .menu-grid > * { flex: 0 0 auto; }   /* keep column widths, never squish */
+
+  .m-card {
+    position: relative; display: flex; flex-direction: column;
+    width: 360px; height: 360px; padding: 20px;
+    justify-content: space-between; align-items: flex-start;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+  }
+  .m-mid {
+    display: flex; flex-direction: column; align-items: flex-start;
+    width: 324px; height: 360px; gap: 32px;
+  }
+
+  .m-label {
+    font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px;
+    text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 16px;
+  }
+  .m-label.center { text-align: center; }
+
+  .m-nav { display: flex; flex-direction: column; width: 100%; }
+  .m-link {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    padding: 11px 0; text-decoration: none; color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    transition: padding-left .35s var(--ease);
+  }
+  .m-link:hover { padding-left: 8px; }
+  .rv-mask { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .rv {
+    display: inline-block;
+    font-size: 20px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px;
+    transform: translateY(115%); transition: transform .7s var(--ease);
+  }
+  body.menu-open .rv { transform: none; }
+  .badge {
+    font-size: 11px; font-weight: 600; font-style: normal; letter-spacing: .04em;
+    background: #fff; color: #000; border-radius: 5px; padding: 2px 7px;
+  }
+
+  .m-card-foot {
+    margin-top: auto; color: rgba(255,255,255,.4); font-size: 13px; padding-top: 18px;
+  }
+
+  /* explore / middle social — pushed to the column bottom so it lines up with the side blocks */
+  .m-social { display: flex; gap: 12px; justify-content: flex-start; margin-top: auto; }
+  .m-social a {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12);
+    transition: background .3s var(--ease);
+  }
+  .m-social a:hover { background: rgba(255,255,255,.22); }
+  .m-social svg { width: 16px; height: 16px; }
+
+  /* LET'S TALK card */
+  .m-talk { align-items: center; text-align: center; justify-content: space-between; }
+  .m-talk-head { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .m-talk-head .m-label { margin-bottom: 0; }
+  .m-email {
+    display: inline-flex; gap: .25em; color: #fff; text-decoration: none;
+    font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.48px;
+  }
+  .m-email b { font-weight: 400; }
+  .m-desc {
+    color: #fff; text-align: center;
+    font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.48px;
+  }
+
+  /* photo deck + button (Figma: inline-flex column, gap -8px) */
+  .m-stackwrap { display: inline-flex; flex-direction: column; align-items: center; }
+  .m-stack { position: relative; width: 159px; height: 104px; }
+  .m-stack .spic {
+    position: absolute;
+    width: 99.048px; height: 64px; aspect-ratio: 65 / 42;
+    object-fit: cover; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 6px 16px rgba(0,0,0,.45);
+    opacity: 0; transition: opacity .55s var(--ease);
+  }
+  body.menu-open .m-stack .spic { opacity: 1; }
+
+  .m-explore {
+    position: relative; z-index: 6; margin-top: -8px;   /* Figma gap: -8px */
+    display: flex; padding: 10px 24px; justify-content: center; align-items: center; gap: 10px;
+    border-radius: 12px; background: #fff; color: #0c0c0e;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    transition: transform .3s var(--ease);
+  }
+  .m-explore:hover { transform: translateY(-2px); }
+
+  /* reveal helpers */
+  .panel .fade { opacity: 0; transform: translateY(20px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+  body.menu-open .panel .fade { opacity: 1; transform: none; }
+
+  @media (max-width: 1340px) {
+    .panel.is-wide { width: calc(100vw - 32px); }
+  }
+  @media (max-width: 1140px) {
+    .panel { top: 12px; width: min(520px, calc(100vw - 16px)); }
+    .panel.is-wide { width: calc(100vw - 16px); }
+    .panel.is-tall { height: auto; max-height: calc(100dvh - 24px); overflow-y: auto; }
+    .panel-body { position: static; top: auto; padding: 0 12px 16px; }
+    .menu-grid { flex-direction: column; align-items: stretch; height: auto; gap: 14px; }
+    .m-card, .m-mid { height: auto; width: 100%; }
+    .hero-title h1 { letter-spacing: -0.04em; }
+  }
+
+  /* ============ About (scroll-driven) ============ */
+  .about { position: relative; height: 580vh; background: #fff; }
+  .about-stage {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    background: #fff; color: #000;
+  }
+
+  /* image that grows to fullscreen */
+  .ab-imgbox {
+    position: absolute; left: 50%; top: 50%;
+    width: 400px; height: 530px; transform: translate(-50%, -50%);
+    border-radius: 12px; overflow: hidden; z-index: 2;
+    box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    clip-path: inset(100% 0 0 0);     /* fixed in place; reveals bottom → top */
+    will-change: width, height, clip-path;
+  }
+  .ab-img {
+    position: absolute; left: 0; top: -15%; width: 100%; height: 130%;
+    object-fit: cover; object-position: center 30%;
+    will-change: transform;
+  }
+  .ab-dark { position: absolute; inset: 0; background: #000; opacity: 0; z-index: 3; }
+
+  /* "More than a founder." with scanning bars */
+  .ab-founder {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ab-ftext {
+    position: relative; display: inline-block; white-space: nowrap;
+    font-weight: 500; font-size: clamp(2rem, 5vw, 64px);
+    line-height: 1.1; letter-spacing: -0.03em; color: #111;
+  }
+  .ftxt {
+    display: inline-block;
+    opacity: 0; transform: translateY(26px); will-change: transform, opacity;
+  }
+  .ftxt.revealed { opacity: 1; transform: none; transition: opacity .85s var(--ease), transform .85s var(--ease); }
+
+  /* Per-character cover: each letter gets its own block that scales in left→right */
+  .char { position: relative; display: inline-block; }
+  .char-block {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #1a1a1a; transform: scaleX(0); transform-origin: left center;
+    pointer-events: none; z-index: 2;
+  }
+
+  /* "Ideas Into Reality" */
+  .ab-ideas {
+    position: absolute; inset: 0; z-index: 6; opacity: 0; pointer-events: none;
+    font-weight: 500; font-size: clamp(2rem, 5vw, 64px); letter-spacing: -0.03em;
+  }
+  .ab-ideas span { position: absolute; top: 50%; white-space: nowrap; will-change: transform; }
+  /* Into centred in the section (over the image centre) */
+  .w-into { left: 50%; transform: translate(-50%, -50%); color: #fff; }
+  /* Ideas / Reality sit 60px out from the 400px image's edges (image half = 200px) */
+  .w-ideas { right: calc(50% + 260px); transform: translateY(-50%); color: #111; }
+  .w-reality { left: calc(50% + 260px); transform: translateY(-50%); color: #111; }
+
+  /* glass plaque (docked → expanded) */
+  .ab-plaque {
+    position: absolute; right: 173.14px; bottom: 0; z-index: 10;
+    width: 547px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    padding: 28px 28px 60px 28px;
+    border-radius: 16px 16px 0 0;
+    background: rgba(255,255,255,0.07); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    backdrop-filter: blur(20px);
+    transform: translateY(560px); will-change: transform;
+  }
+  .ab-block { display: flex; flex-direction: column; gap: 10px; }
+  .ab-label {
+    font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -0.16px;
+    color: #868686; text-transform: capitalize;
+  }
+  .ab-block p {
+    font-size: 28px; font-weight: 400; line-height: 34px; letter-spacing: -0.28px; color: #fff;
+  }
+  .ab-block2 { overflow: hidden; max-height: 0; opacity: 0; }
+
+  @media (max-width: 1140px) {
+    .ab-ideas { gap: 24px; }
+    .ab-ideas-mid { width: 260px; }
+    .ab-plaque { right: 16px; left: 16px; width: auto; }
+  }
+
+  /* ---------- Preloader ---------- */
+  .preloader {
+    position: fixed; inset: 0; background: #ffffff; z-index: 100; overflow: hidden;
+    transition: opacity 0.9s var(--ease), visibility 0.9s;
+  }
+  .preloader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  /* Image stage */
+  .stage {
+    position: absolute; inset: 0; opacity: 0;
+    transition: opacity 0.5s var(--ease);
+  }
+  .stage.visible { opacity: 1; }
+
+  .bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center bottom;
+    opacity: 0; transform: scale(1.04);
+    will-change: transform;   /* no opacity transition: hard swap, no white flash */
+  }
+  .bg.show { opacity: 1; animation: kenburns 2.4s linear forwards; }
+  @keyframes kenburns { from { transform: scale(1.04); } to { transform: scale(1.18); } }
+
+  .overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); transition: opacity .4s var(--ease); }
+  .whiteout { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 5; transition: opacity .45s var(--ease); }
+
+  /* ---------- Text layers ---------- */
+  .text {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 6vw; pointer-events: none;
+  }
+  .line {
+    display: flex; flex-wrap: nowrap; white-space: nowrap;
+    column-gap: 0.28em;
+    font-weight: 500;
+    font-size: clamp(2rem, 8.2vw, 80px);
+    line-height: 1.12;            /* room so glyphs are never clipped */
+    letter-spacing: -0.05em;
+    color: #000;
+    transition: transform 0.5s var(--ease), opacity 0.5s var(--ease), color 0.45s var(--ease);
+  }
+  .line.on-image { color: #fff; }
+  .line.exit { transform: translateX(-72px); opacity: 0; }   /* whole sentence leaves left */
+
+  .word {
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.45s var(--ease);
+  }
+  .word.slide { transform: translateX(-0.5em); }   /* left→right reveal */
+  .word.in { opacity: 1; transform: none; }
+
+  @media (max-width: 640px) {
+    .line { flex-wrap: wrap; white-space: normal; justify-content: center; }
+  }
+
+  /* ============ Circles scene: orbit pair → 3-face rotating prism carousel ============ */
+  #circles-scene { position: relative; height: 700vh; background: #fff; }
+  .cs-stage {
+    position: sticky; top: 0; height: 100vh;
+    overflow: hidden; background: #fff;
+  }
+  .cs-scene { position: absolute; inset: 0; }
+
+  /* ---- intro content: title + description (top-left) ---- */
+  .cs-intro-text {
+    position: absolute;
+    top: 160px;
+    left: 60px;
+    z-index: 5;
+  }
+  .cs-title {
+    margin: 0;
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 68px;
+    letter-spacing: -2.56px;
+  }
+  .cs-desc {
+    margin: 44px 0 0 0;
+    color: #767676;
+    font-family: Satoshi, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.16px;
+    white-space: normal;
+  }
+
+  /* ---- "Journey" bracket button (top-right) ---- */
+  .cs-journey {
+    position: absolute;
+    top: 192px;
+    right: 80px;
+    width: 128px;
+    height: 36px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    z-index: 5;
+  }
+  .cs-journey-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: -0.6px;
+    text-transform: uppercase;
+  }
+  .cs-bracket {
+    width: 6px;
+    height: 36px;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  /* hover: brackets expand outward */
+  .cs-journey:hover .cs-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .cs-journey:hover .cs-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+
+  /* intro text + journey: fade up on entry (IntersectionObserver toggles class) */
+  .cs-intro-text, .cs-journey { opacity: 0; transform: translateY(30px); }
+  #circles-scene.cs-entered .cs-intro-text,
+  #circles-scene.cs-entered .cs-journey {
+    opacity: 1; transform: translateY(0);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  /* ---- big counters (Ventures / Chapters), Y driven by JS ---- */
+  .cs-counter {
+    position: absolute;
+    top: 0;
+    z-index: 5;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 12px;
+    visibility: hidden; /* hidden until they scroll up from below */
+  }
+  .cs-counter-left  { left: 80px;  align-items: flex-start; }
+  .cs-counter-right { right: 80px; align-items: flex-end; justify-content: center; }
+  .cs-counter-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: -0.14px;
+    text-transform: uppercase;
+  }
+  .cs-counter-right .cs-counter-label,
+  .cs-counter-right .cs-counter-num { text-align: right; }
+  .cs-counter-num {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 128px;
+    font-weight: 700;
+    line-height: 128px;
+    letter-spacing: -7.68px;
+  }
+
+  /* ---- content layer below/over the cube (offsets include the +40px cube shift) ---- */
+  .cs-line {
+    position: absolute; left: 50%;
+    top: 545px;                      /* CHANGE 3: 35px below cube bottom (110 + 400 + 35) */
+    height: 1px; width: 0;           /* width grows via JS */
+    background: #000;
+    transform: translateX(-50%);
+    opacity: 0; z-index: 5;
+  }
+  .cs-timeline {
+    position: absolute; left: 50%;
+    top: 569px;                      /* 24px below the line */
+    transform: translateX(-50%);
+    display: flex; width: 1000px;
+    align-items: center; justify-content: center;
+    gap: 169px;
+    opacity: 0; z-index: 5;
+  }
+  .cs-year {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #A6A6A6;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 700; line-height: 24px;
+    letter-spacing: -0.6px; text-transform: uppercase;
+    white-space: nowrap;
+    transition: color 0.4s ease;
+  }
+  .cs-year svg { flex-shrink: 0; }
+  .cs-year svg path { stroke: currentColor; }
+  .cs-year-2024 { color: #000; }
+  .cs-year.active { color: #000; }
+
+  .cs-chapter {
+    position: absolute; left: 50%;
+    top: 634px;                      /* FIX 3: 28px rendered gap below the timeline row */
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0; z-index: 5;
+  }
+  .cs-chapter-title {
+    margin: 0; color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 64px; font-weight: 500; line-height: 68px; letter-spacing: -2.56px;
+    white-space: nowrap;            /* FIX 2: title is one line, one block — never wraps */
+  }
+  .cs-chapter-desc {
+    margin: 15px 0 0 0; color: #767676; text-align: center;
+    font-family: Satoshi, sans-serif;
+    font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -0.16px;
+  }
+
+  .cs-plaque {
+    position: absolute;
+    /* CHANGE 1: glued to the circle — left edge at the circle's right edge
+       (centre 50% + radius 200), then pulled left 25% of its own width so 25%
+       overlaps the circle. top = cube top (110) + 60% of circle height (240). */
+    left: calc(50% + 200px);
+    top: 350px;
+    transform: translateX(-25%);
+    display: inline-flex; height: 60px; padding: 10px 32px;
+    justify-content: center; align-items: center; gap: 16px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.10);
+    background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(20px);            /* FIX 3: frosted glass over the image */
+    -webkit-backdrop-filter: blur(20px);
+    text-decoration: none;
+    opacity: 0; z-index: 6;
+  }
+  .cs-plaque-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 500; line-height: 24px;
+    letter-spacing: -0.2px; text-transform: capitalize;
+  }
+
+  /* FIX 2: triggered bottom-up text swap. The "cur" layer is in flow (sizes the
+     clip box); the "new" layer overlays it, parked one line below. A class change
+     at the flip midpoint runs a one-shot 0.25s ease-out animation (self-paced,
+     not scroll-scrubbed): cur shoots up & out, new shoots in from below. */
+  .cs-swap { position: relative; overflow: hidden; display: block; }
+  .cs-chapter-title.cs-swap { height: 68px; width: 460px; } /* FIX 2: fits the longest title (≤429px) on one line so the incoming layer never wraps */
+  .cs-chapter-desc.cs-swap  { height: 40px; }
+  .cs-plaque-label.cs-swap  { height: 24px; }
+  .cs-swap-cur { display: block; }
+  .cs-swap-new {
+    display: block; position: absolute; left: 0; top: 0; width: 100%;
+    transform: translateY(110%);
+  }
+  /* FIX 2: direction-aware swap. DOWN (default): old exits up, new enters from below.
+     UP (.dir-up): old exits down, new enters from above. Same 0.25s ease-out. */
+  .cs-swap.swapping .cs-swap-cur { animation: csOutUp   0.25s ease-out forwards; }
+  .cs-swap.swapping .cs-swap-new { animation: csInBelow 0.25s ease-out forwards; }
+  .cs-swap.swapping.dir-up .cs-swap-cur { animation: csOutDown 0.25s ease-out forwards; }
+  .cs-swap.swapping.dir-up .cs-swap-new { animation: csInAbove 0.25s ease-out forwards; }
+  @keyframes csOutUp    { from { transform: translateY(0); }     to { transform: translateY(-110%); } }
+  @keyframes csInBelow  { from { transform: translateY(110%); }  to { transform: translateY(0); } }
+  @keyframes csOutDown  { from { transform: translateY(0); }     to { transform: translateY(110%); } }
+  @keyframes csInAbove  { from { transform: translateY(-110%); } to { transform: translateY(0); } }
+
+  /* orbiting pair — windows into one fixed shared image */
+  .cs-circle {
+    position: absolute; top: 50%; left: 50%;
+    width: 400px; height: 400px;
+    margin: -200px 0 0 -200px;
+    border-radius: 50%; overflow: hidden;
+    will-change: transform, opacity;
+  }
+  .cs-circle img {
+    position: absolute; top: 50%; left: 50%;
+    /* 220% → ±240px safe counter-translate (vs 200px orbit radius); fixImg is the
+       EXACT unclamped negative of each circle's orbit offset, so both windows stay
+       perfectly in sync and the photo never splits between them. */
+    width: 220%; height: 220%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+  }
+
+  /* 3-face prism (Framer-style: perspective inside own transform) */
+  .cs-prism {
+    position: absolute; top: 50%; left: 50%;
+    width: 400px; height: 400px;
+    margin: -200px 0 0 -200px;
+    transform-style: preserve-3d; /* depth-sort faces so front sits over sides */
+    will-change: transform;
+    opacity: 0;
+    visibility: hidden;           /* FIX 1: fully gone until the binary swap */
+  }
+  .cs-face {
+    position: absolute; inset: 0;
+    border-radius: 200px; overflow: hidden;
+    background: #131415;
+    /* No backface-visibility:hidden — the side faces must peek out at the
+       resting rotateY(0) (FIX 3). Depth sorting (preserve-3d) keeps the front
+       face on top; the sides only show as thin slivers at the left/right edges. */
+  }
+  .cs-face img {
+    display: block; width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  /* Front face is the SAME window as circle A: oversized + centred so JS can
+     pin it with the identical CHAR_FRAME_Y offset → invisible A→prism swap.
+     Matches .cs-circle img scale (220%) so the swap shows no zoom jump. */
+  .cs-face-front img {
+    position: absolute; top: 50%; left: 50%;
+    width: 220%; height: 220%;
+    object-fit: cover;
+  }
+  /* 4-face CUBE: faces 90° apart, apothem = 200px (half of 400px face) so the
+     side faces protrude visibly. Prism compensates with translateZ(-200px) in JS.
+     front → left → back are shown in turn; right is filler for the side silhouette. */
+  .cs-face-front { transform: rotateY(0deg)    translateZ(200px); }
+  .cs-face-right { transform: rotateY(-90deg)  translateZ(200px); }
+  .cs-face-back  { transform: rotateY(-180deg) translateZ(200px); }
+  .cs-face-left  { transform: rotateY(-270deg) translateZ(200px); }
+
+  /* ============ Ecosystem: pinned intro → cards strip → plus morphs to square → white ============ */
+  #ecosystem { position: relative; height: 700vh; background: #000; }
+  .eco-stage {
+    position: sticky; top: 0; height: 100vh;
+    overflow: hidden; background: #000;
+  }
+  /* heading: ECOSYSTEM bracket-tag + paragraph (rises from bottom to top, scroll-driven) */
+  .eco-head {
+    position: absolute; left: 80px; right: 0; top: 120px;
+    padding-right: 152px;             /* CHANGE 1: 152px right offset for the text block */
+    display: flex; justify-content: space-between; align-items: flex-start;
+    z-index: 4; will-change: transform;
+  }
+  .eco-tag {
+    display: inline-flex; align-items: center; gap: 12px; flex-shrink: 0;
+    height: 36px; cursor: pointer;
+  }
+  .eco-tag-label {
+    color: #fff; font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 700; line-height: 24px;
+    letter-spacing: -0.6px; text-transform: uppercase; white-space: nowrap;
+  }
+  .eco-bracket { width: 6px; height: 36px; display: block; flex-shrink: 0; transition: transform 0.3s ease; }
+  .eco-bracket path { stroke: #fff; }
+  /* CHANGE 3: identical bracket hover to .cs-journey — brackets expand outward */
+  .eco-tag:hover .eco-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .eco-tag:hover .eco-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  .eco-desc {
+    margin: 0; width: 568px; flex-shrink: 0;
+    color: #fff; font-family: Satoshi, sans-serif;
+    font-size: 28px; font-weight: 400; line-height: 34px; letter-spacing: -0.28px;
+  }
+  /* horizontal cards strip (rides in from below, pans left) */
+  .eco-strip {
+    position: absolute; left: 0; top: 660px;
+    display: flex; gap: 20px; align-items: center;
+    z-index: 2; will-change: transform;
+  }
+  .eco-card {
+    width: 240px; height: 160px; flex-shrink: 0;
+    border-radius: 4px; overflow: hidden;
+  }
+  .eco-card img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    mix-blend-mode: luminosity;
+  }
+  /* Vector plus → solid white square → fullscreen white (immersion). The morph
+     wrapper travels to centre + spins; a white <rect> grows from the centre while
+     the plus strokes fade out (→ solid white square); the square then scales up to
+     cover the whole viewport. preserveAspectRatio:none lets it become a rectangle. */
+  .eco-morph {
+    position: absolute; top: 0; left: 0; z-index: 6; will-change: transform;
+    box-shadow: none; filter: none; -webkit-filter: none;   /* FIX 1: no shadow/glow */
+  }
+  .eco-shape {
+    position: absolute; top: 0; left: 0; transform: translate(-50%, -50%);
+    width: 52px; height: 52px; display: block; overflow: visible;
+    will-change: width, height;
+    box-shadow: none; filter: none; -webkit-filter: none;   /* FIX 1: no shadow/glow */
+  }
+  .eco-shape path, .eco-shape rect { filter: none; }
+  /* FIX 1: the fullscreen expansion is scroll-driven (width/height are set in apply) so it
+     reverses naturally as p decreases — no one-shot CSS animation. */
+
+  /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
+     No section of its own, no horizontal scroll. Once the white square fills the viewport the whole
+     layer fades in. STATE 1: all 15 cards as a concave arc of thin strips, all vertically centred
+     (Figma 87-331). STATE 2: vertical scroll zooms the centre trio (projects 7/8/9) into a 3-card
+     accordion (Figma 97-889/933/952) — active 1064w, flank strips 88w, on a 1440×900 reference that
+     is scaled to the viewport by --k. Geometry is interpolated State1→State2 by zoom progress. */
+  .epj {
+    position: absolute; inset: 0; z-index: 7;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  .epj.is-visible { opacity: 1; pointer-events: auto; }
+  /* PROJECTS bracket button — identical mechanic to .cs-journey, centred at the top */
+  .epj-btn {
+    position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 12px;
+    background: none; border: none; padding: 0; cursor: pointer; z-index: 9;
+  }
+  .epj-btn-label {
+    color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
+    line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+  .epj-bracket { width: 6px; height: 36px; display: block; transition: transform 0.3s ease; }
+  .epj-bracket path { stroke: #000; transition: stroke 0.3s ease; }
+  .epj-btn:hover .epj-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .epj-btn:hover .epj-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  /* State 2 cards are dark → flip the button to white */
+  .epj.is-zoomed .epj-btn-label { color: #fff; }
+  .epj.is-zoomed .epj-bracket path { stroke: #fff; }
+
+  /* card layer — each card is absolutely positioned; JS sets left/top/width/height per frame */
+  .epj-cards { position: absolute; inset: 0; }
+  .epj-card {
+    position: absolute; overflow: hidden; background: #ececec;
+    will-change: left, top, width, height;
+    /* Shape is owned by JS: State 1 = perspective-fan clip-path + no border-radius; State 2 = no
+       clip + border-radius 8px. Outer cards fade out gradually across the zoom (opacity set in JS). */
+  }
+  .epj-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .epj-veil { position: absolute; inset: 0; background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s ease; }
+  .epj.is-zoomed .epj-trio .epj-veil { opacity: 1; }
+
+  /* number label — centred at the bottom of a strip (hidden on the active/wide card) */
+  .epj-num {
+    position: absolute; left: 50%; bottom: calc(20px * var(--k, 1));
+    transform: translateX(-50%);
+    font-family: Satoshi, sans-serif; font-weight: 500; color: #fff;
+    font-size: calc(20px * var(--k, 1)); line-height: 1.2;
+    letter-spacing: -0.6px; text-transform: uppercase; white-space: nowrap;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .epj.is-zoomed .epj-trio .epj-num { opacity: 1; }
+  /* FIX 4: active card never shows its number (needs higher specificity than the rule above) */
+  .epj.is-zoomed .epj-card.is-active .epj-num { opacity: 0; }
+
+  /* active-card content lives in a 1064×760 design-space box scaled by --k */
+  .epj-content {
+    position: absolute; top: 0; left: 0; width: 1064px; height: 760px;
+    transform-origin: top left; transform: scale(var(--k, 1)); pointer-events: none;
+  }
+  /* FIX 2: text is a PURE opacity fade — no transform, no slide, no movement ever. It only fades in
+     once its card is active (and, per the JS, fully settled), so it stays in its exact final
+     position the whole time. .is-active also gates flank strips so they never show clipped text. */
+  .epj-content-inner {
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .epj-card.is-active .epj-content-inner { opacity: 1; }
+  /* centred via left/right:0 + flex align (no translate, so nothing ever moves) */
+  .epj-tagwrap {
+    position: absolute; top: 316px; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .epj-tag { display: inline-flex; align-items: center; gap: 12px; height: 32px; }
+  .epj-tag-label {
+    font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 700; line-height: 20px;
+    letter-spacing: -0.32px; text-transform: uppercase; color: #fff; white-space: nowrap;
+  }
+  .epj-tag-bracket { width: 6px; height: 32px; display: block; }
+  .epj-tag-bracket path { stroke: #fff; }
+  .epj-name {
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; color: #fff;
+    font-size: 80px; line-height: 80px; letter-spacing: -3.2px; white-space: nowrap; text-align: center;
+  }
+  .epj-desc {
+    position: absolute; top: 688px; left: 0; right: 0; width: 305px; margin: 0 auto;
+    text-align: center; font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 400;
+    line-height: 20px; letter-spacing: -0.16px; color: #fff;
+  }
+  /* AlphaLedger copy only — wider to hold 3 lines (… of capital.); anchored to the BOTTOM of the
+     card so the description sits exactly 32px above the card's bottom edge (raised, not padded). */
+  .epj-card[data-i="6"] .epj-desc { width: 360px; top: auto; bottom: 32px; padding-bottom: 0; }
+  /* FIX 5: accordion open/close — fast start, heavy deceleration into the final position */
+  .epj.is-zoomed .epj-card.epj-interactive {
+    cursor: pointer;
+    transition: left 0.5s cubic-bezier(0.25,0.1,0.1,1.0), width 0.5s cubic-bezier(0.25,0.1,0.1,1.0),
+                top 0.5s cubic-bezier(0.25,0.1,0.1,1.0), height 0.5s cubic-bezier(0.25,0.1,0.1,1.0);
+  }
+
+  /* ============ Founder system (sticky, scroll-driven). White→black bg; scattered letters of
+     "Alex Foster" assemble below a rising photo card; a film-frame bracket border forms. Figma
+     79-224 / 87-172 / 87-219 / 87-194. Everything lives in a 1440×832 design frame scaled by --fk. */
+  #founder { position: relative; height: 340vh; background: #000; }   /* trimmed so assembly finishes at p=1 (no idle hold) */
+  .fs-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
+  .fs-frame {
+    position: absolute; left: 50%; top: 50%; width: 1440px; height: 832px;
+    margin-left: -720px; margin-top: -416px;
+    transform: scale(var(--fk, 1)); transform-origin: center center;
+  }
+  /* VISION bracket button — identical mechanic to .cs-journey / .epj-btn */
+  .fs-btn {
+    position: absolute; top: 100px; left: 50%; transform: translate(-50%, 0);
+    display: inline-flex; align-items: center; gap: 12px;
+    background: none; border: none; padding: 0; cursor: pointer; z-index: 3;
+  }
+  .fs-btn-label {
+    color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
+    line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase;
+  }
+  .fs-bracket { width: 6px; height: 36px; display: block; transition: transform 0.3s ease; }
+  .fs-bracket path { stroke: #000; }
+  .fs-btn:hover .fs-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .fs-btn:hover .fs-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  /* heading + subtitle (Figma 87:160/161) */
+  .fs-head {
+    position: absolute; top: 228px; left: 50%; transform: translate(-50%, 0);
+    display: flex; flex-direction: column; align-items: center; gap: 20px; width: max-content;
+  }
+  .fs-head-title {
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; color: #000;
+    font-size: 64px; line-height: 68px; letter-spacing: -2.56px; white-space: nowrap;
+  }
+  .fs-head-sub {
+    margin: 0; width: 340px; text-align: center; color: #767676;
+    font-family: Satoshi, sans-serif; font-weight: 400; font-size: 16px; line-height: 20px; letter-spacing: -0.16px;
+  }
+  /* photo card (400×530, r10, image overscaled to cover; luminosity blend per Figma) */
+  .fs-card {
+    position: absolute; left: 50%; width: 400px; height: 530px; margin-left: -200px;
+    border-radius: 10px; overflow: hidden; transform: translateY(-50%); mix-blend-mode: luminosity;
+  }
+  .fs-card img {
+    position: absolute; left: -2.17%; top: -1.35%; width: 102.61%; height: 102.69%;
+    max-width: none; object-fit: cover; display: block;
+  }
+  /* assembled title "ALEX FOSTER" (Figma 87:205) — per-letter spans for the scatter→assemble */
+  .fs-title {
+    position: absolute; top: 725px; left: 50%; transform: translate(-50%, 0);
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; font-size: 80px;
+    line-height: 80px; letter-spacing: -3.2px; color: #fff; white-space: nowrap;
+  }
+  .fs-letter { display: inline-block; will-change: transform; }
+
+  /* ===== On a journey: sticky, scroll-driven (Figma 68:127 / 77:74 / 77:84 / 79:108) =====
+     Entry (p 0→0.15): black screen → the "alex foster" image card fades in (10px inset) with two buttons.
+     Cross (p 0.4→0.65): image fades out while the fullscreen video fades in.
+     Plaque (p 0.55→0.72): the "ON A JOURNEY" subtract plaque (10px inset, header blur) fades in.
+     Reverse scroll rewinds all of it; the image fades back to black by p=0. */
+  #journey { position: relative; height: 400vh; background: #000; }
+  .aj-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; }
+
+  /* expanding media card — image → video crossfade; luminosity blend + 35% dark veil per Figma */
+  .aj-media {                              /* image card — 10px margin on ALL sides */
+    position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px;
+    border-radius: 40px; overflow: hidden;
+    mix-blend-mode: luminosity; opacity: 0; will-change: opacity; z-index: 2;
+  }
+  .aj-media::after {                       /* linear-gradient rgba(0,0,0,0.35) overlay */
+    content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: rgba(0,0,0,0.35);
+  }
+  .aj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }   /* FIX 1: static, no scale */
+  .aj-videos {                             /* fullscreen video that JS translates up from below */
+    position: absolute; inset: 0; width: 100vw; height: 100vh; z-index: 1; opacity: 0;
+    overflow: hidden; mix-blend-mode: luminosity;   /* per Figma: luminosity blend on the fill */
+    will-change: transform, opacity;
+  }
+  .aj-vid {                                /* two stacked players for video→video crossfade */
+    /* Figma fill framing: size 111.052% × 100%, offset -79.575px (≈ -5.53% of the 1440 frame) */
+    position: absolute; top: 0; left: -5.53%; width: 111.052%; height: 100%;
+    object-fit: cover; display: block; opacity: 0; transition: opacity 0.5s ease;
+  }
+
+  /* two buttons anchored to the image card (separate, NON-blended layer matching the 1420×880 card) */
+  .aj-card-ui {                            /* matches the 10px-inset card so buttons anchor to its edges */
+    position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px;
+    pointer-events: none; z-index: 4;
+  }
+  .aj-card-btns {                          /* FIX 2: bottom-centre, 44px from the bottom */
+    position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: row; align-items: center; gap: 16px;
+  }
+  .aj-cbtn {                               /* FIX 4: frosted-glass buttons over the image/video */
+    display: flex; justify-content: center; align-items: center; gap: 16px;
+    border-radius: 100px; background: rgba(255,255,255,0.10); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); cursor: pointer; border: 0;
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); pointer-events: auto;
+    color: #fff; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 500;
+    line-height: 24px; letter-spacing: -0.4px; white-space: nowrap;
+  }
+  .aj-cbtn-spiral { height: 60px; padding: 10px 48px; }
+  .aj-cbtn-person { padding: 10px 24px 10px 16px; }
+  .aj-cbtn-avatar {                        /* FIX 3: fills inner height → equal 10px above & below */
+    width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 18%;
+    background: #fff; display: block;
+  }
+
+  /* "On A Journey" plaque over the fullscreen video — 10px inset all sides. The wrapper stays at
+     opacity:1 (never animated): an opacity<1 ANCESTOR would disable the children's backdrop-filter
+     blur (that's what made the blur "disappear"). Each child fades its OWN opacity instead. */
+  .aj-plaque {
+    position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border-radius: 40px; pointer-events: none; z-index: 5; will-change: transform;
+  }
+  .plaque-shadow {                         /* drop shadow as its own fadeable, non-blurred layer */
+    position: absolute; inset: 0; border-radius: 40px;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); opacity: 0;
+  }
+  /* frosted-glass layer — always-on backdrop blur (like the header menu); only its OWN opacity fades */
+  .plaque-bg {
+    position: absolute; inset: 0; border-radius: 40px; overflow: hidden; opacity: 0;
+    background: rgba(255,255,255,0.10);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    /* knockout: the letter path is punched out of this frosted layer (and its blur) → the sharp
+       video behind shows through the letters. Overscaled so the path's inner rect = the plaque. */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M1390%2010C1412.09%2010%201430%2027.9086%201430%2050V850C1430%20872.091%201412.09%20890%201390%20890H50C27.9086%20890%2010%20872.091%2010%20850V50C10%2027.9086%2027.9086%2010%2050%2010H1390ZM606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M1390%2010C1412.09%2010%201430%2027.9086%201430%2050V850C1430%20872.091%201412.09%20890%201390%20890H50C27.9086%20890%2010%20872.091%2010%20850V50C10%2027.9086%2027.9086%2010%2050%2010H1390ZM606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+  }
+  /* FIX 2: dim + soft blur shown ONLY through the letters (letters-only mask) so the see-through
+     video reads as legible, defined shapes instead of sharp footage */
+  .aj-knockout-dim {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+    background: rgba(0,0,0,0.35);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+  }
+  .aj-eyebrow {                            /* "Building beyond companies" — white, above the cut-out title */
+    position: absolute; top: calc(50% - 149px); left: 50%; transform: translateX(-50%);
+    margin: 0; white-space: nowrap; color: #fff; z-index: 2; opacity: 0;
+    font-family: Satoshi, sans-serif; font-style: normal; font-weight: 500;
+    font-size: 20px; line-height: 24px; letter-spacing: -0.2px;
+  }
+
+  /* ===== Continuation of "On a journey": one photo card assembles into a 3D ring of all
+     eight photos, the ring spins so each photo sweeps through the front, then it collapses
+     into a "Contact Me" pill. Sticky, scroll-driven (mirrors #journey).
+     Figma 79:120 (card) / 79:135 (deck) / 79:157 (ring) / 79:183 (collapse) / 79:190 (pill). ===== */
+  #books { position: relative; height: 700vh; background: #000; }
+  .bk-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; }
+
+  /* perspective container — fades in from black on entry, out as the pill takes over */
+  .bk-scene {
+    position: absolute; inset: 0; opacity: 0; will-change: opacity;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 2000px;
+  }
+  /* the book: 8 photo "pages" hinged at the left spine. JS turns them one-by-one (book 1 cover →
+     book 8 back), recentres the open spread, then closes onto book 8 and shrinks it toward the pill. */
+  .bk-book {                               /* book 1 enters here at native 890×540, then JS scales it down */
+    position: relative; width: 890px; height: 540px;
+    transform-style: preserve-3d; will-change: transform;
+  }
+  .bk-page {                               /* a leaf: front photo + reversed back, hinged at the spine (left edge) */
+    position: absolute; inset: 0; transform-origin: left center;
+    transform-style: preserve-3d; will-change: transform, opacity;
+  }
+  .bk-face {                               /* JS shows the correct face per angle (no backface-visibility) */
+    position: absolute; inset: 0; overflow: hidden; border-radius: 16px;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+  }
+  .bk-face img {                           /* luminosity blend matches the journey media + on-brand B/W look */
+    width: 100%; height: 100%; object-fit: cover; display: block; mix-blend-mode: luminosity;
+  }
+  .bk-face-front { background: #000; }
+  .bk-face-front::after {                  /* spine shadow down the hinge edge → depth */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 12%);
+  }
+  .bk-face-back {                          /* the reverse of a turned leaf — we look at its back side */
+    transform: rotateY(180deg);
+    background: linear-gradient(270deg, #050505 0%, #141414 52%, #0a0a0a 100%);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.55), 0 30px 90px rgba(0,0,0,0.55);
+  }
+  .bk-face-back img {                      /* same photo, mirrored → reads as the page's reverse (no dimming) */
+    transform: scaleX(-1);
+    mix-blend-mode: normal;                /* luminosity renders black inside the rotated 3D face */
+  }
+  .bk-face-back::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 14%);
+  }
+
+  /* book 8 IS the final "Contact Me" pill — the same leaf morphs in place (Figma 79:190), no crossfade */
+  .bk-page-cta { text-decoration: none; color: #fff; cursor: pointer; }
+  .bk-page-cta .bk-face-front::after,
+  .bk-page-cta .bk-face-back::after { display: none; }     /* no spine shadow on the leaf that becomes the pill */
+  .bk-cta-label {                          /* stage-level overlay → always faces the viewer, never scaled/mirrored */
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    z-index: 10; opacity: 0; pointer-events: none; white-space: nowrap;
+    color: #fff; font-family: Satoshi, sans-serif; font-weight: 500;
+    font-size: 20px; line-height: 24px; letter-spacing: -0.2px;
+  }
+  /* "Alex Foster" pill at the bottom of the 890×540 cover (Figma 1040:377); stays while the cover is shown */
+  .bk-cover-btn {
+    position: absolute; left: 50%; bottom: 224px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px; padding: 10px 24px 10px 16px;
+    border-radius: 100px; background: rgba(255,255,255,0.10); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    color: #fff; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 500;
+    line-height: 24px; letter-spacing: -0.2px; white-space: nowrap;
+    z-index: 6; opacity: 0; pointer-events: none;
+  }
+  .bk-cover-avatar {
+    width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 18%;
+    display: block; background: #fff;
+  }
+
+  /* ===== Footer (Figma 142:106): A top-left, social column top-right, bracketed CONTACT ME +
+     dimmed BOOK A CALL centred, copyright row, F bottom-right. Laid out at the 1440×900 reference. ===== */
+  #footer {
+    position: relative; min-height: 100vh; background: #000; color: #fff; overflow: hidden;
+    font-family: Satoshi, sans-serif;
+  }
+  .ft-letter { position: absolute; display: block; user-select: none; pointer-events: none; }
+  .ft-letter-a { top: 60px; left: 80px; width: 127.5px; height: 140px; }
+  .ft-letter-f { bottom: 60px; right: 80px; width: 122.5px; height: 140px; }
+
+  /* social column, top-right (icons reused from the header menu) */
+  .ft-social { position: absolute; top: 60px; right: 80px; display: flex; flex-direction: column; gap: 12px; }
+  .ft-social a {
+    width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); transition: background .3s var(--ease);
+  }
+  .ft-social a:hover { background: rgba(255,255,255,0.28); }
+  .ft-social svg { width: 16px; height: 16px; }
+
+  /* centred CTAs */
+  .ft-cta { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .ft-cta-line {
+    display: inline-flex; align-items: center; gap: 28px; text-decoration: none;
+    font-size: 64px; font-weight: 500; line-height: 68px; letter-spacing: -2.56px; text-transform: uppercase;
+  }
+  .ft-cta-line { color: #363636; transition: color .45s var(--ease); }
+  /* CONTACT ME is the active (white, bracketed) line by default; hovering BOOK A CALL swaps which one
+     is active and dims the other to grey (:has lets the hovered line affect its sibling). */
+  .ft-contact { color: #fff; }
+  .ft-cta:has(.ft-book:hover) .ft-contact { color: #363636; }
+  .ft-cta:has(.ft-book:hover) .ft-book { color: #fff; }
+
+  /* "page-flip" text hover: a one-line mask with two stacked copies; on hover the pair rolls up a line */
+  .ft-roll-mask { display: block; height: 68px; overflow: hidden; }
+  .ft-roll { display: flex; flex-direction: column; transition: transform .6s var(--ease); }
+  .ft-roll span { display: block; height: 68px; white-space: nowrap; }
+  .ft-cta-line:hover .ft-roll { transform: translateY(-68px); }
+
+  /* corner brackets show only on the active line; expand outward on hover (Journey-button mechanic) */
+  .ft-brk { flex: 0 0 auto; display: block; width: 10px; height: 78px; transition: transform .3s ease, opacity .3s ease; }
+  .ft-brk svg { display: block; width: 10px; height: 78px; }
+  .ft-book .ft-brk { opacity: 0; }                                  /* hidden until BOOK A CALL is active */
+  .ft-cta:has(.ft-book:hover) .ft-contact .ft-brk { opacity: 0; }
+  .ft-cta:has(.ft-book:hover) .ft-book .ft-brk { opacity: 1; }
+  .ft-cta-line:hover .ft-brk-l { transform: translateX(-6px) scaleY(1.05); }
+  .ft-cta-line:hover .ft-brk-r { transform: translateX(6px) scaleY(1.05); }
+
+  /* bottom row */
+  .ft-copy, .ft-rights {
+    position: absolute; bottom: 60px; font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px;
+  }
+  .ft-copy   { left: 80px; color: #fff; }
+  .ft-rights { left: 50%; transform: translateX(-50%); color: #707070; }
+
+</style>
+</head>
+<body class="preloading">
+
+  <main class="site">
+    <section class="hero" data-header="light">
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="images/main page/hero-poster.webp">
+        <source src="images/main page/hero-section-vid.mp4" type="video/mp4" />
+      </video>
+      <div class="hero-veil"></div>
+
+      <div class="hero-title">
+        <h1>Alex&nbsp;Foster</h1>
+        <span class="sup">By design.</span>
+      </div>
+    </section>
+
+    <!-- Morphing header / menu panel -->
+    <div class="panel" id="panel">
+      <header class="panel-bar">
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Toggle menu">
+          <span class="icon">
+            <svg class="ic-open" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.334 4.167h8.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.334 10h13.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.334 15.833h8.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="ic-close" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 5l-5 5m0 0l-5 5m5-5l5 5m-5-5L5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Menu</span>
+        </button>
+        <div class="brand">Alex Foster</div>
+        <a class="nav-cta" href="mailto:alex@foster.com">Let's Talk</a>
+      </header>
+
+      <div class="panel-body">
+        <div class="menu-grid">
+
+          <!-- BUILD -->
+          <div class="m-card">
+            <span class="m-label fade">Build</span>
+            <nav class="m-nav">
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Home</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Projects</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Blog</span></span></a>
+              <a class="m-link" href="#">
+                <span class="rv-mask"><span class="rv">AWF chapters</span></span>
+                <em class="badge fade">NEW</em>
+              </a>
+            </nav>
+            <div class="m-card-foot fade">© 2026 Alex Foster</div>
+          </div>
+
+          <!-- EXPLORE -->
+          <div class="m-mid">
+            <span class="m-label fade">Explore</span>
+            <nav class="m-nav">
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Timeline</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Media</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Contact</span></span></a>
+            </nav>
+            <div class="m-social">
+              <a class="fade" href="#" aria-label="LinkedIn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
+              </a>
+              <a class="fade" href="#" aria-label="Instagram">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              <a class="fade" href="#" aria-label="X">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.297 6.928 14.36 1h-1.2L8.765 6.147 5.253 1H1.203l5.31 7.784L1.203 15h1.2l4.642-5.436L10.754 15h4.05L9.297 6.928Zm-1.643 1.924-.538-.775L2.835 1.91h1.843l3.454 4.977.538.775 4.49 6.47h-1.843L7.654 8.852Z" fill="#fff"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- LET'S TALK -->
+          <div class="m-card m-talk">
+            <div class="m-talk-head">
+              <span class="m-label center fade">Let's Talk</span>
+              <a class="m-email fade" href="mailto:alex@foster.com">alex@foster.com <b>+</b></a>
+              <p class="m-desc fade">Founder of Vanquish,<br />AlphaLedger and Vertus.</p>
+            </div>
+            <div class="m-stackwrap">
+              <div class="m-stack">
+                <img loading="lazy" decoding="async" class="spic" style="left:0; top:0; z-index:5" src="images/preloader/Preloader 2.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:15px; top:10px; z-index:4" src="images/preloader/Preloader 1.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:30.1px; top:20px; z-index:3" src="images/preloader/Preloader 8.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:45.1px; top:30px; z-index:2" src="images/preloader/Preloader 5.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:60.2px; top:40px; z-index:1" src="images/preloader/Preloader 9.webp" alt="" />
+              </div>
+              <a class="m-explore" href="#">Explore</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- About (scroll-driven) -->
+    <section class="about" id="about" data-header="dark">
+      <div class="about-stage">
+        <div class="ab-imgbox">
+          <img loading="lazy" decoding="async" class="ab-img" src="images/main page/about-section.webp" alt="Alex Foster" />
+          <div class="ab-dark"></div>
+        </div>
+
+        <div class="ab-founder">
+          <span class="ab-ftext">
+            <span class="ftxt">More&nbsp;than&nbsp;a&nbsp;founder.</span>
+          </span>
+        </div>
+
+        <div class="ab-ideas">
+          <span class="w-ideas">Ideas</span>
+          <span class="w-into">Into</span>
+          <span class="w-reality">Reality</span>
+        </div>
+
+        <aside class="ab-plaque">
+          <div class="ab-block">
+            <span class="ab-label">Meet Alex Foster</span>
+            <p>Alex Foster is an entrepreneur and founder building companies that solve meaningful problems while sharing lessons from the journey.</p>
+          </div>
+          <div class="ab-block ab-block2">
+            <span class="ab-label">Philosophy</span>
+            <p>Every venture starts with a belief that meaningful companies are built through vision, execution, and long-term thinking.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Circles scene: two orbiting circle-windows → 4-face rotating cube carousel -->
+    <section id="circles-scene" data-header="dark">
+      <div class="cs-stage">
+        <div class="cs-scene">
+          <!-- Phase 1: two orbiting circle-windows into one shared image -->
+          <div class="cs-circle cs-top">
+            <img loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+          </div>
+          <div class="cs-circle cs-bottom">
+            <img loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+          </div>
+          <!-- Phase 2+: rotating prism carousel. The prism turns 0 → -90 → -180, so the faces that
+               front the camera in turn are: front (chapter 01) → left (chapter 02) → back (chapter 03).
+               cs-face-right (local rotateY(-90)) never fronts → it is the filler/side silhouette. -->
+          <div class="cs-prism">
+            <div class="cs-face cs-face-front">             <!-- chapter 01 -->
+              <img loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+            </div>
+            <div class="cs-face cs-face-left">              <!-- chapter 02 (fronts at rot -90) -->
+              <img loading="lazy" decoding="async" src="images/main page/carousel 2.0.webp" alt="" />
+            </div>
+            <div class="cs-face cs-face-back">              <!-- chapter 03 (fronts at rot -180) -->
+              <img loading="lazy" decoding="async" src="images/main page/carousel 3.0.webp" alt="" />
+            </div>
+            <div class="cs-face cs-face-right">             <!-- filler (never fronts) -->
+              <img loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <!-- intro content (fades in on entry, scrolls up and out in Phase A) -->
+        <div class="cs-intro-text">
+          <h2 class="cs-title">By Design</h2>
+          <p class="cs-desc">Alex Foster's journey is built on intentional<br>
+          decisions, calculated risks and a long-term<br>
+          vision shaped through every chapter.</p>
+        </div>
+
+        <button class="cs-journey">
+          <span class="cs-bracket cs-bracket-l">
+            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="37" viewBox="0 0 7 37" fill="none">
+              <path d="M0.5 6.5V0.5H6.5" stroke="black"/>
+              <path d="M0.5 30.5V36.5H6.5" stroke="black"/>
+            </svg>
+          </span>
+          <span class="cs-journey-label">Journey</span>
+          <span class="cs-bracket cs-bracket-r">
+            <svg xmlns="http://www.w3.org/2000/svg" width="7" height="37" viewBox="0 0 7 37" fill="none">
+              <path d="M6 6.5V0.5H7.55774e-08" stroke="black"/>
+              <path d="M6 30.5V36.5H7.55774e-08" stroke="black"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- big counters: scroll up from below, fade at center (Phase B) -->
+        <div class="cs-counter cs-counter-left">
+          <span class="cs-counter-label">Ventures</span>
+          <span class="cs-counter-num">03</span>
+        </div>
+        <div class="cs-counter cs-counter-right">
+          <span class="cs-counter-label">Chapters</span>
+          <span class="cs-counter-num">06</span>
+        </div>
+
+        <!-- content layer below/over the cube: timeline, chapter, plaque -->
+        <div class="cs-line"></div>
+
+        <div class="cs-timeline">
+          <span class="cs-year cs-year-26l"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>26<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+          <span class="cs-year cs-year-25l"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>25<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+          <span class="cs-year cs-year-2024"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>2024<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+          <span class="cs-year cs-year-25r"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>25<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+          <span class="cs-year cs-year-26r"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>26<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+        </div>
+
+        <div class="cs-chapter">
+          <h3 class="cs-chapter-title cs-swap"><span class="cs-swap-cur"></span><span class="cs-swap-new"></span></h3>
+          <p class="cs-chapter-desc cs-swap"><span class="cs-swap-cur"></span><span class="cs-swap-new"></span></p>
+        </div>
+
+        <a class="cs-plaque" href="https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1" target="_blank" rel="noopener noreferrer">
+          <span class="cs-plaque-label cs-swap"><span class="cs-swap-cur"></span><span class="cs-swap-new"></span></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Ecosystem: pinned intro → cards ride in → plus morphs to square → expands white -->
+    <section id="ecosystem" data-header="light">
+      <div class="eco-stage">
+
+        <!-- heading: ECOSYSTEM bracket-tag + paragraph -->
+        <div class="eco-head">
+          <span class="eco-tag">
+            <svg class="eco-bracket eco-bracket-l" width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>
+            <span class="eco-tag-label">Ecosystem</span>
+            <svg class="eco-bracket eco-bracket-r" width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg>
+          </span>
+          <p class="eco-desc">Alex Foster&rsquo;s projects move across technology, finance, performance and digital culture — each one built with its own direction, but connected by the same founder mindset.</p>
+        </div>
+
+        <!-- horizontal cards strip (7 ecosystem photos) -->
+        <div class="eco-strip">
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 1.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 2.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 3.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 4.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 5.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 6.webp" alt="" /></div>
+          <div class="eco-card"><img loading="lazy" decoding="async" src="images/main page/ecosystem 7.webp" alt="" /></div>
+        </div>
+
+        <!-- plus → square → fills the viewport (white) -->
+        <div class="eco-morph">
+          <svg class="eco-shape" viewBox="0 0 72 73" preserveAspectRatio="none">
+            <path class="eco-plus" fill="#fff" d="M27 2.5 L45 2.5 L45 27.5 L70 27.5 L70 45.5 L45 45.5 L45 70.5 L27 70.5 L27 45.5 L2 45.5 L2 27.5 L27 27.5 Z" />
+          </svg>
+        </div>
+
+        <!-- Projects: appears on the white canvas once the square fills. State 1 (15-card arc) →
+             vertical scroll zooms into the centre trio → State 2 (accordion). No horizontal scroll. -->
+        <div class="epj" aria-label="Projects">
+          <button class="epj-btn" type="button">
+            <span class="epj-bracket epj-bracket-l"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+            <span class="epj-btn-label">Projects</span>
+            <span class="epj-bracket epj-bracket-r"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
+          </button>
+
+          <div class="epj-cards">
+            <div class="epj-card" data-i="0"><img loading="lazy" decoding="async" src="images/main page/project 1.webp" alt="" /></div>
+            <div class="epj-card" data-i="1"><img loading="lazy" decoding="async" src="images/main page/project 2.webp" alt="" /></div>
+            <div class="epj-card" data-i="2"><img loading="lazy" decoding="async" src="images/main page/project 3.webp" alt="" /></div>
+            <div class="epj-card" data-i="3"><img loading="lazy" decoding="async" src="images/main page/project 4.webp" alt="" /></div>
+            <div class="epj-card" data-i="4"><img loading="lazy" decoding="async" src="images/main page/project 5.webp" alt="" /></div>
+            <div class="epj-card" data-i="5"><img loading="lazy" decoding="async" src="images/main page/project 6.webp" alt="" /></div>
+
+            <div class="epj-card epj-trio" data-i="6">
+              <img loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
+              <div class="epj-veil"></div>
+              <div class="epj-content">
+                <div class="epj-content-inner">
+                  <div class="epj-tagwrap">
+                    <span class="epj-tag">
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-tag-label">Infrastructure of trust</span>
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
+                    </span>
+                    <h3 class="epj-name">AlphaLedger</h3>
+                  </div>
+                  <p class="epj-desc">A finance-focused venture exploring systems,<br>transparency and digital infrastructure<br>for a new generation of capital.</p>
+                </div>
+              </div>
+              <span class="epj-num">[ 01 ]</span>
+            </div>
+
+            <div class="epj-card epj-trio" data-i="7">
+              <img loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
+              <div class="epj-veil"></div>
+              <div class="epj-content">
+                <div class="epj-content-inner">
+                  <div class="epj-tagwrap">
+                    <span class="epj-tag">
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-tag-label">Web3, evolved</span>
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
+                    </span>
+                    <h3 class="epj-name">Vertus</h3>
+                  </div>
+                  <p class="epj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
+                </div>
+              </div>
+              <span class="epj-num">[ 02 ]</span>
+            </div>
+
+            <div class="epj-card epj-trio" data-i="8">
+              <img loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
+              <div class="epj-veil"></div>
+              <div class="epj-content">
+                <div class="epj-content-inner">
+                  <div class="epj-tagwrap">
+                    <span class="epj-tag">
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+                      <span class="epj-tag-label">Performance, reimagined</span>
+                      <span class="epj-tag-bracket"><svg width="6" height="32" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
+                    </span>
+                    <h3 class="epj-name">Vanquish</h3>
+                  </div>
+                  <p class="epj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
+                </div>
+              </div>
+              <span class="epj-num">[ 03 ]</span>
+            </div>
+
+            <div class="epj-card" data-i="9"><img loading="lazy" decoding="async" src="images/main page/project 10.webp" alt="" /></div>
+            <div class="epj-card" data-i="10"><img loading="lazy" decoding="async" src="images/main page/project 11.webp" alt="" /></div>
+            <div class="epj-card" data-i="11"><img loading="lazy" decoding="async" src="images/main page/project 12.webp" alt="" /></div>
+            <div class="epj-card" data-i="12"><img loading="lazy" decoding="async" src="images/main page/project 13.webp" alt="" /></div>
+            <div class="epj-card" data-i="13"><img loading="lazy" decoding="async" src="images/main page/project 14.webp" alt="" /></div>
+            <div class="epj-card" data-i="14"><img loading="lazy" decoding="async" src="images/main page/project 15.webp" alt="" /></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Founder system: sticky scroll-driven. White→black bg; scattered "Alex Foster" letters
+         assemble below a rising photo card; a film-frame bracket border forms. -->
+    <section id="founder" data-header="light">
+      <div class="fs-stage">
+        <div class="fs-frame">
+
+          <!-- VISION bracket button (top, like PROJECTS / Journey) -->
+          <button class="fs-btn" type="button">
+            <span class="fs-bracket fs-bracket-l"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg></span>
+            <span class="fs-btn-label">Vision</span>
+            <span class="fs-bracket fs-bracket-r"><svg width="6" height="36" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H0"/><path d="M6 30.5V36.5H0"/></svg></span>
+          </button>
+
+          <!-- heading + subtitle -->
+          <div class="fs-head">
+            <p class="fs-head-title">Founder system</p>
+            <p class="fs-head-sub">Building at the intersection of technology, storytelling and execution — with every project becoming part of a larger founder universe.</p>
+          </div>
+
+          <!-- rising photo card -->
+          <div class="fs-card"><img loading="lazy" decoding="async" src="images/main page/founder-section.webp" alt="" /></div>
+
+          <!-- assembled title (letters injected by JS) -->
+          <p class="fs-title" aria-label="Alex Foster"></p>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- On a journey: sticky scroll-driven. Black screen → the "alex foster" image card (10px inset)
+         fades in with two buttons, crossfades to a fullscreen looping video, then the "ON A JOURNEY"
+         plaque settles over it. Figma 68:127 / 77:74 / 77:84 / 79:108. -->
+    <section id="journey" data-header="light">
+      <div class="aj-stage">
+
+        <!-- fullscreen video that rises up from below to cover the section -->
+        <div class="aj-videos">
+          <video class="aj-vid" muted playsinline preload="none"></video>
+          <video class="aj-vid" muted playsinline preload="none"></video>
+        </div>
+
+        <!-- "On A Journey" plaque: rides up on the video (200px lower), then settles to its 10px inset -->
+        <div class="aj-plaque">
+          <div class="plaque-shadow"></div>
+          <div class="plaque-bg" role="img" aria-label="On A Journey"></div>
+          <div class="aj-knockout-dim"></div>
+          <p class="aj-eyebrow">Building beyond companies</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Continuation of the journey: a single photo card opens into a 3D ring of all eight
+         photos, spins through them, then collapses into a "Contact Me" pill. Sticky,
+         scroll-driven (same engine as #journey). Figma 79:120 / 79:135 / 79:157 / 79:183 / 79:190. -->
+    <section id="books" data-header="light">
+      <div class="bk-stage">
+        <div class="bk-scene">
+          <div class="bk-book">
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/alex foster.webp" alt="Alex Foster" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/alex foster.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 1.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 1.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 2.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 2.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 3.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 3.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 4.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 4.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 5.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 5.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 6.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 6.webp" alt="" /></div></div>
+            <div class="bk-page"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 7.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 7.webp" alt="" /></div></div>
+            <a class="bk-page bk-page-cta" href="mailto:alex@foster.com" aria-label="Contact Me"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 8.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 8.webp" alt="" /></div></a>
+          </div>
+        </div>
+        <!-- "Alex Foster" pill, shown on the full-screen cover photo as it rises in, fades as it shrinks -->
+        <div class="bk-cover-btn">
+          <img class="bk-cover-avatar" loading="lazy" decoding="async" src="images/main page/alex.webp" alt="" />
+          <span>Alex Foster</span>
+        </div>
+        <span class="bk-cta-label" aria-hidden="true">Contact Me</span>
+      </div>
+    </section>
+
+    <!-- Footer (Figma 142:106) -->
+    <footer id="footer" data-header="light">
+      <img class="ft-letter ft-letter-a" loading="lazy" decoding="async" src="images/main page/A.svg" alt="" aria-hidden="true" />
+
+      <div class="ft-social">
+        <a href="#" aria-label="LinkedIn">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
+        </a>
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#" aria-label="X">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.297 6.928 14.36 1h-1.2L8.765 6.147 5.253 1H1.203l5.31 7.784L1.203 15h1.2l4.642-5.436L10.754 15h4.05L9.297 6.928Zm-1.643 1.924-.538-.775L2.835 1.91h1.843l3.454 4.977.538.775 4.49 6.47h-1.843L7.654 8.852Z" fill="#fff"/></svg>
+        </a>
+      </div>
+
+      <div class="ft-cta">
+        <a class="ft-cta-line ft-contact" href="mailto:alex@foster.com" aria-label="Contact me">
+          <span class="ft-brk ft-brk-l" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 15V1H10" stroke="#fff" stroke-width="1.5"/><path d="M1 63V77H10" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+          <span class="ft-roll-mask"><span class="ft-roll"><span>Contact me</span><span aria-hidden="true">Contact me</span></span></span>
+          <span class="ft-brk ft-brk-r" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 15V1H0" stroke="#fff" stroke-width="1.5"/><path d="M9 63V77H0" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+        </a>
+        <a class="ft-cta-line ft-book" href="#" aria-label="Book a call">
+          <span class="ft-brk ft-brk-l" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 15V1H10" stroke="#fff" stroke-width="1.5"/><path d="M1 63V77H10" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+          <span class="ft-roll-mask"><span class="ft-roll"><span>Book a call</span><span aria-hidden="true">Book a call</span></span></span>
+          <span class="ft-brk ft-brk-r" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 15V1H0" stroke="#fff" stroke-width="1.5"/><path d="M9 63V77H0" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <span class="ft-copy">© Copyright 2026</span>
+      <span class="ft-rights">All rights reserved</span>
+
+      <img class="ft-letter ft-letter-f" loading="lazy" decoding="async" src="images/main page/F.svg" alt="" aria-hidden="true" />
+    </footer>
+  </main>
+
+  <div class="preloader" id="preloader" role="status" aria-label="Loading">
+    <div class="stage" id="stage">
+      <img class="bg" id="bgA" alt="" />
+      <img class="bg" id="bgB" alt="" />
+      <div class="overlay" id="overlay"></div>
+      <div class="whiteout" id="whiteout"></div>
+    </div>
+    <div class="text" id="textA"></div>
+    <div class="text" id="textB"></div>
+  </div>
+
+  <script>
+    if (history.scrollRestoration) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const raf = () => new Promise((r) => requestAnimationFrame(() => r()));
+
+    const IMAGES = Array.from({ length: 11 }, (_, i) =>
+      `images/preloader/Preloader ${i + 1}.webp`
+    );
+
+    const preloader = document.getElementById("preloader");
+    const stage = document.getElementById("stage");
+    const overlay = document.getElementById("overlay");
+    const whiteout = document.getElementById("whiteout");
+    const bgA = document.getElementById("bgA");
+    const bgB = document.getElementById("bgB");
+    const layers = [document.getElementById("textA"), document.getElementById("textB")];
+
+    /* ---------- background crossfade + zoom ---------- */
+    let bgTop = false;
+    function showImage(src, zoomMs = 2400) {
+      const next = bgTop ? bgA : bgB;
+      const cur = bgTop ? bgB : bgA;
+      next.classList.remove("show");      // reset to restart the ken-burns zoom
+      next.src = src;
+      next.style.animationDuration = zoomMs + "ms";  // faster zoom = stronger rush
+      requestAnimationFrame(() => {
+        next.classList.add("show");
+        cur.classList.remove("show");
+      });
+      bgTop = !bgTop;
+    }
+
+    /* ---------- text helpers ---------- */
+    function newLine(layerEl, { onImage = false } = {}) {
+      layerEl.innerHTML = "";
+      const line = document.createElement("div");
+      line.className = "line" + (onImage ? " on-image" : "");
+      layerEl.appendChild(line);
+      return line;
+    }
+
+    function addWord(line, text, { slide = false } = {}) {
+      const s = document.createElement("span");
+      s.className = "word" + (slide ? " slide" : "");
+      s.textContent = text;
+      line.appendChild(s);
+      return s;
+    }
+
+    // appear word by word, left to right
+    async function revealLTR(line, words, { perWord = 80, onImage = false } = {}) {
+      const spans = words.map((w) => addWord(line, w, { slide: true }));
+      await raf();
+      for (const s of spans) {
+        requestAnimationFrame(() => s.classList.add("in"));
+        await sleep(perWord);
+      }
+    }
+
+    // type, word by word, in place (fade) — appends to an existing centered line
+    async function typeWords(line, words, { perWord = 175, firstHold = 0 } = {}) {
+      for (let i = 0; i < words.length; i++) {
+        const s = addWord(line, words[i], { slide: false });
+        await raf();
+        requestAnimationFrame(() => s.classList.add("in"));
+        if (i === 0 && firstHold) await sleep(firstHold);
+        else await sleep(perWord);
+      }
+    }
+
+    function exit(line) { if (line) line.classList.add("exit"); }
+
+    /* ---------- preload ---------- */
+    function preload() {
+      return Promise.all(
+        IMAGES.map((src) => new Promise((res) => {
+          const img = new Image();
+          img.onload = img.onerror = res;
+          img.src = src;
+        }))
+      );
+    }
+
+    /* ---------- timeline ---------- */
+    async function run() {
+      await preload();
+
+      // 1 — "Driven by ambition," (white screen, black)
+      const l1 = newLine(layers[0]);
+      await revealLTR(l1, ["Driven", "by", "ambition,"], { perWord: 85 });
+      await sleep(620);
+
+      // 2 — seamless swap to "guided by experience."
+      exit(l1);
+      const g = newLine(layers[1]);
+      await sleep(150);
+      await revealLTR(g, ["guided", "by", "experience."], { perWord: 85 });
+
+      // 3 — images 1→11 in order, accelerating, no repeats;
+      //     10 & 11 brighten, 11 fully whites out
+      g.classList.add("on-image");
+      stage.classList.add("visible");
+      let dur = 520;
+      for (let i = 0; i < IMAGES.length; i++) {   // exactly 11 images, each once
+        showImage(IMAGES[i], Math.round(dur * 2.2));
+        if (i === 8) exit(g);                       // text leaves before the white-out
+        if (i === 9) { overlay.style.opacity = "0.4"; whiteout.style.opacity = "0.45"; } // image 10 lighter
+        if (i === 10) { overlay.style.opacity = "0"; whiteout.style.opacity = "1"; }     // image 11 → white
+        await sleep(dur);
+        dur = Math.max(60, Math.round(dur * 0.82));
+      }
+      await sleep(120);
+
+      // 4 — screen is white now; go directly to revealing the site (no text)
+      stage.classList.remove("visible");
+      await sleep(950);
+
+      // 5 — reveal the site
+      preloader.classList.add("done");
+      document.body.classList.remove("preloading");
+    }
+
+    window.addEventListener("load", run);
+  </script>
+
+  <script>
+    /* ---------- Menu open/close (Osmo-style staggered reveal) ---------- */
+    (() => {
+      const body = document.body;
+      const panel = document.getElementById("panel");
+      const toggle = document.getElementById("navToggle");
+      // reveal order: left column → middle → right, top to bottom (DOM order)
+      const revealEls = [...panel.querySelectorAll(".rv, .fade, .spic")];
+      const WIDTH_MS = 520;          // matches the .5s width transition
+      let open = false, busy = false;
+
+      function setDelays(on) {
+        revealEls.forEach((el, i) => {
+          el.style.transitionDelay = on ? `${0.12 + i * 0.025}s` : "0s";
+        });
+      }
+
+      function openMenu() {
+        busy = true; open = true;
+        toggle.setAttribute("aria-expanded", "true");
+        panel.classList.add("is-wide");          // 1) header spreads to 1280
+        setTimeout(() => {
+          panel.classList.add("is-tall");        // 2) curtain drops to 480
+          body.classList.add("menu-open");
+          setDelays(true);
+          busy = false;
+        }, WIDTH_MS);
+      }
+
+      function closeMenu() {
+        busy = true; open = false;
+        toggle.setAttribute("aria-expanded", "false");
+        body.classList.remove("menu-open");      // 1) inner reverses + curtain up
+        setDelays(false);
+        panel.classList.remove("is-tall");
+        setTimeout(() => {
+          panel.classList.remove("is-wide");     // 2) header retracts to 520
+          busy = false;
+        }, WIDTH_MS);
+      }
+
+      toggle.addEventListener("click", () => { if (!busy) (open ? closeMenu() : openMenu()); });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && open && !busy) closeMenu();
+      });
+    })();
+  </script>
+
+  <script>
+    /* ---------- About: scroll-driven sequence ---------- */
+    (() => {
+      const about = document.getElementById("about");
+      if (!about) return;
+      const $ = (s) => about.querySelector(s);
+      const el = {
+        founder: $(".ab-founder"), ftxt: $(".ftxt"),
+        ideas: $(".ab-ideas"), wIdeas: $(".w-ideas"), wReality: $(".w-reality"),
+        imgbox: $(".ab-imgbox"), img: $(".ab-img"), dark: $(".ab-dark"),
+        plaque: $(".ab-plaque"), block2: $(".ab-block2"),
+      };
+
+      // Split "More than a founder." into per-character spans, each with an overlay block
+      const charBlocks = [];
+      const charSpans = [];
+      (() => {
+        const txt = el.ftxt.textContent;
+        el.ftxt.textContent = "";
+        for (const ch of txt) {
+          const span = document.createElement("span");
+          span.className = "char";
+          span.textContent = ch;
+          const block = document.createElement("div");
+          block.className = "char-block";
+          span.appendChild(block);
+          el.ftxt.appendChild(span);
+          charSpans.push(span);
+          charBlocks.push(block);
+        }
+      })();
+
+      // Sliding "Pac-Man" window of 9 colored blocks: light \u2192 dark \u2192 light
+      const FOUNDER_WINDOW = 9;
+      const FOUNDER_COLORS = [
+        "#e8e8e8", "#d0d0d0", "#a8a8a8",
+        "#707070", "#181818",
+        "#707070", "#a8a8a8", "#d0d0d0", "#e8e8e8",
+      ];
+      // init: text fully visible, every block hidden + collapsed (no colors pre-assigned)
+      charBlocks.forEach((block) => { block.style.opacity = "0"; block.style.transform = "scaleX(0)"; });
+      charSpans.forEach((span) => { span.style.opacity = "1"; });
+
+      let revealed = false;
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const map = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+      const lerp = (a, b, t) => a + (b - a) * t;
+      let ticking = false;
+
+      function apply(praw) {
+        const vw = innerWidth, vh = innerHeight;
+
+        // A — a window of 9 colored blocks slides left→right across the phrase (Pac-Man).
+        //     The absorption now takes ~2 scrolls (ABS_END), then the rest of the timeline picks up
+        //     unchanged via a remapped progress `p` defined right after this sweep.
+        const ABS_END = 0.246;
+        const wp = map(praw, 0.0, ABS_END);
+        const totalChars = charSpans.length;
+        // +2 span / -1 offset margin clears the ±0.5 boundary tolerance below, so the
+        // window is fully off-screen-left at wp=0 (no blocks) and off-screen-right at wp=1.
+        const windowCenter = wp * (totalChars - 1 + FOUNDER_WINDOW + 2) - (FOUNDER_WINDOW / 2 + 1);
+        const windowStart = windowCenter - FOUNDER_WINDOW / 2;
+        const windowEnd = windowCenter + FOUNDER_WINDOW / 2;
+        charSpans.forEach((span, i) => {
+          const block = charBlocks[i];
+          if (i < windowStart - 0.5) {
+            // already eaten
+            span.style.opacity = "0";
+            block.style.opacity = "0";
+            block.style.transform = "scaleX(1)";
+          } else if (i <= windowEnd + 0.5) {
+            // inside the window — opaque colored tooth covers the character beneath it.
+            // (span stays visible: opacity is inherited, so opacity:0 here would hide the block too)
+            const posInWindow = i - windowStart;
+            const colorIndex = Math.round((posInWindow / FOUNDER_WINDOW) * (FOUNDER_COLORS.length - 1));
+            block.style.background = FOUNDER_COLORS[Math.max(0, Math.min(8, colorIndex))];
+            block.style.opacity = "1";
+            block.style.transform = "scaleX(1)";
+            span.style.opacity = "1";
+          } else {
+            // not yet reached — character visible, block hidden
+            span.style.opacity = "1";
+            block.style.opacity = "0";
+            block.style.transform = "scaleX(0)";
+          }
+        });
+
+        // everything below runs on the original timeline, just delayed past the longer absorption
+        const p = lerp(0.14, 1.0, map(praw, ABS_END, 1));
+
+        el.founder.style.opacity = 1 - map(p, 0.14, 0.19);
+
+        // B — image reveals bottom→top in place (no slide); C — snappy zoom to fullscreen
+        const imgReveal = map(p, 0.16, 0.27);
+        el.imgbox.style.clipPath = `inset(${(1 - imgReveal) * 100}% 0 0 0)`;
+        const growRaw = map(p, 0.32, 0.56);
+        const grow = 1 - Math.pow(1 - growRaw, 3);   // easeOutCubic — abrupt "page-opening" feel
+        el.imgbox.style.width = lerp(400, vw, grow) + "px";
+        el.imgbox.style.height = lerp(530, vh, grow) + "px";
+        el.imgbox.style.borderRadius = lerp(12, 0, grow) + "px";
+
+        // "Ideas Into Reality" — appears with the image; as it zooms the black side
+        // words turn white, drift slightly toward centre (no overlap), then vanish fast
+        const ideasIn = map(p, 0.20, 0.28);
+        const ideasOut = map(p, 0.40, 0.46);          // quick / "instant" disappear
+        el.ideas.style.opacity = (ideasIn * (1 - ideasOut)).toFixed(3);
+        const approach = map(p, 0.30, 0.44) * 56;       // small drift, never overlapping
+        el.wIdeas.style.transform = `translateY(-50%) translateX(${approach}px)`;
+        el.wReality.style.transform = `translateY(-50%) translateX(${-approach}px)`;
+        const cv = Math.round(lerp(17, 255, map(p, 0.30, 0.38))); // black → white
+        el.wIdeas.style.color = `rgb(${cv},${cv},${cv})`;
+        el.wReality.style.color = `rgb(${cv},${cv},${cv})`;
+
+        // plaque — floats up to dock at bottom (bio only), then rises + expands to full
+        const entry = map(p, 0.56, 0.70);
+        const rise = map(p, 0.74, 1.0);
+        const ty = lerp(560, 0, entry) + rise * -80;     // dock at bottom:0 → rise to bottom:80
+        el.plaque.style.transform = `translateY(${ty}px)`;        // height stays content-driven
+        const rr = map(p, 0.74, 0.9) * 16;
+        el.plaque.style.borderBottomLeftRadius = rr + "px";
+        el.plaque.style.borderBottomRightRadius = rr + "px";
+        el.plaque.style.paddingBottom = lerp(60, 28, map(p, 0.74, 0.9)) + "px";
+        el.block2.style.maxHeight = map(p, 0.76, 0.94) * 220 + "px";
+        el.block2.style.marginTop = map(p, 0.76, 0.94) * 20 + "px";   // +10 flex gap = 30px
+        el.block2.style.opacity = map(p, 0.80, 0.95).toFixed(3);
+
+        // darkens to 0.6 as it fills the screen, then holds steady through the parallax
+        el.dark.style.opacity = (map(p, 0.48, 0.58) * 0.6).toFixed(3);
+        // once fullscreen, the image scrolls up with a slight parallax (stays full-bleed)
+        const e = map(p, 0.56, 1.0);
+        el.img.style.transform = `translateY(${e * -10}vh)`;
+      }
+
+      function onScroll() {
+        const r = about.getBoundingClientRect();
+        // entrance: reveal the text once the section pins into view
+        if (!revealed && r.top <= innerHeight * 0.5) {
+          el.ftxt.classList.add("revealed");
+          revealed = true;
+        }
+        const total = about.offsetHeight - innerHeight;
+        const p = clamp(-r.top / total, 0, 1);
+        apply(p);
+        ticking = false;
+      }
+      addEventListener("scroll", () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+      }, { passive: true });
+      addEventListener("resize", onScroll);
+      onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Circles scene: orbit pair → 3-face rotating prism carousel ---------- */
+    (() => {
+      const sec = document.getElementById('circles-scene');
+      if (!sec) return;
+
+      const csTop    = sec.querySelector('.cs-top');     // circle A
+      const csBottom = sec.querySelector('.cs-bottom');  // circle B
+      const prism    = sec.querySelector('.cs-prism');
+
+      const R    = 200;
+      const GAP  = 0;
+      const ORBIT_R = R; // 200 — circles touch at viewport center, no gap
+
+      // FIX 2/3: single framing constant. Vertical offset (px) that frames the
+      // character knees-to-head inside the shared image. Applied identically to
+      // BOTH orbit windows AND the prism front face, on every frame → the image
+      // is one stationary picture and the A→prism swap is pixel-for-pixel hidden.
+      const CHAR_FRAME_Y = -40;
+
+      const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
+      const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
+      const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+      const eIn    = t => t*t;
+      const eOut   = t => 1-(1-t)*(1-t);
+
+      const APOTHEM = 200; // cube face translateZ (matches CSS); prism compensates by -APOTHEM
+      const SWAP_P  = 0.55; // binary A → front-face cutover point (remapped)
+      const INTRO_OFFSET = 292; // px the circle pair starts below its final stacked spot
+      const PAIR_CENTER_Y = 40; // px below viewport centre — resting centre of the pair/cube
+                                // (keeps the top circle off the viewport top; glued, not in fixImg)
+      let counterH = 0; // measured counter container height (cached on first use)
+
+      const fixImg = (circle, x, y) => {
+        const img = circle.querySelector('img');
+        // FIX 1: EXACT, unclamped negative of the circle's offset → the two windows
+        // always counter-translate in sync and show one continuous photo (220% img
+        // gives the coverage the clamp used to provide).
+        if (img) img.style.transform =
+          `translate(calc(-50% + ${(-x).toFixed(1)}px), calc(-50% + ${(-y).toFixed(1)}px))`;
+      };
+
+      // FIX 3: pin the prism front face image ONCE to A's final framing. With the
+      // window at centre, that counter-offset is exactly (0, CHAR_FRAME_Y) — same
+      // crop, same 200% scale, same position as A → the swap at centre is invisible.
+      const csFront   = sec.querySelector('.cs-face-front');
+      const faceRight = sec.querySelector('.cs-face-right');
+      const faceLeft  = sec.querySelector('.cs-face-left');
+      if (csFront) fixImg(csFront, 0, CHAR_FRAME_Y);
+
+      // New intro content (title/desc/journey button + the two big counters).
+      const introText = sec.querySelector('.cs-intro-text');
+      const journey   = sec.querySelector('.cs-journey');
+      const counters  = [sec.querySelector('.cs-counter-left'),
+                         sec.querySelector('.cs-counter-right')];
+
+      // PHASE 0 — ENTRY: fade title/desc/journey up from below once the section
+      // scrolls into view (CSS transition, triggered by adding .cs-entered).
+      new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) sec.classList.add('cs-entered');
+      }, { threshold: 0.05 }).observe(sec);
+
+      // ── Content layer (timeline / chapter / plaque) — one state per cube face ──
+      const STATES = [
+        { title: 'The foundation',
+          desc:  'A year of defining vision, direction<br>and the first layer of the ecosystem.',
+          label: 'Open chapter [ 01 ]',
+          href:  'https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1' },
+        { title: 'The expansion',
+          desc:  'Ideas moved into execution, turning concepts<br>into products and projects into brands.',
+          label: 'Open chapter [ 02 ]',
+          href:  'https://www.youtube.com/watch?v=GBQ0XBz6e8w' },
+        { title: 'The architecture',
+          desc:  'The ecosystem takes shape, connecting<br>ventures, culture and long-term vision.',
+          label: 'Open chapter [ 03 ]',
+          href:  'https://www.youtube.com/watch?v=YelBGuxbDJU' },
+      ];
+      const csLine     = sec.querySelector('.cs-line');
+      const csTimeline = sec.querySelector('.cs-timeline');
+      const csChapter  = sec.querySelector('.cs-chapter');
+      const titleEl    = sec.querySelector('.cs-chapter-title');
+      const descEl     = sec.querySelector('.cs-chapter-desc');
+      const csPlaque   = sec.querySelector('.cs-plaque');
+      const labelEl    = sec.querySelector('.cs-plaque-label');
+      const year25 = [sec.querySelector('.cs-year-25l'), sec.querySelector('.cs-year-25r')];
+      const year26 = [sec.querySelector('.cs-year-26l'), sec.querySelector('.cs-year-26r')];
+      const LINE_INIT = 120; // state-1 line width (just beyond 2024)
+      let dist25 = 0, dist26 = 0; // measured marker spans (lazy)
+      let shownState = -1;        // currently rendered content state
+      let swapTimer = null;
+      let prevP = 0, swapDown = true; // FIX 2: scroll direction at the moment of the flip
+
+      const swapEls = [[titleEl, 'title'], [descEl, 'desc'], [labelEl, 'label']]
+        .filter(([el]) => el);
+
+      // End of a swap: promote the incoming text into the resting "cur" layer.
+      const finalizeSwap = () => {
+        swapEls.forEach(([el]) => {
+          el.querySelector('.cs-swap-cur').innerHTML = el.querySelector('.cs-swap-new').innerHTML;
+          el.classList.remove('swapping', 'dir-up');
+        });
+        swapTimer = null;
+      };
+
+      // FIX 2: change the shown state. The first set (entrance) is instant; every
+      // later change fires the one-shot 0.25s bottom-up swap animation via a class.
+      const showState = (i, animate) => {
+        if (i === shownState) return;
+        shownState = i;
+        const st = STATES[i];
+        if (csPlaque) csPlaque.href = st.href;          // href swaps at the same trigger
+        if (!animate) {
+          swapEls.forEach(([el, key]) => { el.querySelector('.cs-swap-cur').innerHTML = st[key]; });
+          return;
+        }
+        if (swapTimer) { clearTimeout(swapTimer); finalizeSwap(); } // settle any in-flight swap
+        swapEls.forEach(([el, key]) => {
+          el.querySelector('.cs-swap-new').innerHTML = st[key];
+          el.classList.remove('swapping', 'dir-up');
+          void el.offsetWidth;                          // reflow → restart the animation
+          el.classList.add('swapping');
+          if (!swapDown) el.classList.add('dir-up');    // scrolling up → reverse the direction
+        });
+        swapTimer = setTimeout(finalizeSwap, 250);
+      };
+
+      function apply(p) {
+        const vh = innerHeight;
+        if (p !== prevP) { swapDown = p > prevP; prevP = p; } // FIX 2: track scroll direction
+
+        /* ── CHANGE 1: intro text/journey exit as normal scrolled content ──
+           Keep the CSS fade-in entrance; on exit just move up 1:1 with scroll
+           (no opacity change, no easing) — as if static content scrolling past. */
+        const scrolled = -sec.getBoundingClientRect().top; // px scrolled into section
+        [introText, journey].forEach(el => {
+          if (!el) return;
+          if (scrolled > 0) {
+            el.style.transition = 'none';
+            el.style.opacity = '';                       // no opacity exit (CSS keeps it 1)
+            el.style.transform = `translateY(${(-scrolled).toFixed(1)}px)`;
+          } else {                                       // at/above section top: CSS entrance
+            el.style.transition = ''; el.style.opacity = ''; el.style.transform = '';
+          }
+        });
+
+        /* ── CHANGE 3: CLOCKWISE 180° orbit spans the WHOLE intro (0 → 0.30) ──
+           The pair also rises INTRO_OFFSET → 0 in parallel over 0 → 0.12. */
+        const theta = eInOut(map(p, 0.0, 0.30)) * Math.PI;
+        const s = Math.sin(theta), c = Math.cos(theta);
+        const aX =  ORBIT_R * s,  aY = -ORBIT_R * c;  // A: (0,-200)→(0,+200), moves right
+        const bX = -ORBIT_R * s;
+        let   bY =  ORBIT_R * c;                       // B: (0,+200)→(0,-200), moves left
+        const riseY = INTRO_OFFSET * (1 - eInOut(map(p, 0.0, 0.12))); // collective pair offset
+        const pairY = riseY + PAIR_CENTER_Y; // FIX 1: pair's resting centre is PAIR_CENTER_Y low
+
+        /* ── PHASE B (0.10 → 0.30): counters slide in from fully below the viewport ──
+           FIX 3: counterY is the container's TOP edge. At p=0.10 it sits at vh (the
+           whole container is below the fold); it reaches vertical-centre at p≈0.26,
+           accounting for the container's own height so it starts fully hidden. */
+        if (!counterH && counters[0]) counterH = counters[0].getBoundingClientRect().height;
+        const cprog = map(p, 0.10, 0.26); // linear
+        const counterY = vh - (vh * 0.5 + counterH * 0.5) * cprog; // top edge: vh → centred
+        const counterOp = 1 - map(p, 0.26, 0.30);
+        const countersOn = p >= 0.10 && p < 0.305;
+        counters.forEach(el => {
+          if (!el) return;
+          el.style.visibility = countersOn ? 'visible' : 'hidden';
+          el.style.opacity = counterOp.toFixed(3);
+          el.style.transform = `translateY(${counterY.toFixed(1)}px)`;
+        });
+
+        /* ── CHANGE 4 / PHASE D (0.30 → 0.45): B flies straight up, X→0 ──
+           Begins exactly as the counters vanish and the orbit completes. */
+        const flyP = eIn(map(p, 0.30, 0.45));
+        const bX2 = bX * (1 - flyP);
+        bY = bY * (1 - flyP) + (-ORBIT_R - flyP * 1.2 * vh) * flyP;
+        csBottom.style.transform = `translate(${bX2.toFixed(1)}px, ${(bY + pairY).toFixed(1)}px)`;
+        csBottom.style.opacity = (1 - flyP).toFixed(3);
+        // CHANGE 2: counter the ORBIT displacement ONLY, never riseY → the shared
+        // image rides up glued to the pair while the circles stay windows into it.
+        fixImg(csBottom, bX2, bY + CHAR_FRAME_Y);
+
+        /* ── PHASE E (0.42 → 0.55): A rises to the cube position, then BINARY SWAP ──
+           CHANGE 2: A rises to the cube's resting centre — 310px from the viewport
+           top (top edge 110px), NOT viewport centre — so the swap into the cube is
+           seamless. cubeOffsetY is that centre expressed relative to top:50%. */
+        const cubeOffsetY = 310 - vh / 2;
+        const descend = eInOut(map(p, 0.42, 0.53));
+        const aPosX = aX * (1 - descend);
+        const aPosY = aY * (1 - descend);                              // orbit Y → 0 (framing)
+        const aPhysY = (aY + pairY) * (1 - descend) + cubeOffsetY * descend; // orbit → cube centre
+        csTop.style.transform = `translate(${aPosX.toFixed(1)}px, ${aPhysY.toFixed(1)}px)`;
+        fixImg(csTop, aPosX, aPosY + CHAR_FRAME_Y); // CHANGE 2: orbit offset only (image framing)
+
+        const swapped = p >= SWAP_P;
+        csTop.style.opacity    = swapped ? '0' : '1';
+        csTop.style.visibility = swapped ? 'hidden' : 'visible';
+        prism.style.opacity    = swapped ? '1' : '0';
+        prism.style.visibility = swapped ? 'visible' : 'hidden';
+
+        // Side faces ease in gently (eInOut over a wider window) so they don't pop in abruptly.
+        const sideRiseP = eInOut(map(p, 0.48, 0.70));
+        const sideRiseY = 140 * (1 - sideRiseP);
+        if (faceRight) {
+          faceRight.style.transform =
+            `translateY(${sideRiseY.toFixed(1)}px) rotateY(-90deg) translateZ(${APOTHEM}px)`;
+          faceRight.style.opacity = sideRiseP.toFixed(3);
+        }
+        if (faceLeft) {
+          faceLeft.style.transform =
+            `translateY(${sideRiseY.toFixed(1)}px) rotateY(-270deg) translateZ(${APOTHEM}px)`;
+          faceLeft.style.opacity = sideRiseP.toFixed(3);
+        }
+
+        /* ── PHASE F (0.60 → 1.0): two discrete 90° FLIPS with holds ──
+           front → right → back (filler left never fronts). */
+        const rotP = map(p, 0.60, 1.0);
+        let rotDeg;
+        if (rotP < 0.15)       rotDeg = 0;                                       // hold face 1
+        else if (rotP < 0.40)  rotDeg = -90 * eInOut(map(rotP, 0.15, 0.40));     // flip 1
+        else if (rotP < 0.60)  rotDeg = -90;                                     // hold face 2
+        else if (rotP < 0.85)  rotDeg = -90 - 90 * eInOut(map(rotP, 0.60, 0.85)); // flip 2
+        else                   rotDeg = -180;                                    // hold face 3
+
+        prism.style.transform =
+          `perspective(500px) translateY(${cubeOffsetY.toFixed(1)}px) translateZ(-${APOTHEM}px) rotateY(${rotDeg.toFixed(1)}deg)`;
+
+        /* ── CONTENT LAYER: timeline / chapter / plaque, synced to the cube ──
+           Entrance (0.56 → 0.64) as the cube settles; text SNAPS at each flip
+           midpoint; the line grows in step with each cube flip. */
+        if (!dist25 && (!document.fonts || document.fonts.status === 'loaded')
+            && year25[0] && year25[0].getBoundingClientRect().width) {
+          const cx = el => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
+          dist25 = Math.abs(cx(year25[1]) - cx(year25[0]));
+          dist26 = Math.abs(cx(year26[1]) - cx(year26[0]));
+        }
+
+        // Entrance: fade in; timeline also slides in from the right.
+        const entr = map(p, 0.56, 0.64);
+        [csLine, csTimeline, csChapter, csPlaque].forEach(el => { if (el) el.style.opacity = entr.toFixed(3); });
+        if (csTimeline) csTimeline.style.transform = `translateX(calc(-50% + ${(60 * (1 - entr)).toFixed(1)}px))`;
+
+        // FIX 2: trigger the bottom-up swap at each flip MIDPOINT (flip1 mid p=0.71,
+        // flip2 mid p=0.89). First set is instant; later crossings run the animation.
+        showState(p < 0.71 ? 0 : (p < 0.89 ? 1 : 2), shownState !== -1);
+
+        // Line grows from centre, synced to the flips: 120 → dist(25s) → dist(26s).
+        let lineW;
+        if      (p < 0.66) lineW = LINE_INIT;
+        else if (p < 0.76) lineW = LINE_INIT + (dist25 - LINE_INIT) * map(p, 0.66, 0.76); // flip 1
+        else if (p < 0.84) lineW = dist25;
+        else if (p < 0.94) lineW = dist25 + (dist26 - dist25) * map(p, 0.84, 0.94);        // flip 2
+        else               lineW = dist26;
+        if (csLine) csLine.style.width = `${Math.max(0, lineW).toFixed(1)}px`;
+
+        // Year colours switch (.active) as the line reaches them at flip completion.
+        year25.forEach(y => y && y.classList.toggle('active', rotP >= 0.40));
+        year26.forEach(y => y && y.classList.toggle('active', rotP >= 0.85));
+      }
+
+      // ── smoothed scrubbing: ease the displayed progress toward the scroll target every frame, so
+      //    the orbit / cube flips / side faces glide even when the wheel delivers coarse, steppy input ──
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      function frameTick() {
+        raf = 0;
+        if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.0004) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur);
+        raf = requestAnimationFrame(frameTick);
+      }
+      function onScroll() {
+        const total = sec.offsetHeight - innerHeight;
+        target = clamp(-sec.getBoundingClientRect().top / total, 0, 1);
+        if (!raf) raf = requestAnimationFrame(frameTick);
+      }
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', () => { cur = null; onScroll(); });   // snap on resize
+      onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Ecosystem: intro → cards ride in → plus morphs to square → white ---------- */
+    (() => {
+      const sec = document.getElementById('ecosystem');
+      if (!sec) return;
+      const head     = sec.querySelector('.eco-head');
+      const strip    = sec.querySelector('.eco-strip');
+      const cards    = [...sec.querySelectorAll('.eco-card')];
+      const ecoMorph = sec.querySelector('.eco-morph');
+      const ecoShape = sec.querySelector('.eco-shape');
+      const ecoPlus  = sec.querySelector('.eco-plus');
+      // Real plus→square morph: 12 filled points slide out to the square's corners.
+      // PLUS = axis-aligned cross (looks like an X once the wrapper is rotated 45°);
+      // SQR  = same 12 points collapsed onto the 4 viewBox corners → a full square.
+      const PLUS = [[27,2.5],[45,2.5],[45,27.5],[70,27.5],[70,45.5],[45,45.5],
+                    [45,70.5],[27,70.5],[27,45.5],[2,45.5],[2,27.5],[27,27.5]];
+      const SQR  = [[0,0],[72,0],[72,0],[72,0],[72,73],[72,73],
+                    [72,73],[0,73],[0,73],[0,73],[0,0],[0,0]];
+      const buildD = m => {
+        let d = '';
+        for (let i = 0; i < 12; i++) {
+          const x = lerp(PLUS[i][0], SQR[i][0], m);
+          const y = lerp(PLUS[i][1], SQR[i][1], m);
+          d += (i === 0 ? 'M' : 'L') + x.toFixed(2) + ' ' + y.toFixed(2) + ' ';
+        }
+        return d + 'Z';
+      };
+
+      const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
+      const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
+      const lerp   = (a,b,t) => a + (b-a)*t;
+      const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+      const eIn    = t => t*t;
+      const eOut   = t => 1-(1-t)*(1-t);
+      const eOut3  = t => 1-Math.pow(1-t,3);  // strong ease-out → the 3-card reveal decelerates near the end (~90%)
+
+      // ---- Projects layer (State 1 arc → State 2 accordion), on the white canvas ----
+      const proj   = sec.querySelector('.epj');
+      const pcards = proj ? [...proj.querySelectorAll('.epj-card')] : [];
+      const TRIO   = [6, 7, 8];                        // centre trio = projects 7 / 8 / 9
+      const REF_W = 1440, REF_H = 900, MIDY = 450;     // Figma reference frame
+      // State 1 arc (Figma 87-331): card centre-x + height per index, all centred on MIDY
+      const L1CX = i => 272 + i * 64;
+      // FIX 1: exact per-card edge heights. Container is MAXH (244) tall; each card clips to a
+      // parallelogram with these LEFT / RIGHT edge heights, vertically centred in the container.
+      // Index 0 = card 1 … index 7 = card 8 (centre, straight) … index 14 = card 15 (mirror).
+      const MAXH = 244;
+      const LH = [244, 217, 194, 175, 161, 149, 143, 138, 142, 147, 154, 166, 179, 199, 222];
+      const RH = [222, 199, 179, 166, 154, 147, 142, 138, 143, 149, 161, 175, 194, 217, 244];
+      const EFFH = i => (LH[i] + RH[i]) / 2;   // visible mid-height (used as the zoom-start height)
+      // State 2 accordion (Figma 97-889/933/952): active 1064w, flank strips 88w, gap 20, x0 80
+      const accordion = active => {
+        const out = {}; let left = 80;
+        TRIO.forEach(i => {
+          const w = (i === active) ? 1064 : 88;
+          out[i] = { cx: left + w / 2, w, h: 760 };
+          left += w + 20;
+        });
+        return out;
+      };
+      const frame = () => {
+        const k = Math.min(innerWidth / REF_W, innerHeight / REF_H);
+        return { k, offX: (innerWidth - REF_W * k) / 2, offY: (innerHeight - REF_H * k) / 2 };
+      };
+      const placeCard = (c, cxD, wD, hD, k, offX, offY) => {
+        c.style.width  = (wD * k).toFixed(1) + 'px';
+        c.style.height = (hD * k).toFixed(1) + 'px';
+        c.style.left   = (offX + (cxD - wD / 2) * k).toFixed(1) + 'px';
+        c.style.top    = (offY + (MIDY - hD / 2) * k).toFixed(1) + 'px';
+      };
+      let activeIdx = 7, inState2 = false;
+      // FIX 1: State-1 perspective fan. The card container is MAXH (244) tall; the clip-path crops it
+      // to a parallelogram whose LEFT / RIGHT edges are LH[i] / RH[i] px tall, each edge centred in the
+      // container. Centre card (index 7) is a straight 138px rectangle. NO border-radius / rounded
+      // corners in State 1 — the shape is a pure polygon. Edges given as % of MAXH so it stays exact
+      // at any viewport scale (--k).
+      const clipFor = i => {
+        const lt = ((MAXH - LH[i]) / 2 / MAXH * 100);        // left edge: top / bottom
+        const lb = (((MAXH - LH[i]) / 2 + LH[i]) / MAXH * 100);
+        const rt = ((MAXH - RH[i]) / 2 / MAXH * 100);        // right edge: top / bottom
+        const rb = (((MAXH - RH[i]) / 2 + RH[i]) / MAXH * 100);
+        return `polygon(0 ${lt.toFixed(3)}%, 100% ${rt.toFixed(3)}%, 100% ${rb.toFixed(3)}%, 0 ${lb.toFixed(3)}%)`;
+      };
+      // Scroll-driven zoom. The centre trio (7/8/9) settles into the accordion (card 8 active 1064w,
+      // 7 & 9 as 88w strips) with a smooth eInOut. The outer 12 cards stay put and fade out gradually
+      // across the whole zoom window. State 1 = fan clip + no radius; zoom/State 2 = no clip + radius 8.
+      const zoomLayout = pz => {
+        const t = eInOut(pz);                          // single eInOut drives every transition
+        const { k, offX, offY } = frame();
+        // Target the CURRENTLY active card. Forward from State 1 it is card 8 (activeIdx reset to 7);
+        // on reverse it stays whichever card is active so the zoom-out collapses from that state.
+        const acc = accordion(activeIdx);
+        proj.style.setProperty('--k', k.toFixed(4));
+        pcards.forEach((c, i) => {
+          const trio = (i >= 6 && i <= 8);             // cards 7 / 8 / 9 = the accordion trio
+          if (trio) {
+            // Trio cards are ~rectangular (centre 138, flanks ~142), so they grow as straight rects
+            // with NO clip. The container height is CONTINUOUS from its rest height (EFFH) up to 760,
+            // so the image (cover) scales smoothly with the card and never jumps in size when the zoom
+            // starts — the picture sits at its State-1 framing and simply enlarges from there.
+            const h = lerp(EFFH(i), 760, t);
+            placeCard(c, lerp(L1CX(i), acc[i].cx, t), lerp(48, acc[i].w, t), h, k, offX, offY);
+            c.style.opacity = '1';
+            c.style.transform = 'none';
+            c.style.clipPath = 'none';
+          } else {
+            // FIX 3: outer cards exit like a train — OUTERMOST first, staggered inward. Left cards
+            // (idx 0-5 = cards 1-6) slide LEFT, card 1 leaving first; right cards (idx 9-14 = cards
+            // 10-15) slide RIGHT, card 15 leaving first. Each takes 10% of the zoom; the last leaves
+            // by zoomP ≈ 0.25. FIX 2: transform is `none` at rest (zoomP = 0) — no scale, equal size.
+            placeCard(c, L1CX(i), 48, MAXH, k, offX, offY);
+            c.style.clipPath = clipFor(i);
+            const staggerDelay = 0.018;
+            const sIdx = (i <= 5) ? i : (14 - i);    // stagger position: 0 = first to exit … 5 = last
+            const dir  = (i <= 5) ? -1 : 1;
+            const start = sIdx * staggerDelay;
+            const tt = eOut(map(pz, start, start + 0.10)); // FIX 4: eOut so each card decelerates out
+            c.style.opacity = (1 - tt).toFixed(3);
+            c.style.transform = (tt === 0) ? 'none' : `translateX(${(dir * 180 * tt).toFixed(1)}px)`;
+          }
+          // FIX 2: NO border-radius mid-zoom — 8px only once the zoom is fully complete (pz === 1).
+          c.style.borderRadius = (pz >= 1) ? (8 * k).toFixed(2) + 'px' : '0px';
+        });
+        // FIX 2: only reveal text once the card has fully settled (pz === 1) — never while it is
+        // still growing/moving — so the text just fades in place and never slides in from a corner.
+        TRIO.forEach(i => pcards[i].classList.toggle('is-active', !inState2 && i === activeIdx && pz >= 1));
+      };
+      // State 2: lock the trio to the chosen active card (CSS animates the change on click)
+      const setAccordion = active => {
+        activeIdx = active;
+        const acc = accordion(active);
+        const { k, offX, offY } = frame();
+        proj.style.setProperty('--k', k.toFixed(4));
+        TRIO.forEach(i => {
+          placeCard(pcards[i], acc[i].cx, acc[i].w, acc[i].h, k, offX, offY);
+          pcards[i].style.borderRadius = (8 * k).toFixed(2) + 'px';
+          pcards[i].style.clipPath = 'none';            // straight rounded rect in State 2
+          pcards[i].classList.toggle('is-active', i === active);
+        });
+      };
+      const projBtn = proj ? proj.querySelector('.epj-btn') : null;
+      // Open a flank card by clicking anywhere on ITS SIDE of the active card — the thin strip plus
+      // the gap toward the centre and the empty margin out to the screen edge. (Clicking only the
+      // 88px strip itself was too easy to miss, esp. in the gap/edge where you naturally aim.) Pick
+      // the non-active trio card nearest to the click; clicks over the active card do nothing.
+      if (proj) proj.addEventListener('click', (e) => {
+        if (!inState2) return;
+        const x = e.clientX, y = e.clientY;
+        const ar = pcards[activeIdx].getBoundingClientRect();
+        if (y < ar.top || y > ar.bottom) return;        // ignore clicks above/below the cards
+        if (x >= ar.left && x <= ar.right) return;       // clicked the active card → keep it
+        let best = null, bestD = Infinity;
+        TRIO.filter(i => i !== activeIdx).forEach(i => {
+          const r = pcards[i].getBoundingClientRect();
+          const d = x < r.left ? r.left - x : (x > r.right ? x - r.right : 0); // horizontal distance
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        if (best != null) setAccordion(best);
+      });
+
+      function apply(s) {
+        // ── intro (unchanged feel): heading + 7-photo strip ride in, plus morphs into a square ──
+        head.style.transform = `translateY(${lerp(510, 0, map(s, 0.0, 1.26)).toFixed(1)}px)`;
+
+        const sx = lerp(80, -560, map(s, 0.0, 3.36));
+        const sy = lerp(300, 0, eOut(map(s, 0.0, 1.26)));
+        strip.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;
+        cards.forEach(c => c.style.opacity = (1 - map(s, 2.60, 3.57)).toFixed(3));
+
+        const cx = innerWidth / 2, cy = innerHeight / 2;
+        const morphP = eInOut(map(s, 0.0, 1.764));
+        ecoPlus.setAttribute('d', buildD(morphP));
+        const wx = lerp(636, cx, morphP);
+        const wy = lerp(262, cy, morphP);
+        const ang = lerp(45, 180, morphP);
+        ecoMorph.style.transform = `translate(${wx.toFixed(1)}px, ${wy.toFixed(1)}px) rotate(${ang.toFixed(1)}deg)`;
+
+        // FIX 1: white square fullscreen expansion is scroll-driven (no one-shot animation) so it
+        // shrinks back naturally as s decreases. Header flips dark once the white covers the screen.
+        const expandP = clamp(map(s, 1.764, 2.05), 0, 1);
+        ecoShape.style.width  = lerp(52, innerWidth + 8, expandP).toFixed(1) + 'px';
+        ecoShape.style.height = lerp(52, innerHeight + 8, expandP).toFixed(1) + 'px';
+        sec.setAttribute('data-header', expandP > 0.4 ? 'dark' : 'light');
+
+        // ── Projects on the white canvas ──
+        if (!proj) return;
+        proj.classList.toggle('is-visible', s >= 2.1);    // fade in once the square has filled
+        // Tighter zoom window → project 8 scales up over ~2 scrolls (snappier, slightly sharper)
+        const pz = clamp(map(s, 2.90, 4.00), 0, 1);        // State 1 → State 2 zoom progress
+        proj.classList.toggle('is-zoomed', pz > 0.5);
+        // FIX 7: PROJECTS button fades out as the zoom starts and stays hidden in State 2
+        if (projBtn) { projBtn.style.opacity = (1 - pz).toFixed(3); projBtn.style.pointerEvents = pz > 0.02 ? 'none' : 'auto'; }
+
+        if (s >= 4.02) {                                   // State 2 reached → interactive accordion
+          if (!inState2) {
+            inState2 = true;
+            pcards.forEach((c, i) => { if (i < 6 || i > 8) c.style.opacity = '0'; });  // outer cards fully gone
+            TRIO.forEach(i => pcards[i].classList.add('epj-interactive'));
+            setAccordion(activeIdx);                       // FIX 2: forward → card 8 active (activeIdx is 7)
+          }
+        } else {
+          if (inState2) {                                  // scrolled back up → resume scrubbing
+            inState2 = false;
+            TRIO.forEach(i => pcards[i].classList.remove('epj-interactive'));
+            // FIX 3: keep the current active card — the zoom-out collapses from whatever is active
+          }
+          if (pz === 0) activeIdx = 7;                     // back at State 1 → next forward zoom targets card 8
+          zoomLayout(pz);
+        }
+      }
+
+      // ── smoothed scrubbing: glide the displayed progress toward the scroll target so the projects
+      //    zoom / accordion spread and the plus→square morph decelerate smoothly on coarse scrolls ──
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      function frameTick() {
+        raf = 0;
+        if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.002) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur);
+        raf = requestAnimationFrame(frameTick);
+      }
+      function onScroll() {
+        target = clamp(-sec.getBoundingClientRect().top / innerHeight, 0, 12);
+        if (!raf) raf = requestAnimationFrame(frameTick);
+      }
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', () => { if (inState2) setAccordion(activeIdx); cur = null; onScroll(); });
+      onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Founder system: sticky, scroll-driven (p 0→1 across ~500vh) ----------
+       Phase 1 (0→0.4): bg white→black; VISION button + heading scroll up & fade; photo card rises
+       from below to its resting spot; letters of "ALEX FOSTER" sit scattered (seeded random).
+       Phase 2 (0.3→0.7): letters pull into place below the card (per-letter stagger, eOut).
+       Phase 3 (0.65→1.0): film-frame brackets fade in flanking the title. */
+    (() => {
+      const sec = document.getElementById('founder');
+      if (!sec) return;
+      const stage = sec.querySelector('.fs-stage');
+      const frame = sec.querySelector('.fs-frame');
+      const btn   = sec.querySelector('.fs-btn');
+      const head  = sec.querySelector('.fs-head');
+      const card  = sec.querySelector('.fs-card');
+      const titleEl = sec.querySelector('.fs-title');
+
+      const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
+      const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
+      const lerp   = (a,b,t) => a + (b-a)*t;
+      const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+      const eIn    = t => t*t;
+      const eOut   = t => 1-(1-t)*(1-t);
+
+      // ---- split "ALEX FOSTER" into letter spans; seed each with index-based scatter (stable on resize) ----
+      const WORD = 'ALEX FOSTER';
+      // FIX 2: fixed scatter per visible letter [vw, vh, rot] — absolute offsets from VIEWPORT CENTRE
+      // (5 left of centre, 5 right) so every letter stays fully on screen, then they assemble down.
+      const SCATTER = [
+        [-42, -15, -23], [-30,  18,  31], [-38,   5, -12], [-20, -22,  18], [-28,  28, -35],
+        [ 25, -18,  22], [ 38,  12, -28], [ 18,  25,  15], [ 42,  -8, -19], [ 30, -28,  38],
+      ];
+      const TITLE_TOP = 725;   // design top of the assembled word below the card (Figma 87:205)
+      const letters = [];
+      let vi = 0;
+      [...WORD].forEach((ch) => {
+        const span = document.createElement('span');
+        span.className = 'fs-letter';
+        if (ch === ' ') { span.textContent = ' '; span.style.opacity = '0'; span.style.whiteSpace = 'pre'; titleEl.appendChild(span); return; }  // space: hidden but keeps the word gap
+        span.textContent = ch;
+        titleEl.appendChild(span);
+        const [vw, vh, rot] = SCATTER[vi];
+        letters.push({ el: span, i: vi, vw, vh, rot, wox: 0 }); vi++;
+      });
+
+      const FRAME_W = 1440, FRAME_H = 832, MIDY = FRAME_H/2;   // design frame (Figma)
+      let fk = 1;
+      // measure each letter's x-offset from the word centre (design px), so the scatter can be
+      // anchored to the viewport centre regardless of where the letter lands in the word
+      const measure = () => {
+        letters.forEach(L => L.el.style.transform = 'none');
+        const tc = titleEl.getBoundingClientRect(), cx = tc.left + tc.width / 2;
+        letters.forEach(L => { const r = L.el.getBoundingClientRect(); L.wox = ((r.left + r.width / 2) - cx) / fk; });
+      };
+      const resize = () => { fk = Math.min(innerWidth/FRAME_W, innerHeight/FRAME_H); frame.style.setProperty('--fk', fk.toFixed(4)); measure(); };
+
+      function apply(p) {
+        // Windows rescaled (×1/0.6) so the LAST phase (assembly) ends exactly at p=1 — section
+        // height was trimmed to match, so there's no idle pinned scroll after the letters land.
+        // Phase 1 — background white → black; header flips to light once dark
+        const bgP = eInOut(map(p, 0.083, 0.667));
+        const v = Math.round(lerp(255, 0, bgP));
+        stage.style.background = `rgb(${v},${v},${v})`;
+        sec.setAttribute('data-header', bgP > 0.5 ? 'light' : 'dark');
+
+        // VISION button + heading: visible at the start, scroll up & fade as the card rises
+        const upY = lerp(0, -360, eIn(map(p, 0.0, 0.583)));
+        const topOp = (1 - map(p, 0.25, 0.50)).toFixed(3);
+        head.style.transform = `translate(-50%, ${upY.toFixed(1)}px)`;
+        head.style.opacity = topOp;
+        btn.style.transform = `translate(-50%, ${upY.toFixed(1)}px)`;
+        btn.style.opacity = topOp;
+        btn.style.pointerEvents = p > 0.25 ? 'none' : 'auto';
+
+        // card rise and letter assembly share ONE window (p 0.333 → 1.0) and the SAME easing,
+        // so the card and the letters travel at the same rate and arrive together at the section end.
+        const riseT = eInOut(map(p, 0.333, 1.0));
+        card.style.top = lerp(MIDY + 352, MIDY - 90, riseT).toFixed(1) + 'px';
+
+        // letters: colour #bcbcbc(white bg) → #fff(black bg); scatter → assemble (no stagger, no scale)
+        const lc = Math.round(lerp(188, 255, bgP));
+        titleEl.style.color = `rgb(${lc},${lc},${lc})`;
+        const sxU = innerWidth/100/fk, syU = innerHeight/100/fk;   // vw/vh → frame px (cancel --fk)
+        const baseY = MIDY - TITLE_TOP;   // lift the scattered cloud from the word (low) up to centre
+        letters.forEach(L => {
+          const t = riseT;   // identical to the card → fully assembled the moment the card settles
+          // scattered = viewport centre + offset; assembled = final inline position (transform 0)
+          const x = (L.vw * sxU - L.wox) * (1 - t);
+          const y = (baseY + L.vh * syU) * (1 - t);
+          const r = L.rot * (1 - t);
+          L.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${r.toFixed(2)}deg)`;
+        });
+      }
+
+      let ticking = false;
+      function onScroll() {
+        const p = clamp(-sec.getBoundingClientRect().top / (sec.offsetHeight - innerHeight), 0, 1);
+        apply(p);
+        ticking = false;
+      }
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+      addEventListener('resize', () => { resize(); onScroll(); });
+      resize(); onScroll();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(); onScroll(); });
+    })();
+  </script>
+
+  <script>
+    /* ---------- On a journey: sticky, scroll-driven (p 0→1 across ~400vh) ----------
+       Entry (p 0→0.15): black screen → image card (10px inset) fades in with two buttons.
+       Cross (p 0.40→0.60, eInOut): image fades OUT while the video AND the plaque fade IN together
+       (the plaque's backdrop-filter blur is always on — only opacity is animated).
+       Smoothed scrubbing eases the displayed progress toward the scroll target each frame. */
+    (() => {
+      const sec = document.getElementById('journey');
+      if (!sec) return;
+      const videos = sec.querySelector('.aj-videos');
+      const vids   = [...sec.querySelectorAll('.aj-vid')];
+      const plaque = sec.querySelector('.aj-plaque');
+      const stage  = sec.querySelector('.aj-stage');
+      // fade the plaque via each child's OWN opacity (never the .aj-plaque ancestor) so the
+      // backdrop-filter blur stays alive the whole time — an opacity<1 ancestor would kill it.
+      const plaqueFades = [...sec.querySelectorAll('.plaque-shadow, .plaque-bg, .aj-knockout-dim, .aj-eyebrow')];
+      plaqueFades.forEach(el => { el.style.opacity = '1'; });   // plaque is always present — no opacity fade-in
+      let plaqueYcur = null, plaqueMoving = false;
+      const PLAQUE_LAG = 0.09;                                  // rope-pull: plaque trails the video, then catches up
+
+      const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
+      const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
+      const lerp   = (a,b,t) => a + (b-a)*t;
+      const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+
+      const resize = () => {};   // card/plaque widths are now pure CSS (calc(100vw - 20px)), nothing to compute
+
+      /* ---- video cycling: list the files here; plays sequentially, crossfades, loops ---- */
+      const VIDEOS = ['images/main page/alex videos 2.0.MP4'];   // add more files to cycle through them
+      let curV = 0, idx = 0, started = false;
+      const swapTo = (nextIdx) => {
+        const showing = vids[curV], next = vids[1 - curV];
+        const onReady = () => {
+          next.play().catch(() => {});
+          next.style.opacity = '1'; showing.style.opacity = '0';   // 0.5s CSS crossfade
+          idx = nextIdx; curV = 1 - curV;
+        };
+        next.onended = () => swapTo((idx + 1) % VIDEOS.length);
+        next.src = VIDEOS[nextIdx];
+        next.load();
+        if (next.readyState >= 2) onReady(); else next.oncanplay = () => { next.oncanplay = null; onReady(); };
+      };
+      const startVideos = () => {
+        if (started || !VIDEOS.length) return; started = true;
+        vids[0].onended = () => swapTo((idx + 1) % VIDEOS.length);
+        vids[0].src = VIDEOS[0];
+        vids[0].load();
+        const go = () => { vids[0].play().catch(() => {}); vids[0].style.opacity = '1'; };
+        if (vids[0].readyState >= 2) go(); else vids[0].oncanplay = () => { vids[0].oncanplay = null; go(); };
+      };
+
+      function apply(p) {
+        const H = innerHeight;
+        // Phase 1 (p 0→0.15): the fullscreen video rises up from below FAST, so there's no empty black
+        // screen when the founder section leaves — the video covers almost immediately.
+        const rise  = eInOut(map(p, 0, 0.15));
+        const riseY = lerp(H, 0, rise);
+        videos.style.opacity = '1';
+        videos.style.transform = `translateY(${riseY.toFixed(1)}px)`;
+        if (p > 0.001) startVideos();
+
+        // The plaque rides ON the video, hanging 190px lower (≈200px top). Phase 2 (p 0.20→0.52):
+        // once the video has covered the section, the plaque lifts up into its 10px-inset resting place.
+        // It TRAILS the video like it's on a rope — eases toward its target each frame (both scroll dirs).
+        const settle = eInOut(map(p, 0.20, 0.52));
+        const plaqueTarget = riseY + lerp(190, 0, settle);
+        if (plaqueYcur === null) plaqueYcur = plaqueTarget;
+        plaqueYcur += (plaqueTarget - plaqueYcur) * PLAQUE_LAG;
+        plaqueMoving = Math.abs(plaqueTarget - plaqueYcur) > 0.15;
+        if (!plaqueMoving) plaqueYcur = plaqueTarget;
+        plaque.style.transform = `translateY(${plaqueYcur.toFixed(1)}px)`;
+
+        // Once the section has scrolled fully past, drop the sticky stage out of the hit-test entirely.
+        stage.style.pointerEvents = p >= 0.999 ? 'none' : 'auto';
+      }
+
+      // smoothed scrubbing — glide displayed progress toward the scroll target each frame
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      function frameTick() {
+        raf = 0;
+        if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.0004) cur = target; else cur += d * SMOOTH;
+        apply(cur);
+        // keep ticking while the scroll is still settling OR the plaque is still catching up (rope lag)
+        if (Math.abs(target - cur) > 0.0004 || plaqueMoving) raf = requestAnimationFrame(frameTick);
+      }
+      function onScroll() {
+        target = clamp(-sec.getBoundingClientRect().top / (sec.offsetHeight - innerHeight), 0, 1);
+        if (!raf) raf = requestAnimationFrame(frameTick);
+      }
+
+      // begin loading/playing video once the section is near view (avoids the 36 MB upfront)
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) startVideos(); });
+      }, { rootMargin: '50% 0px' }).observe(sec);
+
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', () => { resize(); cur = null; onScroll(); });
+      resize(); onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Continuation of the journey: a photo BOOK that fans open → Contact Me pill ----------
+       Sticky, scroll-driven (p 0→1 across ~500vh), mirroring the #journey engine.
+         p 0   →0.10 : black → book 1 enters as the closed cover at its native 890×540.
+         p 0.06→0.22 : book 1 shrinks and turns left off the spine; the pages appear behind on the right.
+         p 0.08→0.72 : every leaf is mid-turn at once — an open fan (book 1 already reversed on the far
+                       left, book 8 still flat on the right), each leaf thinning to nothing at the spine.
+         p 0.72→0.86 : the reversed pile tucks away; book 8 closes the book and settles dead-centre.
+         p 0.80→0.98 : book 8 shrinks, its corners round, and it hands off to the "Contact Me" pill. */
+    (() => {
+      const sec = document.getElementById('books');
+      if (!sec) return;
+      const stage = sec.querySelector('.bk-stage');
+      const scene = sec.querySelector('.bk-scene');
+      const book  = sec.querySelector('.bk-book');
+      const pages = [...sec.querySelectorAll('.bk-page')];
+
+      const N = pages.length;                     // 8 leaves
+      const W = 890, H = 540;                      // book size (px) — must match .bk-book in CSS
+      const GAP = 24;                             // angular offset between adjacent leaves → the open fan
+      const FLIP_A = 0.08, FLIP_B = 0.68;         // window over which ALL leaves (book 1..8) turn through
+      const F_MAX = 180 + (N - 1) * GAP;          // global turn so book 8 (the last leaf) also reverses
+      const PW = 240, PH = 72;                     // final pill size (px)
+      const last     = pages[N - 1];
+      const lastBack = last.querySelector('.bk-face-back');   // book 8 closes onto its reverse → that IS the pill
+      const lastBackImg = lastBack.querySelector('img');
+      const label    = sec.querySelector('.bk-cta-label');    // stage-level text (always faces the viewer)
+      const coverBtn = sec.querySelector('.bk-cover-btn');    // "Alex Foster" pill on the full-screen cover
+      // the reverse we see (and that becomes the pill) shows book 8's own photo, not the dim page-back
+      lastBackImg.style.filter = 'none'; lastBackImg.style.opacity = '1';
+      lastBack.style.inset = 'auto'; lastBack.style.left = '50%'; lastBack.style.top = '50%';
+      // backface-visibility proved unreliable here, so we show the correct face explicitly by angle
+      const faces = pages.map(pg => [pg.querySelector('.bk-face-front'), pg.querySelector('.bk-face-back')]);
+
+      const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
+      const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
+      const lerp   = (a,b,t) => a + (b-a)*t;
+      const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+
+      function apply(praw) {
+        // Cover: the Alex Foster photo fades in FAST from transparency (centred at 890×540), THEN the pill
+        // appears on it, then a ~2-scroll HOLD, and only after that the flip begins (remapped progress p).
+        const HOLD_END = 0.30;
+        scene.style.opacity = map(praw, 0, 0.03).toFixed(3);                    // quick photo fade-in
+        const p = clamp(map(praw, HOLD_END, 1), 0, 1);                          // flip runs after the hold
+        // pill appears AFTER the photo and stays on it through the hold; it only fades once the flip begins
+        coverBtn.style.opacity = (map(praw, 0.03, 0.07) * (1 - map(p, FLIP_A, 0.14))).toFixed(3);
+
+        const spreadOpen = eInOut(map(p, FLIP_A, 0.22));   // cover → open fan
+        const closeC = eInOut(map(p, FLIP_B, 0.80));       // closed book 8 (its reverse) slides to centre
+        const pileGone = eInOut(map(p, FLIP_B, 0.77));     // the rest of the reversed pile clears out
+        const ms = eInOut(map(p, 0.80, 0.95));             // book 8's reverse morphs into the pill (one element)
+
+        // 890 native cover → 0.62 while open/closed (the pill is sized in px, the label lives in the stage)
+        const scale = lerp(1.0, 0.62, spreadOpen);
+        // cover centred → spine centred (open) → book 8's reverse centred (closed)
+        const tx = scale * (W / 2) * (spreadOpen + closeC);
+        book.style.transform = `translateX(${tx.toFixed(1)}px) scale(${scale.toFixed(4)})`;
+
+        // ONE global "turn front" sweeps every leaf, book 8 included — it closes with the rest, no turn-back
+        const F = F_MAX * eInOut(map(p, FLIP_A, FLIP_B));
+        pages.forEach((page, k) => {
+          const isLast = (k === N - 1);
+          const theta = clamp(F - k * GAP, 0, 180);
+          // depth must be set in 3D (z-index is ignored under preserve-3d): book 1 sits in front while
+          // unturned (it's the cover); once turned, the order flips so book 8 ends in front of the pile.
+          const depth = (theta < 90 ? (N - k) : k);
+          page.style.transform = `translateZ(${depth}px) rotateY(${(-theta).toFixed(2)}deg)`;
+          faces[k][0].style.opacity = theta < 90 ? '1' : '0';   // front while facing us
+          faces[k][1].style.opacity = theta < 90 ? '0' : '1';   // reverse once turned past edge-on
+          if (isLast) {
+            page.style.zIndex = String(closeC > 0 ? 300 : (theta >= 179.5 ? 7 : theta <= 0.5 ? 30 : 100));
+          } else {
+            // unturned leaves keep book 1 on top (it's the cover); once reversed they drop UNDER everything
+            // (book 1 → lowest), so a turned book 1 can never flash on top again.
+            page.style.zIndex = String(theta <= 0.5 ? (50 - k) : theta >= 179.5 ? k : 100);
+            page.style.opacity = (theta >= 179.5 ? (1 - pileGone) : 1).toFixed(3);
+          }
+        });
+
+        // book 8 itself becomes the pill — shrink to EXACTLY 240×72, round the corners, dim + blur the
+        // photo and reveal the label. No second element, so there's no fade-out/fade-in seam.
+        const rW = lerp(W * 0.62, PW, ms);               // rendered width  552 → 240
+        const rH = lerp(H * 0.62, PH, ms);               // rendered height 335 → 72
+        lastBack.style.transform = 'translate(-50%, -50%) rotateY(180deg)';
+        lastBack.style.width  = (rW / scale).toFixed(1) + 'px';
+        lastBack.style.height = (rH / scale).toFixed(1) + 'px';
+        lastBack.style.borderRadius = (lerp(16, PH / 2, ms) / scale).toFixed(1) + 'px';
+        lastBack.style.background = `rgba(255,255,255,${(0.05 * ms).toFixed(3)})`;
+        lastBack.style.boxShadow =
+          `0 ${lerp(30,8,ms).toFixed(1)}px ${lerp(90,40,ms).toFixed(1)}px rgba(0,0,0,${lerp(0.55,0.20,ms).toFixed(3)})`;
+        lastBackImg.style.opacity = lerp(1.0, 0.30, ms).toFixed(3);
+        lastBackImg.style.filter  = `blur(${(lerp(0, 2, ms) / scale).toFixed(2)}px)`;
+        label.style.opacity = eInOut(map(p, 0.88, 0.99)).toFixed(3);
+        last.style.pointerEvents = ms > 0.5 ? 'auto' : 'none';
+
+        stage.style.pointerEvents = p >= 0.999 ? 'none' : 'auto';
+      }
+
+      // smoothed scrubbing — glide displayed progress toward the scroll target each frame
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      function frameTick() {
+        raf = 0;
+        if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.0004) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur);
+        raf = requestAnimationFrame(frameTick);
+      }
+      function onScroll() {
+        target = clamp(-sec.getBoundingClientRect().top / (sec.offsetHeight - innerHeight), 0, 1);
+        if (!raf) raf = requestAnimationFrame(frameTick);
+      }
+
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', () => { cur = null; onScroll(); });
+      onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Adaptive header: reads each section's data-header attribute ----------
+       data-header="light" → light/white header (over dark sections)
+       data-header="dark"  → dark header        (over light/white sections) */
+    (() => {
+      const panel = document.getElementById("panel");
+      if (!panel) return;
+      const sections = [...document.querySelectorAll("section[data-header]")];
+      if (!sections.length) return;
+
+      // Which section sits under the header band right now?
+      const themeUnderHeader = () => {
+        const y = panel.getBoundingClientRect().bottom + 1; // viewport y just below header
+        for (const sec of sections) {
+          const r = sec.getBoundingClientRect();
+          if (r.top <= y && r.bottom > y) return sec.dataset.header;
+        }
+        return null; // between/past sections → keep current
+      };
+
+      let ticking = false;
+      const update = () => {
+        const theme = themeUnderHeader();
+        if (theme === "light") {            // light header
+          panel.classList.add("header-on-dark");
+          panel.classList.remove("header-on-light");
+        } else if (theme === "dark") {      // dark header
+          panel.classList.add("header-on-light");
+          panel.classList.remove("header-on-dark");
+        }
+        ticking = false;
+      };
+      addEventListener("scroll", () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }, { passive: true });
+      addEventListener("resize", update);
+      addEventListener("load", update);
+      // re-measure once the preloader finishes fading (it covers the page during intro,
+      // so the first measure can be stale until it's gone)
+      const pre = document.getElementById("preloader");
+      if (pre) pre.addEventListener("transitionend", update);
+
+      panel.classList.add("header-on-dark"); // default before first measure
+      update();
+    })();
+  </script>
+</body>
+</html>
