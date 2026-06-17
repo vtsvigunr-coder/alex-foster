@@ -2811,6 +2811,7 @@
       if (!sec) return;
       const head     = sec.querySelector('.eco-head');
       const strip    = sec.querySelector('.eco-strip');
+      const ecoStage = sec.querySelector('.eco-stage');
       const cards    = [...sec.querySelectorAll('.eco-card')];
       const ecoMorph = sec.querySelector('.eco-morph');
       const ecoShape = sec.querySelector('.eco-shape');
@@ -2951,9 +2952,14 @@
         const sy = lerp(300, 0, eOut(map(s, 0.0, 1.26)));
         strip.style.transform = mob ? '' : `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;  // mobile: CSS marquee drives it
         cards.forEach(c => c.style.opacity = (1 - map(s, 2.60, 3.57)).toFixed(3));
-        // mobile: fade the marquee strip out as the square covers it, so it never flashes at the
-        // bottom while the square folds back on reverse scroll (fades in again only once folded).
-        if (mob) strip.style.opacity = (1 - map(s, 1.85, 2.0)).toFixed(3);
+        // mobile: as the square fills, turn the stage background white and fade the marquee out,
+        // so when the square folds back on reverse scroll the projects zone stays all white (no
+        // black band / previous section peeking). Both revert as you fold deeper into the intro.
+        if (mob) {
+          strip.style.opacity = (1 - map(s, 1.9, 2.05)).toFixed(3);
+          const bgv = Math.round(lerp(0, 255, map(s, 1.9, 2.05)));
+          ecoStage.style.background = `rgb(${bgv},${bgv},${bgv})`;
+        }
 
         const cx = innerWidth / 2, cy = innerHeight / 2;
         // Group 42 frame travels to centre + rotates (same motion the plus had).
