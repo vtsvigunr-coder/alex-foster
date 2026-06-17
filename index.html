@@ -956,21 +956,18 @@
   .cs-m2-arrow svg { width: 20px; height: 20px; }
 
   /* ---- Projects — mobile-only (Figma 17:1509). On desktop the trio lives in the pinned
-          zoom/accordion inside #ecosystem; on mobile this is a PINNED scene (it doesn't scroll
-          as a stack) — one card is shown at a time and the next appears on scroll, like desktop.
-          White background (continues the white square fill); dark cards carry white text. ---- */
-  #m-projects { display: none; height: 300vh; background: #fff; }
-  .mpj-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; color: #fff;
-               display: flex; align-items: center; justify-content: center; font-family: Satoshi, sans-serif; }
-  .mpj-toptag { position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
-                display: flex; align-items: center; gap: 12px; color: #000;
+          zoom/accordion inside #ecosystem; on mobile it's a normal scrolling stack of the three
+          cards. Each card fades in IN PLACE (opacity only, no slide-up) as it enters view —
+          like the desktop reveal. White bg continues the square fill; dark cards, white text. ---- */
+  #m-projects { display: none; background: #fff; color: #fff; padding: 40px 20px 60px; font-family: Satoshi, sans-serif; }
+  .mpj-toptag { display: flex; align-items: center; justify-content: center; gap: 12px; color: #000;
                 font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
   .mpj-toptag .tag-dot { background: #000; }
   .mpj-tag .tag-dot { background: #fff; }
-  .mpj-deck { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; }
-  .mpj-card { position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
-              opacity: 0; transform: translateY(24px); transition: opacity .45s ease, transform .45s ease; pointer-events: none; }
-  .mpj-card.is-on { opacity: 1; transform: none; pointer-events: auto; }
+  .mpj-list { display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .mpj-card { position: relative; width: 353px; max-width: 100%; height: 530px; margin: 0 auto; border-radius: 12px; overflow: hidden;
+              opacity: 0; transition: opacity .6s ease; }
+  .mpj-card.is-in { opacity: 1; }
   .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
   .mpj-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
   .mpj-body { position: absolute; left: 0; right: 0; top: 192px; bottom: 20px;
@@ -1814,54 +1811,52 @@
     <!-- Projects — mobile-only stacked cards (Figma 17:1509). Desktop uses the zoom/accordion
          inside #ecosystem above; this section is display:none on desktop. -->
     <section id="m-projects" data-header="dark">
-      <div class="mpj-stage">
-        <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
-        <div class="mpj-deck">
-          <article class="mpj-card is-on" data-i="0">
-            <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
-            <div class="mpj-overlay"></div>
-            <div class="mpj-body">
-              <div class="mpj-top">
-                <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
-                <div class="mpj-titlewrap">
-                  <h3 class="mpj-name">Vertus</h3>
-                  <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                </div>
+      <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
+      <div class="mpj-list">
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">Vertus</h3>
+                <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
-              <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
             </div>
-          </article>
+            <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
+          </div>
+        </article>
 
-          <article class="mpj-card" data-i="1">
-            <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
-            <div class="mpj-overlay"></div>
-            <div class="mpj-body">
-              <div class="mpj-top">
-                <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
-                <div class="mpj-titlewrap">
-                  <h3 class="mpj-name">AlphaLedger</h3>
-                  <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                </div>
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">AlphaLedger</h3>
+                <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
-              <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
             </div>
-          </article>
+            <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
+          </div>
+        </article>
 
-          <article class="mpj-card" data-i="2">
-            <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
-            <div class="mpj-overlay"></div>
-            <div class="mpj-body">
-              <div class="mpj-top">
-                <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
-                <div class="mpj-titlewrap">
-                  <h3 class="mpj-name">Vanquish</h3>
-                  <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                </div>
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">Vanquish</h3>
+                <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
               </div>
-              <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
             </div>
-          </article>
-        </div>
+            <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -2790,30 +2785,18 @@
   </script>
 
   <script>
-    /* ---------- Projects (mobile): pinned scene — one card at a time, the next appears on
-       scroll (like the desktop reveal). Mobile-only; #m-projects is display:none on desktop. */
+    /* ---------- Projects (mobile): the section scrolls (stacked cards, Figma 17:1509), but each
+       card fades in IN PLACE via opacity as it enters view — no slide-up. Mobile-only; the
+       section is display:none on desktop so these never intersect there. */
     (() => {
       const sec = document.getElementById('m-projects');
       if (!sec) return;
       const cards = [...sec.querySelectorAll('.mpj-card')];
       if (!cards.length) return;
-      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-      let cur = -1, ticking = false;
-      const show = (i) => {
-        if (i === cur) return;
-        cur = i;
-        cards.forEach((c, j) => c.classList.toggle('is-on', j === i));
-      };
-      const onScroll = () => {
-        ticking = false;
-        if (innerWidth > 700) return;                       // desktop keeps the zoom/accordion
-        const range = sec.offsetHeight - innerHeight;
-        const p = range > 0 ? clamp(-sec.getBoundingClientRect().top / range, 0, 1) : 0;
-        show(Math.min(cards.length - 1, Math.floor(p * cards.length)));
-      };
-      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-      addEventListener('resize', onScroll);
-      onScroll();
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+      }, { threshold: 0.18 });
+      cards.forEach(c => io.observe(c));
     })();
   </script>
 
