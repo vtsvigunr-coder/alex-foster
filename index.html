@@ -248,6 +248,143 @@
     .hero-title h1 { letter-spacing: -0.04em; }
   }
 
+  /* ---- Mobile (Figma): hero pill that expands into a floating drop-down ---- */
+  .m-mobile-only { display: none; }
+  .menu-backdrop { display: none; }
+
+  @media (max-width: 700px) {
+    /* Hero title: bottom-left, "By design." tucked top-right */
+    .hero-title {
+      display: block; left: 20px; right: 20px; bottom: 40px;
+    }
+    .hero-title h1 {
+      font-size: clamp(46px, 15.5vw, 60px);
+      line-height: 1.06; letter-spacing: -0.04em;
+    }
+    .hero-title .sup {
+      position: absolute; right: 2px; top: 0; margin: 0;
+      font-size: clamp(15px, 5.2vw, 20.6px);
+      letter-spacing: -0.046em; opacity: .95;
+    }
+
+    /* Full-screen blurred backdrop sitting BEHIND the floating panel */
+    .menu-backdrop {
+      display: block; position: fixed; inset: 0; z-index: 39;
+      background: rgba(0,0,0,0.30);
+      opacity: 0; pointer-events: none;
+      transition: opacity .4s var(--ease);
+    }
+    body.menu-open .menu-backdrop {
+      opacity: 1; pointer-events: auto;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    body.menu-open { overflow: hidden; }
+
+    /* The panel IS the frosted pill; it grows downward into the drop-down card */
+    .panel, .panel.is-wide, .panel.is-tall {
+      top: 20px; left: 50%; right: auto; transform: translateX(-50%);
+      width: 353px; max-width: calc(100vw - 40px);
+      height: auto; max-height: 50px; overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      transition: max-height .55s var(--ease), background .35s var(--ease);
+    }
+    /* adaptive frosted bg on mobile too (parity with desktop):
+       dark pill over light sections, light pill over dark sections.
+       Higher specificity than the .panel rule above so it wins. */
+    .panel.header-on-light { background: rgba(20, 20, 20, 0.45); }
+    .panel.header-on-dark  { background: rgba(255, 255, 255, 0.15); }
+    body.menu-open .panel {
+      max-height: calc(100vh - 40px);
+      max-height: calc(100dvh - 40px);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+
+    /* Header row inside the card (frosted bg comes from the panel itself) */
+    .panel-bar {
+      position: relative; z-index: 2; height: 50px;
+      padding: 8px 20px; border-radius: 0;
+      background: transparent; box-shadow: none;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    body.menu-open .panel-bar { height: auto; padding: 15px 20px 0; }
+    .panel-bar .brand {
+      position: static; transform: none; order: 0;
+      font-size: 16px; font-weight: 700; letter-spacing: -0.03em;
+    }
+    .nav-toggle { order: 1; font-size: 15px; }
+    .nav-cta { display: none; }
+
+    /* Body flows inside the card, 32px below the header row */
+    .panel-body {
+      position: static; inset: auto; z-index: 1;
+      padding: 32px 20px 15px;
+      background: transparent; backdrop-filter: none;
+      opacity: 0; transition: opacity .3s var(--ease);
+    }
+    body.menu-open .panel-body { opacity: 1; transition-delay: .12s; }
+
+    .menu-grid {
+      flex-direction: column; align-items: stretch;
+      height: auto; gap: 8px; justify-content: flex-start;
+    }
+    .m-card, .m-mid { width: 100%; height: auto; }
+
+    /* BUILD + LET'S TALK = frosted inner cards; EXPLORE = transparent block */
+    .m-card {
+      padding: 16px; border: 0;
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 6.9px 34.7px 0 rgba(0,0,0,0.20);
+    }
+    .m-mid { padding: 16px; gap: 20px; background: transparent; }
+
+    .m-label {
+      margin-bottom: 0; color: #b2b2b2;
+      font-size: 14px; letter-spacing: -0.14px;
+    }
+    .m-nav { gap: 0; }
+    .m-link { padding: 9px 0; }
+    .m-nav .m-link:last-child { border-bottom: 0; padding-bottom: 0; }
+    .rv { font-size: 16px; line-height: 20px; letter-spacing: -0.16px; }
+
+    /* LET'S TALK card: left-aligned, underlined email */
+    .m-talk, .m-talk-head { align-items: flex-start; }
+    .m-talk { text-align: left; gap: 20px; }
+    .m-talk-head { gap: 20px; }
+    .m-talk-head .m-label, .m-desc { text-align: left; }
+    .m-email {
+      font-size: 16px; line-height: 20px; letter-spacing: -0.16px;
+      width: 100%; padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .m-desc { font-size: 16px; line-height: 20px; letter-spacing: -0.16px; }
+    .m-stackwrap { width: 100%; align-items: flex-start; }
+    .m-stack { margin-top: 4px; }
+
+    /* drop the in-card copyright + desktop "Explore" CTA in favour of the
+       Figma frosted "Let's Talk" button + centred copyright */
+    .m-card-foot, .m-explore { display: none; }
+
+    .m-mobile-only { display: flex; }
+    .m-talk-btn {
+      align-items: center; justify-content: center;
+      width: 100%; height: 36px; padding: 10px 24px; margin-top: 8px;
+      border-radius: 10px; background: rgba(255,255,255,0.15);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      color: #fff; font-size: 14px; font-weight: 500;
+      letter-spacing: -0.14px; text-decoration: none;
+      transition: background .3s var(--ease);
+    }
+    .m-talk-btn:active { background: rgba(255,255,255,0.26); }
+    .m-copy {
+      justify-content: center; text-align: center;
+      color: #b2b2b2; font-size: 14px; letter-spacing: -0.14px;
+      padding: 16px 0 4px;
+    }
+  }
+
   /* ============ About (scroll-driven) ============ */
   .about { position: relative; height: 580vh; background: #fff; }
   .about-stage {
@@ -333,6 +470,32 @@
     .ab-ideas { gap: 24px; }
     .ab-ideas-mid { width: 260px; }
     .ab-plaque { right: 16px; left: 16px; width: auto; }
+  }
+
+  /* ---- About: mobile fit (keeps the scroll animation) ---- */
+  @media (max-width: 700px) {
+    .ab-ftext { font-size: clamp(22px, 7vw, 34px); }
+
+    /* photo fills the screen and never scales — JS only reveals it + parallax (no zoom) */
+    .ab-imgbox {
+      width: 100vw !important; height: 100vh !important;
+      border-radius: 0 !important; box-shadow: none;
+    }
+
+    /* "Ideas Into Reality" — one centred line, fully white (Figma 17:601) */
+    .ab-ideas {
+      display: flex; align-items: center; justify-content: center;
+      column-gap: 0.28em; font-size: clamp(28px, 9vw, 36px); letter-spacing: -0.02em;
+    }
+    .ab-ideas span {
+      position: static; top: auto; transform: none !important; color: #fff !important;
+    }
+
+    /* glass plaque — Figma mobile spec */
+    .ab-plaque { left: 16px; right: 16px; gap: 0; padding: 20px; border-radius: 12px 12px 0 0; }
+    .ab-block { gap: 20px; }
+    .ab-label { font-size: 12px; line-height: 16px; color: #b2b2b2; letter-spacing: -0.12px; }
+    .ab-block p { font-size: 18px; line-height: 22px; letter-spacing: -0.18px; }
   }
 
   /* ---------- Preloader ---------- */
@@ -731,6 +894,77 @@
   /* FIX 1: the fullscreen expansion is scroll-driven (width/height are set in apply) so it
      reverses naturally as p decreases — no one-shot CSS animation. */
 
+  /* ---- "By Design" mobile static screen (Figma 54:426). Hidden on desktop; the
+          desktop scroll scene is hidden on mobile instead (see media query below). ---- */
+  .cs-m { display: none; flex-direction: column; align-items: center;
+          padding: 40px 20px; background: #fff; color: #000; font-family: Satoshi, sans-serif; }
+  .cs-m-head { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .cs-m-tag { display: inline-flex; align-items: center; gap: 12px;
+              font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .cs-m-title { margin: 0; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.72px; }
+  .cs-m-desc { margin: 0; max-width: 281px; color: #555;
+               font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m-photo { margin-top: 40px; width: 353px; max-width: calc(100vw - 40px);
+                aspect-ratio: 353 / 468; border-radius: 10px; overflow: hidden; }
+  .cs-m-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); }
+  .cs-m-stats { display: flex; gap: 60px; justify-content: center; margin-top: 40px; }
+  .cs-m-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .cs-m-stat-label { font-size: 14px; font-weight: 500; line-height: 16px; letter-spacing: -0.14px; text-transform: uppercase; }
+  .cs-m-stat-num { font-size: 96px; font-weight: 700; line-height: 100px; letter-spacing: -4.8px; }
+
+  /* ---- "By Design" mobile chapter carousel (Figma 54:606). Hidden on desktop; the
+          desktop cube/prism scene is hidden on mobile (see media query). Scroll cycles
+          the 3 chapters (image + years + text), same content/logic as desktop. ---- */
+  .cs-m2-track { display: none; position: relative; height: 300vh; background: #fff; }
+  .cs-m2 {
+    position: sticky; top: 0; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px;
+    padding: 24px 20px; background: #fff; color: #000; font-family: Satoshi, sans-serif;
+  }
+  .cs-m2-circle { position: relative; width: 353px; max-width: calc(100vw - 40px); aspect-ratio: 1; }
+  .cs-m2-circle-img { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+  .cs-m2-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); transition: opacity .25s ease; }
+  .cs-m2-chip {
+    position: absolute; right: 0; top: 70%;
+    display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 100px;
+    background: rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    font-size: 14px; font-weight: 500; letter-spacing: -0.14px; color: #000;
+    text-decoration: none; white-space: nowrap; transition: opacity .25s ease;
+  }
+  .cs-m2-mid { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; }
+  .csm-timeline { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .csm-timeline .cs-year { font-size: 15px; font-weight: 500; gap: 6px; letter-spacing: -0.15px; color: #b2b2b2; }
+  .csm-timeline .cs-year svg { width: 6px; height: 32px; }
+  .csm-timeline .cs-year.active { color: #000; }
+  .cs-m2-text { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; transition: opacity .25s ease; }
+  .cs-m2-title { margin: 0; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.72px; }
+  .cs-m2-desc { margin: 0; max-width: 281px; color: #555; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m2-arrows { display: flex; gap: 12px; }
+  .cs-m2-arrow {
+    width: 40px; height: 40px; border: 0; border-radius: 100px; background: #000; color: #fff;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: opacity .2s ease;
+  }
+  .cs-m2-arrow:disabled { opacity: .35; cursor: default; }
+  .cs-m2-arrow svg { width: 20px; height: 20px; }
+
+  /* ---- Circles scene + Ecosystem: mobile fit ---- */
+  @media (max-width: 700px) {
+    /* "By Design" (circles): drop the desktop cube scene → static intro (54:426) + chapter carousel (54:606) */
+    #circles-scene { height: auto; }
+    .cs-stage { display: none; }
+    .cs-m { display: flex; }
+    .cs-m2-track { display: block; }
+
+    /* ecosystem heading: stack the tag over the description, full width */
+    .eco-head {
+      left: 20px; right: 20px; top: 100px; padding-right: 0;
+      flex-direction: column; gap: 18px;
+    }
+    .eco-desc { width: auto; font-size: 20px; line-height: 26px; letter-spacing: -0.2px; }
+    .eco-tag-label { font-size: 16px; letter-spacing: -0.4px; }
+  }
+
   /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
      No section of its own, no horizontal scroll. Once the white square fills the viewport the whole
      layer fades in. STATE 1: all 15 cards as a concave arc of thin strips, all vertically centred
@@ -1123,6 +1357,19 @@
   }
   .ft-rights { color: #808080; }
 
+  /* ---- Footer: mobile fit ---- */
+  @media (max-width: 700px) {
+    .ft-letter-a { top: 26px; left: 20px; width: 60px; height: auto; }
+    .ft-letter-f { bottom: 36px; right: 20px; width: 58px; height: auto; }
+    .ft-social { top: 26px; right: 20px; gap: 10px; }
+    .ft-cta { gap: 16px; }
+    .ft-cta-line { font-size: 32px; line-height: 36px; letter-spacing: -1.2px; gap: 12px; }
+    .ft-roll-mask, .ft-roll span { height: 36px; }
+    .ft-cta-line:hover .ft-roll { transform: translateY(-36px); }
+    .ft-brk, .ft-brk svg { width: 7px; height: 42px; }
+    .ft-copy { left: 20px; bottom: 34px; font-size: 14px; }
+  }
+
 </style>
 </head>
 <body class="preloading">
@@ -1139,6 +1386,9 @@
         <span class="sup">By design.</span>
       </div>
     </section>
+
+    <!-- Mobile menu backdrop (full-screen blur behind the floating panel) -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
 
     <!-- Morphing header / menu panel -->
     <div class="panel" id="panel">
@@ -1213,6 +1463,10 @@
           </div>
 
         </div>
+
+        <!-- Mobile-only footer (Figma): full-width CTA + copyright -->
+        <a class="m-talk-btn m-mobile-only" href="mailto:alex@foster.com">Let's Talk</a>
+        <div class="m-copy m-mobile-only">© 2026 Alex Foster</div>
       </div>
     </div>
 
@@ -1321,6 +1575,61 @@
         <a class="cs-plaque" href="https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1" target="_blank" rel="noopener noreferrer">
           <span class="cs-plaque-label cs-swap"><span class="cs-swap-cur"></span><span class="cs-swap-new"></span></span>
         </a>
+      </div>
+
+      <!-- Mobile-only static redesign (Figma 54:426); desktop keeps the scroll scene above -->
+      <div class="cs-m">
+        <div class="cs-m-head">
+          <span class="cs-m-tag"><span class="tag-dot"></span>Journey</span>
+          <h2 class="cs-m-title">By Design</h2>
+          <p class="cs-m-desc">Alex Foster's journey is built on intentional decisions, calculated risks and a long-term vision shaped through every chapter.</p>
+        </div>
+        <div class="cs-m-photo">
+          <img loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+        </div>
+        <div class="cs-m-stats">
+          <div class="cs-m-stat">
+            <span class="cs-m-stat-label">Ventures</span>
+            <span class="cs-m-stat-num">03</span>
+          </div>
+          <div class="cs-m-stat">
+            <span class="cs-m-stat-label">Chapters</span>
+            <span class="cs-m-stat-num">06</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile-only chapter carousel (Figma 54:606); scroll cycles the 3 chapters -->
+      <div class="cs-m2-track">
+        <div class="cs-m2">
+          <div class="cs-m2-circle">
+            <div class="cs-m2-circle-img">
+              <img class="cs-m2-img" loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+            </div>
+            <a class="cs-m2-chip" href="https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1" target="_blank" rel="noopener noreferrer">Open chapter [ 01 ]</a>
+          </div>
+          <div class="cs-m2-mid">
+            <div class="csm-timeline">
+              <span class="cs-year csm-26l"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>26<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+              <span class="cs-year csm-25l"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>25<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+              <span class="cs-year csm-2024 active"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>2024<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+              <span class="cs-year csm-25r"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>25<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+              <span class="cs-year csm-26r"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>26<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
+            </div>
+            <div class="cs-m2-text">
+              <h3 class="cs-m2-title">The foundation</h3>
+              <p class="cs-m2-desc">A year of defining vision, direction<br>and the first layer of the ecosystem.</p>
+            </div>
+          </div>
+          <div class="cs-m2-arrows">
+            <button class="cs-m2-arrow cs-m2-prev" type="button" aria-label="Previous chapter">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5l-5 5.5 5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="cs-m2-arrow cs-m2-next" type="button" aria-label="Next chapter">
+              <svg viewBox="0 0 20 20" fill="none"><path d="M7.5 4.5l5 5.5-5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1714,6 +2023,7 @@
       // reveal order: left column → middle → right, top to bottom (DOM order)
       const revealEls = [...panel.querySelectorAll(".rv, .fade, .spic")];
       const WIDTH_MS = 520;          // matches the .5s width transition
+      const isMobile = () => window.matchMedia("(max-width: 700px)").matches;
       let open = false, busy = false;
 
       function setDelays(on) {
@@ -1723,8 +2033,15 @@
       }
 
       function openMenu() {
-        busy = true; open = true;
+        open = true;
         toggle.setAttribute("aria-expanded", "true");
+        if (isMobile()) {                        // mobile: instant full-screen overlay
+          panel.classList.add("is-wide");        // toggles the ✕ icon
+          body.classList.add("menu-open");
+          setDelays(true);
+          return;
+        }
+        busy = true;
         panel.classList.add("is-wide");          // 1) header spreads to 1280
         setTimeout(() => {
           panel.classList.add("is-tall");        // 2) curtain drops to 480
@@ -1735,10 +2052,15 @@
       }
 
       function closeMenu() {
-        busy = true; open = false;
+        open = false;
         toggle.setAttribute("aria-expanded", "false");
         body.classList.remove("menu-open");      // 1) inner reverses + curtain up
         setDelays(false);
+        if (isMobile()) {
+          panel.classList.remove("is-wide");
+          return;
+        }
+        busy = true;
         panel.classList.remove("is-tall");
         setTimeout(() => {
           panel.classList.remove("is-wide");     // 2) header retracts to 520
@@ -1747,6 +2069,11 @@
       }
 
       toggle.addEventListener("click", () => { if (!busy) (open ? closeMenu() : openMenu()); });
+      // mobile: tap the blurred backdrop to close
+      const backdrop = document.getElementById("menuBackdrop");
+      if (backdrop) backdrop.addEventListener("click", () => {
+        if (open && !busy && isMobile()) closeMenu();
+      });
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && open && !busy) closeMenu();
       });
@@ -1845,13 +2172,58 @@
 
         el.founder.style.opacity = 1 - map(p, 0.14, 0.19);
 
+        // ---- Mobile: photo is full-screen (no card → no zoom). The three Figma states
+        //      (full photo → dark + white "Ideas Into Reality" + docked bio → expanded
+        //      plaque) play out on scroll. Size/colour are locked in CSS; JS only times it.
+        if (vw <= 700) {
+          // photo fills the screen (size locked by CSS); reveal bottom→top, never scales
+          const imgRevealM = map(p, 0.16, 0.30);
+          el.imgbox.style.clipPath = `inset(${(1 - imgRevealM) * 100}% 0 0 0)`;
+
+          // dark overlay fades in with the headline (Figma 17:601)
+          el.dark.style.opacity = (map(p, 0.20, 0.34) * 0.6).toFixed(3);
+
+          // header adapts to the backdrop: white intro → dark pill, dark photo → light pill
+          const wantHdr = imgRevealM >= 0.92 ? "light" : "dark";
+          if (about.dataset.header !== wantHdr) about.setAttribute("data-header", wantHdr);
+
+          // "Ideas Into Reality" — white & centred (CSS); in with the dark photo, out as it expands
+          const ideasInM  = map(p, 0.22, 0.32);
+          const ideasOutM = map(p, 0.60, 0.70);
+          el.ideas.style.opacity = (ideasInM * (1 - ideasOutM)).toFixed(3);
+
+          // plaque: docks at the bottom with the bio (601), then expands + rises to the
+          //         vertical centre of the screen (Figma 17:614 → plaque y=192, h=316 in a 700 frame)
+          const entryM = map(p, 0.34, 0.52);
+          const riseM  = map(p, 0.60, 0.86);
+          el.block2.style.maxHeight = map(p, 0.62, 0.86) * 240 + "px";
+          el.block2.style.marginTop = map(p, 0.62, 0.86) * 28 + "px";
+          el.block2.style.opacity   = map(p, 0.66, 0.90).toFixed(3);
+          const rrM = map(p, 0.60, 0.80) * 12;
+          el.plaque.style.borderBottomLeftRadius = rrM + "px";
+          el.plaque.style.borderBottomRightRadius = rrM + "px";
+          el.plaque.style.paddingBottom = lerp(40, 20, map(p, 0.60, 0.80)) + "px";
+          // lift from docked (bottom:0) up to vertically centred (equal gap top & bottom)
+          const centreLift = Math.max(0, (vh - el.plaque.offsetHeight) / 2);
+          el.plaque.style.transform = `translateY(${lerp(560, 0, entryM) - riseM * centreLift}px)`;
+
+          // subtle vertical parallax once full-bleed (a pan, not a zoom)
+          el.img.style.transform = `translateY(${map(p, 0.34, 1.0) * -6}vh)`;
+          return;
+        }
+
+        // desktop: About sits over a white stage → fixed dark header (undo any mobile flip)
+        if (about.dataset.header !== "dark") about.setAttribute("data-header", "dark");
+
         // B — image reveals bottom→top in place (no slide); C — snappy zoom to fullscreen
         const imgReveal = map(p, 0.16, 0.27);
         el.imgbox.style.clipPath = `inset(${(1 - imgReveal) * 100}% 0 0 0)`;
         const growRaw = map(p, 0.32, 0.56);
         const grow = 1 - Math.pow(1 - growRaw, 3);   // easeOutCubic — abrupt "page-opening" feel
-        el.imgbox.style.width = lerp(400, vw, grow) + "px";
-        el.imgbox.style.height = lerp(530, vh, grow) + "px";
+        const startW = Math.min(400, vw - 24);       // fit the card on narrow screens
+        const startH = startW * (530 / 400);         // keep the 400×530 aspect
+        el.imgbox.style.width = lerp(startW, vw, grow) + "px";
+        el.imgbox.style.height = lerp(startH, vh, grow) + "px";
         el.imgbox.style.borderRadius = lerp(12, 0, grow) + "px";
 
         // "Ideas Into Reality" — appears with the image; as it zooms the black side
@@ -2179,12 +2551,105 @@
         raf = requestAnimationFrame(frameTick);
       }
       function onScroll() {
+        if (innerWidth <= 700) return;   // mobile: static "By Design" screen, no scroll scene
         const total = sec.offsetHeight - innerHeight;
         target = clamp(-sec.getBoundingClientRect().top / total, 0, 1);
         if (!raf) raf = requestAnimationFrame(frameTick);
       }
       addEventListener('scroll', onScroll, { passive: true });
       addEventListener('resize', () => { cur = null; onScroll(); });   // snap on resize
+      onScroll();
+    })();
+  </script>
+
+  <script>
+    /* ---------- "By Design" mobile chapter carousel (Figma 54:606) ----------
+       Scroll through the pinned track cycles the 3 chapters (image + active years +
+       title/desc/chip), same content/logic as the desktop cube. Arrows jump ±1 chapter.
+       Mobile-only: guarded by innerWidth and hidden on desktop via CSS. */
+    (() => {
+      const track = document.querySelector('.cs-m2-track');
+      if (!track) return;
+      const img     = track.querySelector('.cs-m2-img');
+      const chip    = track.querySelector('.cs-m2-chip');
+      const titleEl = track.querySelector('.cs-m2-title');
+      const descEl  = track.querySelector('.cs-m2-desc');
+      const textEl  = track.querySelector('.cs-m2-text');
+      const prevBtn = track.querySelector('.cs-m2-prev');
+      const nextBtn = track.querySelector('.cs-m2-next');
+      const y2024   = track.querySelector('.csm-2024');
+      const y25     = [track.querySelector('.csm-25l'), track.querySelector('.csm-25r')];
+      const y26     = [track.querySelector('.csm-26l'), track.querySelector('.csm-26r')];
+
+      const STATES = [
+        { title: 'The foundation',
+          desc:  'A year of defining vision, direction<br>and the first layer of the ecosystem.',
+          label: 'Open chapter [ 01 ]',
+          href:  'https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1',
+          img:   'images/main page/by design-section.webp' },
+        { title: 'The expansion',
+          desc:  'Ideas moved into execution, turning concepts<br>into products and projects into brands.',
+          label: 'Open chapter [ 02 ]',
+          href:  'https://www.youtube.com/watch?v=GBQ0XBz6e8w',
+          img:   'images/main page/carousel 2.0.webp' },
+        { title: 'The architecture',
+          desc:  'The ecosystem takes shape, connecting<br>ventures, culture and long-term vision.',
+          label: 'Open chapter [ 03 ]',
+          href:  'https://www.youtube.com/watch?v=YelBGuxbDJU',
+          img:   'images/main page/carousel 3.0.webp' },
+      ];
+      STATES.forEach(s => { const im = new Image(); im.src = s.img; }); // preload → no swap flash
+
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      let cur = -1, swapT = null;
+
+      const paint = (i) => {
+        const st = STATES[i];
+        if (img)     img.src = st.img;
+        if (titleEl) titleEl.textContent = st.title;
+        if (descEl)  descEl.innerHTML = st.desc;
+        if (chip)  { chip.textContent = st.label; chip.href = st.href; }
+        if (y2024) y2024.classList.add('active');                 // 2024 always lit (center)
+        y25.forEach(e => e && e.classList.toggle('active', i >= 1));
+        y26.forEach(e => e && e.classList.toggle('active', i >= 2));
+        if (prevBtn) prevBtn.disabled = i === 0;
+        if (nextBtn) nextBtn.disabled = i === STATES.length - 1;
+      };
+      const show = (i) => {
+        i = clamp(i, 0, STATES.length - 1);
+        if (i === cur) return;
+        const first = cur === -1;
+        cur = i;
+        if (first) { paint(i); return; }                          // initial render: no fade
+        [img, textEl, chip].forEach(el => { if (el) el.style.opacity = '0'; });
+        clearTimeout(swapT);
+        swapT = setTimeout(() => {
+          paint(i);
+          [img, textEl, chip].forEach(el => { if (el) el.style.opacity = '1'; });
+        }, 150);
+      };
+
+      let ticking = false;
+      const onScroll = () => {
+        ticking = false;
+        if (innerWidth > 700) return;                             // desktop keeps the cube scene
+        const range = track.offsetHeight - innerHeight;
+        const p = range > 0 ? clamp(-track.getBoundingClientRect().top / range, 0, 1) : 0;
+        show(Math.min(STATES.length - 1, Math.floor(p * STATES.length)));
+      };
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+      addEventListener('resize', onScroll);
+
+      const goTo = (i) => {
+        i = clamp(i, 0, STATES.length - 1);
+        const range = track.offsetHeight - innerHeight;
+        if (range <= 0) return;
+        const targetP = (i + 0.5) / STATES.length;
+        scrollTo({ top: track.getBoundingClientRect().top + scrollY + targetP * range, behavior: 'smooth' });
+      };
+      if (prevBtn) prevBtn.addEventListener('click', () => goTo(cur - 1));
+      if (nextBtn) nextBtn.addEventListener('click', () => goTo(cur + 1));
+
       onScroll();
     })();
   </script>
