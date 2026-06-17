@@ -2951,6 +2951,9 @@
         const sy = lerp(300, 0, eOut(map(s, 0.0, 1.26)));
         strip.style.transform = mob ? '' : `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;  // mobile: CSS marquee drives it
         cards.forEach(c => c.style.opacity = (1 - map(s, 2.60, 3.57)).toFixed(3));
+        // mobile: fade the marquee strip out as the square covers it, so it never flashes at the
+        // bottom while the square folds back on reverse scroll (fades in again only once folded).
+        if (mob) strip.style.opacity = (1 - map(s, 1.85, 2.0)).toFixed(3);
 
         const cx = innerWidth / 2, cy = innerHeight / 2;
         // Group 42 frame travels to centre + rotates (same motion the plus had).
