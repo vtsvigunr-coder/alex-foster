@@ -2847,8 +2847,13 @@
         const cx = innerWidth / 2, cy = innerHeight / 2;
         // Group 42 frame travels to centre + rotates (same motion the plus had).
         const travelP = eInOut(map(s, 0.0, 1.0));
+        // mobile: land the small square in the gap between the description and the strip
+        // (so it never covers the text); then recentre to the viewport centre as it expands
+        // to fullscreen so the white canvas still fills the whole screen.
+        const targetY = mob ? innerHeight * 0.70 : cy;
         const wx = lerp(636, cx, travelP);
-        const wy = lerp(262, cy, travelP);
+        let wy = lerp(262, targetY, travelP);
+        if (mob) wy = lerp(targetY, cy, clamp(map(s, 1.764, 2.05), 0, 1));
         const ang = lerp(45, 180, travelP);
         ecoMorph.style.transform = `translate(${wx.toFixed(1)}px, ${wy.toFixed(1)}px) rotate(${ang.toFixed(1)}deg)`;
         // Border draws itself in along the perimeter (offset 100 → 0).
