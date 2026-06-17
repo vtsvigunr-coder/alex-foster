@@ -955,6 +955,31 @@
   .cs-m2-arrow:disabled { opacity: .35; cursor: default; }
   .cs-m2-arrow svg { width: 20px; height: 20px; }
 
+  /* ---- Projects — mobile-only stacked cards (Figma 17:1509). On desktop the trio lives in
+          the pinned zoom/accordion inside #ecosystem; on mobile the three projects just stack
+          (Vertus / AlphaLedger / Vanquish). Hidden on desktop. ---- */
+  #m-projects { display: none; background: #000; color: #fff; padding: 40px 20px 60px; font-family: Satoshi, sans-serif; }
+  .mpj-toptag { display: flex; align-items: center; justify-content: center; gap: 12px;
+                font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .mpj-toptag .tag-dot, .mpj-tag .tag-dot { background: #fff; }
+  .mpj-list { display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .mpj-card { position: relative; width: 353px; max-width: 100%; height: 530px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
+  .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+  .mpj-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
+  .mpj-body { position: absolute; left: 0; right: 0; top: 192px; bottom: 20px;
+              display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+              padding: 0 20px; text-align: center; }
+  .mpj-top { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .mpj-tag { display: inline-flex; align-items: center; gap: 12px;
+             font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .mpj-titlewrap { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .mpj-name { margin: 0; font-size: clamp(40px, 12vw, 48px); font-weight: 500; line-height: 52px; letter-spacing: -1.44px; white-space: nowrap; }
+  .mpj-learn { display: inline-flex; align-items: center; padding: 10px 24px; border-radius: 10px;
+               background: rgba(255,255,255,0.15); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+               box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+               font-size: 14px; font-weight: 500; letter-spacing: -0.14px; color: #fff; text-decoration: none; text-transform: capitalize; }
+  .mpj-desc { margin: 0; width: 288px; max-width: 100%; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+
   /* ---- Circles scene + Ecosystem: mobile fit ---- */
   @media (max-width: 700px) {
     /* "By Design" (circles): drop the desktop cube scene → static intro (54:426) + chapter carousel (54:606) */
@@ -979,6 +1004,12 @@
     /* thumbnail strip sits near the bottom; cards 150×100 (rides in + pans as on desktop) */
     .eco-strip { top: auto; bottom: 20px; gap: 4px; }
     .eco-card { width: 150px; height: 100px; border-radius: 2px; }
+
+    /* end the pinned scene once the white square has filled, then drop the desktop zoom
+       arc and show the stacked Projects (Figma 17:1509) as a normal scrollable section */
+    #ecosystem { height: 320vh; }
+    .epj { display: none; }
+    #m-projects { display: block; }
   }
 
   /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
@@ -1770,6 +1801,58 @@
           </div>
         </div>
 
+      </div>
+    </section>
+
+    <!-- Projects — mobile-only stacked cards (Figma 17:1509). Desktop uses the zoom/accordion
+         inside #ecosystem above; this section is display:none on desktop. -->
+    <section id="m-projects" data-header="light">
+      <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
+      <div class="mpj-list">
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">Vertus</h3>
+                <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+              </div>
+            </div>
+            <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
+          </div>
+        </article>
+
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">AlphaLedger</h3>
+                <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+              </div>
+            </div>
+            <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
+          </div>
+        </article>
+
+        <article class="mpj-card">
+          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
+          <div class="mpj-overlay"></div>
+          <div class="mpj-body">
+            <div class="mpj-top">
+              <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
+              <div class="mpj-titlewrap">
+                <h3 class="mpj-name">Vanquish</h3>
+                <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
+              </div>
+            </div>
+            <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
+          </div>
+        </article>
       </div>
     </section>
 
