@@ -959,22 +959,21 @@
   .cs-m2-arrow svg { width: 20px; height: 20px; }
 
   /* ---- Projects — mobile-only (Figma 17:1509). On desktop the trio lives in the pinned
-          zoom/accordion inside #ecosystem. On mobile: a pinned viewport. As the square fills,
-          the FIRST card (Vertus) + PROJECTS tag fade in IN PLACE (opacity only, no slide), then
-          scroll slides the stack up to reveal AlphaLedger / Vanquish (12px gaps, tag 60px above
-          the first card). Reverse scroll fades Vertus/tag back out, then the square folds. ---- */
-  #m-projects { display: none; background: #fff; color: #fff; font-family: Satoshi, sans-serif; }
-  .mpj-track { position: relative; height: 260vh; }
-  .mpj-viewport { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
-  .mpj-stack { display: flex; flex-direction: column; align-items: center; padding: 80px 20px 60px; will-change: transform; }
-  .mpj-toptag { display: flex; align-items: center; gap: 12px; color: #000; opacity: 0;
+          zoom/accordion inside #ecosystem. On mobile: the FIRST card (Vertus) + PROJECTS tag are
+          revealed ON the white square as it fills (see .eco-proj, driven by the ecosystem scroll —
+          fades in as the square arrives, fades out + folds on reverse). Here AlphaLedger + Vanquish
+          just scroll up from below (no animation), 12px apart. Hidden on desktop. ---- */
+  #m-projects { display: none; background: #fff; color: #fff; padding: 0 20px 60px; font-family: Satoshi, sans-serif; }
+  .mpj-card { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; margin: 0 auto;
+              border-radius: 12px; overflow: hidden; }
+  .mpj-card + .mpj-card { margin-top: 12px; }                  /* 12px between cards */
+  /* Vertus + tag revealed on the white square (continuation), pinned inside #ecosystem */
+  .eco-proj { display: none; position: absolute; inset: 0; z-index: 7; opacity: 0; pointer-events: none;
+              flex-direction: column; align-items: center; justify-content: flex-end; gap: 60px; padding-bottom: 12px; }
+  .mpj-toptag { display: flex; align-items: center; gap: 12px; color: #000;
                 font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
   .mpj-toptag .tag-dot { background: #000; }
   .mpj-tag .tag-dot { background: #fff; }
-  .mpj-card { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; flex: none;
-              border-radius: 12px; overflow: hidden; }
-  .mpj-first { margin-top: 60px; opacity: 0; }                 /* 60px below the tag; JS fades it in */
-  .mpj-stack > .mpj-card + .mpj-card { margin-top: 12px; }     /* 12px between cards */
   .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
   .mpj-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
   .mpj-body { position: absolute; left: 0; right: 0; top: 192px; bottom: 20px;
@@ -1018,10 +1017,11 @@
     .eco-card { width: 150px; height: 100px; border-radius: 2px; margin-right: 4px; }
     .eco-dup { display: block; }
 
-    /* end the pinned scene once the white square has filled, then drop the desktop zoom
-       arc and show the stacked Projects (Figma 17:1509) as a normal scrollable section */
-    #ecosystem { height: 320vh; }
+    /* keep the pin long enough for the square to fill + Vertus to fade in on it; drop the
+       desktop zoom arc; reveal Vertus on the square (.eco-proj) and stack AlphaLedger/Vanquish */
+    #ecosystem { height: 330vh; }
     .epj { display: none; }
+    .eco-proj { display: flex; }
     #m-projects { display: block; }
   }
 
@@ -1822,66 +1822,62 @@
           </div>
         </div>
 
+        <!-- Mobile-only: Vertus + PROJECTS tag fade in ON the white square (continuation), then
+             scroll reveals AlphaLedger/Vanquish in #m-projects below. Hidden on desktop. -->
+        <div class="eco-proj">
+          <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
+          <article class="mpj-card">
+            <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
+            <div class="mpj-overlay"></div>
+            <div class="mpj-body">
+              <div class="mpj-top">
+                <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
+                <div class="mpj-titlewrap">
+                  <h3 class="mpj-name">Vertus</h3>
+                  <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+                </div>
+              </div>
+              <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
+            </div>
+          </article>
+        </div>
+
       </div>
     </section>
 
-    <!-- Projects — mobile-only stacked cards (Figma 17:1509). Desktop uses the zoom/accordion
-         inside #ecosystem above; this section is display:none on desktop. -->
+    <!-- Projects — mobile-only (Figma 17:1509). Vertus + tag are revealed on the white square
+         (.eco-proj inside #ecosystem); here AlphaLedger + Vanquish scroll in below. Desktop:
+         display:none (it uses the zoom/accordion inside #ecosystem). -->
     <section id="m-projects" data-header="dark">
-      <div class="mpj-track">
-        <div class="mpj-viewport">
-          <div class="mpj-stack">
-            <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
-
-            <!-- Vertus: fades in IN PLACE as the square finishes (opacity only) -->
-            <article class="mpj-card mpj-first">
-              <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
-              <div class="mpj-overlay"></div>
-              <div class="mpj-body">
-                <div class="mpj-top">
-                  <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
-                  <div class="mpj-titlewrap">
-                    <h3 class="mpj-name">Vertus</h3>
-                    <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                  </div>
-                </div>
-                <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
-              </div>
-            </article>
-
-            <!-- AlphaLedger + Vanquish: scroll up into view (no fade) -->
-            <article class="mpj-card">
-              <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
-              <div class="mpj-overlay"></div>
-              <div class="mpj-body">
-                <div class="mpj-top">
-                  <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
-                  <div class="mpj-titlewrap">
-                    <h3 class="mpj-name">AlphaLedger</h3>
-                    <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                  </div>
-                </div>
-                <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
-              </div>
-            </article>
-
-            <article class="mpj-card">
-              <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
-              <div class="mpj-overlay"></div>
-              <div class="mpj-body">
-                <div class="mpj-top">
-                  <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
-                  <div class="mpj-titlewrap">
-                    <h3 class="mpj-name">Vanquish</h3>
-                    <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
-                  </div>
-                </div>
-                <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
-              </div>
-            </article>
+      <article class="mpj-card">
+        <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
+        <div class="mpj-overlay"></div>
+        <div class="mpj-body">
+          <div class="mpj-top">
+            <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
+            <div class="mpj-titlewrap">
+              <h3 class="mpj-name">AlphaLedger</h3>
+              <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+            </div>
           </div>
+          <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
         </div>
-      </div>
+      </article>
+
+      <article class="mpj-card">
+        <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
+        <div class="mpj-overlay"></div>
+        <div class="mpj-body">
+          <div class="mpj-top">
+            <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
+            <div class="mpj-titlewrap">
+              <h3 class="mpj-name">Vanquish</h3>
+              <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
+            </div>
+          </div>
+          <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
+        </div>
+      </article>
     </section>
 
     <!-- Founder system: sticky scroll-driven. White→black bg; scattered "Alex Foster" letters
@@ -2809,38 +2805,6 @@
   </script>
 
   <script>
-    /* ---------- Projects (mobile): pinned viewport. First the FIRST card (Vertus) + PROJECTS tag
-       fade in IN PLACE (opacity only, no slide — like the desktop card reveal as the square fills);
-       then continued scroll slides the stack up to reveal AlphaLedger / Vanquish (12px gaps).
-       Reverse scroll runs it backwards (fade out), then the ecosystem square folds. Mobile-only. */
-    (() => {
-      const sec = document.getElementById('m-projects');
-      if (!sec) return;
-      const track = sec.querySelector('.mpj-track');
-      const stack = sec.querySelector('.mpj-stack');
-      const vp    = sec.querySelector('.mpj-viewport');
-      const fadeEls = [...sec.querySelectorAll('.mpj-first, .mpj-toptag')];
-      if (!track || !stack || !vp) return;
-      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-      const FADE = 0.12;                                    // first 12% of the scroll = Vertus fade-in
-      let ticking = false;
-      const onScroll = () => {
-        ticking = false;
-        if (innerWidth > 700) { stack.style.transform = ''; return; }   // desktop keeps the zoom/accordion
-        const range = track.offsetHeight - innerHeight;
-        const p = range > 0 ? clamp(-track.getBoundingClientRect().top / range, 0, 1) : 0;
-        fadeEls.forEach(el => { el.style.opacity = clamp(p / FADE, 0, 1).toFixed(3); });
-        const tp = clamp((p - FADE) / (1 - FADE), 0, 1);    // remaining scroll slides the stack up
-        const shift = Math.max(0, stack.scrollHeight - vp.clientHeight);
-        stack.style.transform = `translateY(${(-tp * shift).toFixed(1)}px)`;
-      };
-      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-      addEventListener('resize', onScroll);
-      onScroll();
-    })();
-  </script>
-
-  <script>
     /* ---------- Ecosystem: intro → cards ride in → plus morphs to square → white ---------- */
     (() => {
       const sec = document.getElementById('ecosystem');
@@ -2852,6 +2816,7 @@
       const ecoShape = sec.querySelector('.eco-shape');
       const ecoFrame = sec.querySelector('.eco-frame');   // square outline that draws itself in
       const ecoFill  = sec.querySelector('.eco-fill');     // solid white fill once the border completes
+      const ecoProj  = sec.querySelector('.eco-proj');     // mobile: Vertus + tag revealed on the white square
 
       const clamp  = (v,a,b) => Math.max(a, Math.min(b, v));
       const map    = (v,a,b) => clamp((v-a)/(b-a), 0, 1);
@@ -3012,6 +2977,14 @@
         ecoShape.style.width  = lerp(52, innerWidth + 8, expandP).toFixed(1) + 'px';
         ecoShape.style.height = lerp(52, innerHeight + 8, expandP).toFixed(1) + 'px';
         sec.setAttribute('data-header', expandP > 0.4 ? 'dark' : 'light');
+
+        // mobile: Vertus + PROJECTS tag fade in ON the white square as it finishes filling
+        // (continuation of the square); reverse scroll fades them out as the square folds.
+        if (mob && ecoProj) {
+          const o = map(s, 2.00, 2.25);
+          ecoProj.style.opacity = o.toFixed(3);
+          ecoProj.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
+        }
 
         // ── Projects on the white canvas ──
         if (!proj) return;
