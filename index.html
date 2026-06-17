@@ -963,13 +963,22 @@
     .cs-m { display: flex; }
     .cs-m2-track { display: block; }
 
-    /* ecosystem heading: stack the tag over the description, full width */
+    /* ecosystem intro (Figma 17:1478): tag + description centred in the viewport.
+       eco-head becomes a full-bleed flex box so the JS translateY (rise-in) still works —
+       it just rises into the centre instead of a top-left row. The white square fly-out
+       (morph → fullscreen) and Projects stay exactly as on desktop. */
     .eco-head {
-      left: 20px; right: 20px; top: 100px; padding-right: 0;
-      flex-direction: column; gap: 18px;
+      left: 0; right: 0; top: 0; bottom: 0; padding: 0;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 20px; text-align: center; pointer-events: none;
     }
-    .eco-desc { width: auto; font-size: 20px; line-height: 26px; letter-spacing: -0.2px; }
-    .eco-tag-label { font-size: 16px; letter-spacing: -0.4px; }
+    .eco-tag { gap: 12px; height: auto; }
+    .eco-tag-label { font-size: 14px; line-height: 18px; letter-spacing: -0.42px; }
+    .eco-desc { width: 353px; max-width: calc(100vw - 40px); font-size: 20px; line-height: 24px; letter-spacing: -0.2px; }
+
+    /* thumbnail strip sits near the bottom; cards 150×100 (rides in + pans as on desktop) */
+    .eco-strip { top: auto; bottom: 20px; gap: 4px; }
+    .eco-card { width: 150px; height: 100px; border-radius: 2px; }
   }
 
   /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
