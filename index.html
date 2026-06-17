@@ -956,18 +956,26 @@
   .cs-m2-arrow svg { width: 20px; height: 20px; }
 
   /* ---- Projects — mobile-only (Figma 17:1509). On desktop the trio lives in the pinned
-          zoom/accordion inside #ecosystem; on mobile it's a normal scrolling stack of the three
-          cards. Each card fades in IN PLACE (opacity only, no slide-up) as it enters view —
-          like the desktop reveal. White bg continues the square fill; dark cards, white text. ---- */
-  #m-projects { display: none; background: #fff; color: #fff; padding: 40px 20px 60px; font-family: Satoshi, sans-serif; }
-  .mpj-toptag { display: flex; align-items: center; justify-content: center; gap: 12px; color: #000;
+          zoom/accordion inside #ecosystem. On mobile: as the square fills white, the FIRST card
+          (Vertus) + PROJECTS tag fade in IN PLACE on a pinned white canvas (continuation of the
+          square, like the desktop reveal — no slide). Then AlphaLedger / Vanquish scroll in
+          normally below (no fade). White bg continues the square fill; dark cards, white text. ---- */
+  #m-projects { display: none; background: #fff; color: #fff; padding-bottom: 60px; font-family: Satoshi, sans-serif; }
+  .mpj-toptag { position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+                display: flex; align-items: center; gap: 12px; color: #000; opacity: 0;
                 font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
   .mpj-toptag .tag-dot { background: #000; }
   .mpj-tag .tag-dot { background: #fff; }
-  .mpj-list { display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
-  .mpj-card { position: relative; width: 353px; max-width: 100%; height: 530px; margin: 0 auto; border-radius: 12px; overflow: hidden;
-              opacity: 0; transition: opacity .6s ease; }
-  .mpj-card.is-in { opacity: 1; }
+  /* Vertus reveal — pinned, opacity-only fade as a continuation of the square */
+  .mpj-pin { position: relative; height: 140vh; }
+  .mpj-pin-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff;
+                   display: flex; align-items: center; justify-content: center; }
+  .mpj-deck { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; }
+  .mpj-first { position: absolute; inset: 0; opacity: 0; }     /* JS scroll-drives the fade */
+  /* AlphaLedger + Vanquish — normal scroll, no fade */
+  .mpj-flow { margin: 12px auto 0; }
+  .mpj-card { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; margin-left: auto; margin-right: auto;
+              border-radius: 12px; overflow: hidden; }
   .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
   .mpj-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
   .mpj-body { position: absolute; left: 0; right: 0; top: 192px; bottom: 20px;
@@ -1811,53 +1819,59 @@
     <!-- Projects — mobile-only stacked cards (Figma 17:1509). Desktop uses the zoom/accordion
          inside #ecosystem above; this section is display:none on desktop. -->
     <section id="m-projects" data-header="dark">
-      <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
-      <div class="mpj-list">
-        <article class="mpj-card">
-          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
-          <div class="mpj-overlay"></div>
-          <div class="mpj-body">
-            <div class="mpj-top">
-              <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
-              <div class="mpj-titlewrap">
-                <h3 class="mpj-name">Vertus</h3>
-                <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+      <!-- Vertus reveal: pinned, fades in on the white the square leaves (continuation) -->
+      <div class="mpj-pin">
+        <div class="mpj-pin-stage">
+          <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
+          <div class="mpj-deck">
+            <article class="mpj-card mpj-first">
+              <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 8.webp" alt="" />
+              <div class="mpj-overlay"></div>
+              <div class="mpj-body">
+                <div class="mpj-top">
+                  <span class="mpj-tag"><span class="tag-dot"></span>Web3, evolved</span>
+                  <div class="mpj-titlewrap">
+                    <h3 class="mpj-name">Vertus</h3>
+                    <a class="mpj-learn" href="https://www.vertus.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+                  </div>
+                </div>
+                <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
               </div>
-            </div>
-            <p class="mpj-desc">Digital experiences for the next generation of users, communities and ownership.</p>
+            </article>
           </div>
-        </article>
-
-        <article class="mpj-card">
-          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
-          <div class="mpj-overlay"></div>
-          <div class="mpj-body">
-            <div class="mpj-top">
-              <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
-              <div class="mpj-titlewrap">
-                <h3 class="mpj-name">AlphaLedger</h3>
-                <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
-              </div>
-            </div>
-            <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
-          </div>
-        </article>
-
-        <article class="mpj-card">
-          <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
-          <div class="mpj-overlay"></div>
-          <div class="mpj-body">
-            <div class="mpj-top">
-              <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
-              <div class="mpj-titlewrap">
-                <h3 class="mpj-name">Vanquish</h3>
-                <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
-              </div>
-            </div>
-            <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
-          </div>
-        </article>
+        </div>
       </div>
+
+      <!-- AlphaLedger + Vanquish: scroll in normally below -->
+      <article class="mpj-card mpj-flow">
+        <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 7.0.webp" alt="" />
+        <div class="mpj-overlay"></div>
+        <div class="mpj-body">
+          <div class="mpj-top">
+            <span class="mpj-tag"><span class="tag-dot"></span>Infrastructure of trust</span>
+            <div class="mpj-titlewrap">
+              <h3 class="mpj-name">AlphaLedger</h3>
+              <a class="mpj-learn" href="https://www.alphaledger.ai/" target="_blank" rel="noopener noreferrer">Learn More</a>
+            </div>
+          </div>
+          <p class="mpj-desc">A finance-focused venture exploring systems, transparency and digital infrastructure for a new generation of capital.</p>
+        </div>
+      </article>
+
+      <article class="mpj-card mpj-flow">
+        <img class="mpj-img" loading="lazy" decoding="async" src="images/main page/project 9.webp" alt="" />
+        <div class="mpj-overlay"></div>
+        <div class="mpj-body">
+          <div class="mpj-top">
+            <span class="mpj-tag"><span class="tag-dot"></span>Performance, reimagined</span>
+            <div class="mpj-titlewrap">
+              <h3 class="mpj-name">Vanquish</h3>
+              <a class="mpj-learn" href="https://www.vanquish.so/" target="_blank" rel="noopener noreferrer">Learn More</a>
+            </div>
+          </div>
+          <p class="mpj-desc">A brand built around discipline, movement and the pursuit of physical and mental edge.</p>
+        </div>
+      </article>
     </section>
 
     <!-- Founder system: sticky scroll-driven. White→black bg; scattered "Alex Foster" letters
@@ -2785,18 +2799,29 @@
   </script>
 
   <script>
-    /* ---------- Projects (mobile): the section scrolls (stacked cards, Figma 17:1509), but each
-       card fades in IN PLACE via opacity as it enters view — no slide-up. Mobile-only; the
-       section is display:none on desktop so these never intersect there. */
+    /* ---------- Projects (mobile): the FIRST card (Vertus) + PROJECTS tag fade in IN PLACE on a
+       pinned white canvas as the square finishes flying in (opacity only, no slide — like the
+       desktop card reveal). AlphaLedger / Vanquish then scroll in normally. Mobile-only; the
+       section is display:none on desktop. */
     (() => {
       const sec = document.getElementById('m-projects');
       if (!sec) return;
-      const cards = [...sec.querySelectorAll('.mpj-card')];
-      if (!cards.length) return;
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-      }, { threshold: 0.18 });
-      cards.forEach(c => io.observe(c));
+      const pin = sec.querySelector('.mpj-pin');
+      const fadeEls = [...sec.querySelectorAll('.mpj-first, .mpj-toptag')];
+      if (!pin || !fadeEls.length) return;
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      let ticking = false;
+      const onScroll = () => {
+        ticking = false;
+        if (innerWidth > 700) return;                       // desktop keeps the zoom/accordion
+        const range = pin.offsetHeight - innerHeight;
+        const p = range > 0 ? clamp(-pin.getBoundingClientRect().top / range, 0, 1) : 0;
+        const o = clamp(p / 0.4, 0, 1).toFixed(3);          // fade in over the first part of the pin
+        fadeEls.forEach(el => { el.style.opacity = o; });
+      };
+      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+      addEventListener('resize', onScroll);
+      onScroll();
     })();
   </script>
 
