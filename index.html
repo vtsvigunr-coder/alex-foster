@@ -1023,6 +1023,18 @@
     .epj { display: none; }
     .eco-proj { display: flex; }
     #m-projects { display: block; }
+
+    /* ---- Founder / Vision (Figma 17:1680): top heading + centred photo card + scattered 48px
+            letters that assemble into "Alex Foster"; bg white→black, same logic as desktop. The
+            desktop 1440-frame is un-scaled here (JS forces --fk=1) and laid out for the viewport. */
+    .fs-frame { left: 0; top: 0; width: 100%; height: 100%; margin: 0; }
+    .fs-btn { top: 80px; gap: 12px; }
+    .fs-btn-label { font-size: 14px; line-height: 18px; letter-spacing: -0.42px; }
+    .fs-head { top: 116px; width: 100%; padding: 0 20px; box-sizing: border-box; gap: 20px; }
+    .fs-head-title { font-size: 36px; line-height: 40px; letter-spacing: -0.72px; }
+    .fs-head-sub { width: 312px; max-width: 100%; font-size: 15px; line-height: 20px; letter-spacing: -0.15px; color: #555; }
+    .fs-card { left: 50%; top: calc(50% + 109px); width: 353px; max-width: calc(100vw - 40px); height: 468px; margin-left: 0; border-radius: 10px; transform: translate(-50%, -50%); }
+    .fs-title { top: auto; bottom: 90px; font-size: 48px; line-height: 52px; letter-spacing: -1.44px; }
   }
 
   /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
@@ -3076,6 +3088,13 @@
         [ 25, -18,  22], [ 38,  12, -28], [ 18,  25,  15], [ 42,  -8, -19], [ 30, -28,  38],
       ];
       const TITLE_TOP = 725;   // design top of the assembled word below the card (Figma 87:205)
+      // Mobile scatter (Figma 17:1680): per-letter START position [x, y] in the 393×846 frame,
+      // indexed A L E X F O S T E R. Letters assemble from here into the word. (E2/R extrapolated.)
+      const MSCATTER = [
+        [170, 402], [312, 350], [233, 324], [31, 574], [89, 460],
+        [54, 350], [247, 486], [333, 566], [140, 540], [295, 440],
+      ];
+      let titleTop = 0, titleCx = 0;   // measured viewport position of the assembled word (mobile)
       const letters = [];
       let vi = 0;
       [...WORD].forEach((ch) => {
@@ -3095,11 +3114,45 @@
       const measure = () => {
         letters.forEach(L => L.el.style.transform = 'none');
         const tc = titleEl.getBoundingClientRect(), cx = tc.left + tc.width / 2;
+        titleTop = tc.top; titleCx = cx;   // mobile: assembled word position in the viewport
         letters.forEach(L => { const r = L.el.getBoundingClientRect(); L.wox = ((r.left + r.width / 2) - cx) / fk; });
       };
-      const resize = () => { fk = Math.min(innerWidth/FRAME_W, innerHeight/FRAME_H); frame.style.setProperty('--fk', fk.toFixed(4)); measure(); };
+      // mobile: don't scale the 1440 design frame (it'd be tiny); use it 1:1 in the viewport
+      const resize = () => { fk = innerWidth <= 700 ? 1 : Math.min(innerWidth/FRAME_W, innerHeight/FRAME_H); frame.style.setProperty('--fk', fk.toFixed(4)); measure(); };
+
+      // ── Mobile (Figma 17:1680): letters start at the design's scattered positions over the
+      //    centred photo card and assemble into "Alex Foster"; bg white→black; heading/VISION
+      //    fade up. The photo card stays placed (as in the design). ──
+      function applyMobile(p) {
+        const vw = innerWidth, vh = innerHeight;
+        const bgP = eInOut(map(p, 0.083, 0.667));
+        const v = Math.round(lerp(255, 0, bgP));
+        stage.style.background = `rgb(${v},${v},${v})`;
+        sec.setAttribute('data-header', bgP > 0.5 ? 'light' : 'dark');
+
+        const upY = lerp(0, -180, eIn(map(p, 0.0, 0.6)));
+        const topOp = (1 - map(p, 0.25, 0.50)).toFixed(3);
+        head.style.transform = `translate(-50%, ${upY.toFixed(1)}px)`; head.style.opacity = topOp;
+        btn.style.transform  = `translate(-50%, ${upY.toFixed(1)}px)`; btn.style.opacity = topOp;
+        btn.style.pointerEvents = p > 0.25 ? 'none' : 'auto';
+        card.style.top = '';   // card stays at its CSS position (calc(50% + 109px))
+
+        const lc = Math.round(lerp(178, 255, bgP));   // letters #b2b2b2 (white bg) → #fff (black bg)
+        titleEl.style.color = `rgb(${lc},${lc},${lc})`;
+        const t = eInOut(map(p, 0.333, 1.0));          // scatter (t=0) → assembled (t=1)
+        const sx = vw / 393, sy = vh / 846;            // Figma frame → viewport
+        letters.forEach(L => {
+          const m = MSCATTER[L.i] || [196, 423];
+          const scX = (m[0] + 16) * sx;                // +half glyph ≈ letter centre
+          const scY = m[1] * sy;
+          const x = (scX - (titleCx + L.wox)) * (1 - t);
+          const y = (scY - titleTop) * (1 - t);
+          L.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+        });
+      }
 
       function apply(p) {
+        if (innerWidth <= 700) { applyMobile(p); return; }
         // Windows rescaled (×1/0.6) so the LAST phase (assembly) ends exactly at p=1 — section
         // height was trimmed to match, so there's no idle pinned scroll after the letters land.
         // Phase 1 — background white → black; header flips to light once dark
