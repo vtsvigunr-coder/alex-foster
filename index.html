@@ -913,33 +913,40 @@
   .cs-m-stat-num { font-size: 96px; font-weight: 700; line-height: 100px; letter-spacing: -4.8px; }
 
   /* ---- "By Design" mobile chapter carousel (Figma 54:606). Hidden on desktop; the
-          desktop cube/prism scene is hidden on mobile (see media query). Scroll cycles
-          the 3 chapters (image + years + text), same content/logic as desktop. ---- */
-  .cs-m2-track { display: none; position: relative; height: 300vh; background: #fff; }
+          desktop cube/prism scene is hidden on mobile (see media query). One screen —
+          horizontal swipe on the circle (or arrows) slides between the 3 chapters; the
+          text swaps bottom→top like desktop. Vertical scroll just passes the section. ---- */
+  .cs-m2-track { display: none; position: relative; background: #fff; }
   .cs-m2 {
-    position: sticky; top: 0; min-height: 100vh;
+    min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px;
     padding: 24px 20px; background: #fff; color: #000; font-family: Satoshi, sans-serif;
   }
-  .cs-m2-circle { position: relative; width: 353px; max-width: calc(100vw - 40px); aspect-ratio: 1; }
+  /* touch-action pan-y: vertical gestures scroll the page, horizontal ones are ours (swipe) */
+  .cs-m2-circle { position: relative; width: 353px; max-width: calc(100vw - 40px); aspect-ratio: 1; touch-action: pan-y; }
   .cs-m2-circle-img { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
-  .cs-m2-img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); transition: opacity .25s ease; }
+  .cs-m2-strip { display: flex; width: 100%; height: 100%; will-change: transform; }
+  .cs-m2-slide { flex: 0 0 100%; width: 100%; height: 100%; }
+  .cs-m2-slide img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); }
   .cs-m2-chip {
-    position: absolute; right: 0; top: 70%;
+    position: absolute; right: 0; top: 70%; z-index: 2;
     display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 100px;
     background: rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     font-size: 14px; font-weight: 500; letter-spacing: -0.14px; color: #000;
-    text-decoration: none; white-space: nowrap; transition: opacity .25s ease;
+    text-decoration: none; white-space: nowrap;
   }
   .cs-m2-mid { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; }
   .csm-timeline { display: flex; align-items: center; justify-content: space-between; width: 100%; }
   .csm-timeline .cs-year { font-size: 15px; font-weight: 500; gap: 6px; letter-spacing: -0.15px; color: #b2b2b2; }
   .csm-timeline .cs-year svg { width: 6px; height: 32px; }
   .csm-timeline .cs-year.active { color: #000; }
-  .cs-m2-text { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; transition: opacity .25s ease; }
+  .cs-m2-text { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
   .cs-m2-title { margin: 0; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.72px; }
-  .cs-m2-desc { margin: 0; max-width: 281px; color: #555; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m2-title.cs-swap { height: 40px; width: 100%; }            /* one line */
+  .cs-m2-title .cs-swap-cur, .cs-m2-title .cs-swap-new { white-space: nowrap; }
+  .cs-m2-desc { margin: 0; color: #555; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m2-desc.cs-swap { height: 40px; width: min(360px, calc(100vw - 24px)); } /* exactly two lines (fits ch.2's longer line) */
   .cs-m2-arrows { display: flex; gap: 12px; }
   .cs-m2-arrow {
     width: 40px; height: 40px; border: 0; border-radius: 100px; background: #000; color: #fff;
@@ -1599,12 +1606,16 @@
         </div>
       </div>
 
-      <!-- Mobile-only chapter carousel (Figma 54:606); scroll cycles the 3 chapters -->
+      <!-- Mobile-only chapter carousel (Figma 54:606); horizontal swipe / arrows cycle the 3 chapters -->
       <div class="cs-m2-track">
         <div class="cs-m2">
           <div class="cs-m2-circle">
             <div class="cs-m2-circle-img">
-              <img class="cs-m2-img" loading="lazy" decoding="async" src="images/main page/by design-section.webp" alt="" />
+              <div class="cs-m2-strip">
+                <div class="cs-m2-slide"><img decoding="async" src="images/main page/by design-section.webp" alt="" /></div>
+                <div class="cs-m2-slide"><img decoding="async" src="images/main page/carousel 2.0.webp" alt="" /></div>
+                <div class="cs-m2-slide"><img decoding="async" src="images/main page/carousel 3.0.webp" alt="" /></div>
+              </div>
             </div>
             <a class="cs-m2-chip" href="https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1" target="_blank" rel="noopener noreferrer">Open chapter [ 01 ]</a>
           </div>
@@ -1617,8 +1628,8 @@
               <span class="cs-year csm-26r"><svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M0.5 6.5V0.5H6.5"/><path d="M0.5 30.5V36.5H6.5"/></svg>26<svg width="7" height="37" viewBox="0 0 7 37" fill="none"><path d="M6 6.5V0.5H7.55774e-08"/><path d="M6 30.5V36.5H7.55774e-08"/></svg></span>
             </div>
             <div class="cs-m2-text">
-              <h3 class="cs-m2-title">The foundation</h3>
-              <p class="cs-m2-desc">A year of defining vision, direction<br>and the first layer of the ecosystem.</p>
+              <h3 class="cs-m2-title cs-swap"><span class="cs-swap-cur">The foundation</span><span class="cs-swap-new"></span></h3>
+              <p class="cs-m2-desc cs-swap"><span class="cs-swap-cur">A year of defining vision, direction<br>and the first layer of the ecosystem.</span><span class="cs-swap-new"></span></p>
             </div>
           </div>
           <div class="cs-m2-arrows">
@@ -2564,17 +2575,17 @@
 
   <script>
     /* ---------- "By Design" mobile chapter carousel (Figma 54:606) ----------
-       Scroll through the pinned track cycles the 3 chapters (image + active years +
-       title/desc/chip), same content/logic as the desktop cube. Arrows jump ±1 chapter.
-       Mobile-only: guarded by innerWidth and hidden on desktop via CSS. */
+       One screen (no vertical pin): horizontal swipe on the circle — or the arrows —
+       slides the image between the 3 chapters; title/desc swap bottom→top like the
+       desktop cube. Vertical scroll just passes the section. Mobile-only. */
     (() => {
       const track = document.querySelector('.cs-m2-track');
       if (!track) return;
-      const img     = track.querySelector('.cs-m2-img');
+      const circle  = track.querySelector('.cs-m2-circle');
+      const strip   = track.querySelector('.cs-m2-strip');
       const chip    = track.querySelector('.cs-m2-chip');
       const titleEl = track.querySelector('.cs-m2-title');
       const descEl  = track.querySelector('.cs-m2-desc');
-      const textEl  = track.querySelector('.cs-m2-text');
       const prevBtn = track.querySelector('.cs-m2-prev');
       const nextBtn = track.querySelector('.cs-m2-next');
       const y2024   = track.querySelector('.csm-2024');
@@ -2585,72 +2596,95 @@
         { title: 'The foundation',
           desc:  'A year of defining vision, direction<br>and the first layer of the ecosystem.',
           label: 'Open chapter [ 01 ]',
-          href:  'https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1',
-          img:   'images/main page/by design-section.webp' },
+          href:  'https://www.youtube.com/watch?si=o-IlIEotwlNhzCV7&v=jQkAIBkVNA8&feature=youtu.be&themeRefresh=1' },
         { title: 'The expansion',
           desc:  'Ideas moved into execution, turning concepts<br>into products and projects into brands.',
           label: 'Open chapter [ 02 ]',
-          href:  'https://www.youtube.com/watch?v=GBQ0XBz6e8w',
-          img:   'images/main page/carousel 2.0.webp' },
+          href:  'https://www.youtube.com/watch?v=GBQ0XBz6e8w' },
         { title: 'The architecture',
           desc:  'The ecosystem takes shape, connecting<br>ventures, culture and long-term vision.',
           label: 'Open chapter [ 03 ]',
-          href:  'https://www.youtube.com/watch?v=YelBGuxbDJU',
-          img:   'images/main page/carousel 3.0.webp' },
+          href:  'https://www.youtube.com/watch?v=YelBGuxbDJU' },
       ];
-      STATES.forEach(s => { const im = new Image(); im.src = s.img; }); // preload → no swap flash
-
+      const N = STATES.length;
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-      let cur = -1, swapT = null;
+      let index = 0;
 
-      const paint = (i) => {
-        const st = STATES[i];
-        if (img)     img.src = st.img;
-        if (titleEl) titleEl.textContent = st.title;
-        if (descEl)  descEl.innerHTML = st.desc;
-        if (chip)  { chip.textContent = st.label; chip.href = st.href; }
-        if (y2024) y2024.classList.add('active');                 // 2024 always lit (center)
+      /* text swap (reuses the desktop .cs-swap mechanic + keyframes) */
+      const swapEls = [[titleEl, 'title'], [descEl, 'desc']].filter(([el]) => el);
+      let swapT = null;
+      const finalizeSwap = () => {
+        swapEls.forEach(([el]) => {
+          el.querySelector('.cs-swap-cur').innerHTML = el.querySelector('.cs-swap-new').innerHTML;
+          el.classList.remove('swapping', 'dir-up');
+        });
+        swapT = null;
+      };
+      const swapText = (i, down) => {
+        if (swapT) { clearTimeout(swapT); finalizeSwap(); }
+        swapEls.forEach(([el, key]) => {
+          el.querySelector('.cs-swap-new').innerHTML = STATES[i][key];
+          el.classList.remove('swapping', 'dir-up');
+          void el.offsetWidth;                       // restart the animation
+          el.classList.add('swapping');
+          if (!down) el.classList.add('dir-up');     // backward → old exits down, new from above
+        });
+        swapT = setTimeout(finalizeSwap, 260);
+      };
+
+      const setMeta = (i) => {                        // instant bits: years + chip + arrows
+        if (y2024) y2024.classList.add('active');     // 2024 always lit (center)
         y25.forEach(e => e && e.classList.toggle('active', i >= 1));
         y26.forEach(e => e && e.classList.toggle('active', i >= 2));
+        if (chip) { chip.textContent = STATES[i].label; chip.href = STATES[i].href; }
         if (prevBtn) prevBtn.disabled = i === 0;
-        if (nextBtn) nextBtn.disabled = i === STATES.length - 1;
+        if (nextBtn) nextBtn.disabled = i === N - 1;
       };
-      const show = (i) => {
-        i = clamp(i, 0, STATES.length - 1);
-        if (i === cur) return;
-        const first = cur === -1;
-        cur = i;
-        if (first) { paint(i); return; }                          // initial render: no fade
-        [img, textEl, chip].forEach(el => { if (el) el.style.opacity = '0'; });
-        clearTimeout(swapT);
-        swapT = setTimeout(() => {
-          paint(i);
-          [img, textEl, chip].forEach(el => { if (el) el.style.opacity = '1'; });
-        }, 150);
+      const slide = (anim) => {
+        strip.style.transition = anim ? 'transform .4s cubic-bezier(.22,.61,.36,1)' : 'none';
+        strip.style.transform = `translateX(${-index * 100}%)`;
       };
+      const go = (i) => {
+        i = clamp(i, 0, N - 1);
+        if (i !== index) { swapText(i, i > index); index = i; setMeta(i); }
+        slide(true);                                  // also snaps back if unchanged
+      };
+      setMeta(0);
 
-      let ticking = false;
-      const onScroll = () => {
-        ticking = false;
-        if (innerWidth > 700) return;                             // desktop keeps the cube scene
-        const range = track.offsetHeight - innerHeight;
-        const p = range > 0 ? clamp(-track.getBoundingClientRect().top / range, 0, 1) : 0;
-        show(Math.min(STATES.length - 1, Math.floor(p * STATES.length)));
-      };
-      addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-      addEventListener('resize', onScroll);
+      if (prevBtn) prevBtn.addEventListener('click', () => go(index - 1));
+      if (nextBtn) nextBtn.addEventListener('click', () => go(index + 1));
 
-      const goTo = (i) => {
-        i = clamp(i, 0, STATES.length - 1);
-        const range = track.offsetHeight - innerHeight;
-        if (range <= 0) return;
-        const targetP = (i + 0.5) / STATES.length;
-        scrollTo({ top: track.getBoundingClientRect().top + scrollY + targetP * range, behavior: 'smooth' });
+      /* horizontal swipe on the circle; vertical gestures fall through to page scroll */
+      let sx = 0, sy = 0, w = 0, drag = false, decided = false, horiz = false;
+      circle.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        sx = t.clientX; sy = t.clientY; w = circle.clientWidth || 1;
+        drag = true; decided = false; horiz = false;
+      }, { passive: true });
+      circle.addEventListener('touchmove', (e) => {
+        if (!drag) return;
+        const t = e.touches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+        if (!decided && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) { decided = true; horiz = Math.abs(dx) > Math.abs(dy); }
+        if (decided && horiz) {
+          e.preventDefault();                          // claim the gesture (touch-action: pan-y)
+          let off = dx;
+          if ((index === 0 && dx > 0) || (index === N - 1 && dx < 0)) off = dx * 0.3; // edge resistance
+          strip.style.transition = 'none';
+          strip.style.transform = `translateX(calc(${-index * 100}% + ${off}px))`;
+        }
+      }, { passive: false });
+      const end = (e) => {
+        if (!drag) return;
+        drag = false;
+        if (!horiz) return;                            // vertical → page scrolled, nothing to do
+        const dx = (e.changedTouches ? e.changedTouches[0].clientX : sx) - sx;
+        const thresh = Math.max(40, w * 0.18);
+        if (dx <= -thresh) go(index + 1);
+        else if (dx >= thresh) go(index - 1);
+        else slide(true);                              // snap back
       };
-      if (prevBtn) prevBtn.addEventListener('click', () => goTo(cur - 1));
-      if (nextBtn) nextBtn.addEventListener('click', () => goTo(cur + 1));
-
-      onScroll();
+      circle.addEventListener('touchend', end);
+      circle.addEventListener('touchcancel', end);
     })();
   </script>
 
