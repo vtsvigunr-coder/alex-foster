@@ -2834,11 +2834,14 @@
 
       function apply(s) {
         // ── intro (unchanged feel): heading + 7-photo strip ride in, plus morphs into a square ──
-        head.style.transform = `translateY(${lerp(510, 0, map(s, 0.0, 1.26)).toFixed(1)}px)`;
+        // mobile: static centred intro (Figma 17:1478) — no rise/pan, so the text stays
+        // centred (no big black gap on top); desktop keeps the rise-in + pan.
+        const mob = innerWidth <= 700;
+        head.style.transform = mob ? 'none' : `translateY(${lerp(510, 0, map(s, 0.0, 1.26)).toFixed(1)}px)`;
 
         const sx = lerp(80, -560, map(s, 0.0, 3.36));
         const sy = lerp(300, 0, eOut(map(s, 0.0, 1.26)));
-        strip.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;
+        strip.style.transform = mob ? 'none' : `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;
         cards.forEach(c => c.style.opacity = (1 - map(s, 2.60, 3.57)).toFixed(3));
 
         const cx = innerWidth / 2, cy = innerHeight / 2;
