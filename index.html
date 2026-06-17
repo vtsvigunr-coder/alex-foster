@@ -958,10 +958,12 @@
   /* ---- Projects — mobile-only stacked cards (Figma 17:1509). On desktop the trio lives in
           the pinned zoom/accordion inside #ecosystem; on mobile the three projects just stack
           (Vertus / AlphaLedger / Vanquish). Hidden on desktop. ---- */
-  #m-projects { display: none; background: #000; color: #fff; padding: 40px 20px 60px; font-family: Satoshi, sans-serif; }
-  .mpj-toptag { display: flex; align-items: center; justify-content: center; gap: 12px;
+  /* white background (continues the white square fill); dark cards carry white text */
+  #m-projects { display: none; background: #fff; color: #fff; padding: 40px 20px 60px; font-family: Satoshi, sans-serif; }
+  .mpj-toptag { display: flex; align-items: center; justify-content: center; gap: 12px; color: #000;
                 font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
-  .mpj-toptag .tag-dot, .mpj-tag .tag-dot { background: #fff; }
+  .mpj-toptag .tag-dot { background: #000; }
+  .mpj-tag .tag-dot { background: #fff; }
   .mpj-list { display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
   .mpj-card { position: relative; width: 353px; max-width: 100%; height: 530px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
   .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
@@ -1806,7 +1808,7 @@
 
     <!-- Projects — mobile-only stacked cards (Figma 17:1509). Desktop uses the zoom/accordion
          inside #ecosystem above; this section is display:none on desktop. -->
-    <section id="m-projects" data-header="light">
+    <section id="m-projects" data-header="dark">
       <span class="mpj-toptag"><span class="tag-dot"></span>Projects</span>
       <div class="mpj-list">
         <article class="mpj-card">
