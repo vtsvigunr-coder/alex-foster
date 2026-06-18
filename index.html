@@ -1442,6 +1442,25 @@
     .ft-cta-line:hover .ft-roll { transform: translateY(-36px); }
     .ft-brk, .ft-brk svg { width: 7px; height: 42px; }
     .ft-copy { left: 20px; bottom: 34px; font-size: 14px; }
+
+    /* On a journey: video + plaque become a centred card (not fullscreen). The JS drives
+       these via transform: translateY(), so centre them with left/top — never transform. */
+    .aj-videos {
+      inset: auto; left: 50%; top: 50%;
+      width: 393px; height: 295px;
+      margin-left: -196.5px; margin-top: -147.5px;
+    }
+    .aj-plaque {
+      inset: auto; left: 50%; top: 50%;
+      width: 372px; height: 275px;
+      margin-left: -186px; margin-top: -137.5px;
+    }
+    .aj-plaque, .plaque-shadow, .plaque-bg { border-radius: 12px; }
+    /* "Building beyond companies" sits 16px above the "ON A JOURNEY" label (label top ≈ plaque centre) */
+    .aj-eyebrow {
+      top: calc(50% - 40px);
+      font-size: 15px; line-height: 20px; letter-spacing: -0.15px; font-weight: 500;
+    }
   }
 
 </style>
