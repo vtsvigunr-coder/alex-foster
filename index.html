@@ -1029,6 +1029,10 @@
             desktop 1440-frame is un-scaled here (JS forces --fk=1) and laid out for the viewport.
             NB: #founder-scoped so these win over the desktop .fs-* rules, which are defined LATER
             in the stylesheet (equal specificity → later wins) and would otherwise override them. */
+    /* trim the section on mobile (desktop is 340vh). Combined with the bg white→black window now
+       running to p≈0.92 (see applyMobile), the screen stays active the whole scroll and the word
+       lands at p=1 — so On a journey follows immediately with no static-black gap between them. */
+    #founder { height: 170vh; }
     #founder .fs-frame { left: 0; top: 0; width: 100%; height: 100%; margin: 0; }
     #founder .fs-btn { top: 80px; gap: 12px; }
     #founder .fs-btn-label { font-size: 14px; line-height: 18px; letter-spacing: -0.42px; }
@@ -1374,6 +1378,13 @@
     width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 18%;
     display: block; background: #fff;
   }
+  /* Mobile-only full-bleed cover photo (Figma 17:1904) — sits above the 3D scene, below the pill;
+     JS fades it out as the book begins to open. Desktop never shows it. */
+  .bk-mcover {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    display: none; opacity: 0; z-index: 5; pointer-events: none;
+    mix-blend-mode: luminosity; will-change: opacity;
+  }
 
   /* ===== Footer (Figma 142:106): A top-left, social column top-right, bracketed CONTACT ME +
      dimmed BOOK A CALL centred, copyright row, F bottom-right. Laid out at the 1440×900 reference. ===== */
@@ -1442,6 +1453,18 @@
     .ft-cta-line:hover .ft-roll { transform: translateY(-36px); }
     .ft-brk, .ft-brk svg { width: 7px; height: 42px; }
     .ft-copy { left: 20px; bottom: 34px; font-size: 14px; }
+
+    /* Continuation (photo book → Contact Me): the same scroll animation, scaled to fit mobile.
+       0.64 turns the 890×540 book into the 353px centred card (Figma 17:1923/1961) and keeps the
+       3D ring centred. The cover state gets its own full-bleed photo (Figma 17:1904). */
+    .bk-scene { transform: scale(0.64); }
+    .bk-mcover { display: block; }
+    .bk-cta-label { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }   /* Contact Me text */
+    .bk-cover-btn {
+      bottom: 40px; gap: 12px; padding: 8px 16px 8px 8px;
+      font-size: 15px; line-height: 20px; letter-spacing: -0.15px;
+    }
+    .bk-cover-avatar { width: 36px; height: 36px; }
 
     /* On a journey: video + plaque become a centred card (not fullscreen). The JS drives
        these via transform: translateY(), so centre them with left/top — never transform. */
@@ -1982,6 +2005,8 @@
             <a class="bk-page bk-page-cta" href="mailto:alex@foster.com" aria-label="Contact Me"><div class="bk-face bk-face-front"><img loading="lazy" decoding="async" src="images/main page/book 8.webp" alt="" /></div><div class="bk-face bk-face-back"><img loading="lazy" decoding="async" src="images/main page/book 8.webp" alt="" /></div></a>
           </div>
         </div>
+        <!-- Mobile-only full-bleed cover photo (Figma 17:1904); fades out as the book starts to open -->
+        <img class="bk-mcover" loading="lazy" decoding="async" src="images/main page/alex foster.webp" alt="Alex Foster" />
         <!-- "Alex Foster" pill, shown on the full-screen cover photo as it rises in, fades as it shrinks -->
         <div class="bk-cover-btn">
           <img class="bk-cover-avatar" loading="lazy" decoding="async" src="images/main page/alex.webp" alt="" />
@@ -3152,7 +3177,9 @@
       //    fade up. The photo card stays placed (as in the design). ──
       function applyMobile(p) {
         const vw = innerWidth, vh = innerHeight;
-        const bgP = eInOut(map(p, 0.083, 0.667));
+        // bg white→black runs almost to the section end (was 0.667): the screen keeps changing
+        // right up to the handoff, so there's no long static-black void before On a journey.
+        const bgP = eInOut(map(p, 0.083, 0.92));
         const v = Math.round(lerp(255, 0, bgP));
         stage.style.background = `rgb(${v},${v},${v})`;
         sec.setAttribute('data-header', bgP > 0.5 ? 'light' : 'dark');
@@ -3288,9 +3315,12 @@
 
       function apply(p) {
         const H = innerHeight;
-        // Phase 1 (p 0→0.15): the fullscreen video rises up from below FAST, so there's no empty black
-        // screen when the founder section leaves — the video covers almost immediately.
-        const rise  = eInOut(map(p, 0, 0.15));
+        // Phase 1: the video rises up from below FAST, so there's no empty black screen when the
+        // founder section leaves. On desktop it's a fullscreen video that covers; on mobile it's a
+        // small card, so the rise must be near-instant (0→0.03) or the long lead-in reads as a black
+        // gap between Founder and On a journey.
+        const riseEnd = innerWidth <= 700 ? 0.03 : 0.15;
+        const rise  = eInOut(map(p, 0, riseEnd));
         const riseY = lerp(H, 0, rise);
         videos.style.opacity = '1';
         videos.style.transform = `translateY(${riseY.toFixed(1)}px)`;
@@ -3361,12 +3391,16 @@
       const GAP = 24;                             // angular offset between adjacent leaves → the open fan
       const FLIP_A = 0.08, FLIP_B = 0.68;         // window over which ALL leaves (book 1..8) turn through
       const F_MAX = 180 + (N - 1) * GAP;          // global turn so book 8 (the last leaf) also reverses
-      const PW = 240, PH = 72;                     // final pill size (px)
+      // final pill size (px). Mobile: the whole .bk-scene is CSS-scaled 0.64, so size up here to land
+      // the on-screen pill at Figma's 187×56 (= 292×87.5 × 0.64). Same ratio as the 240×72 desktop pill.
+      const isMobile = matchMedia('(max-width: 700px)').matches;
+      const PW = isMobile ? 292 : 240, PH = isMobile ? 87.5 : 72;
       const last     = pages[N - 1];
       const lastBack = last.querySelector('.bk-face-back');   // book 8 closes onto its reverse → that IS the pill
       const lastBackImg = lastBack.querySelector('img');
       const label    = sec.querySelector('.bk-cta-label');    // stage-level text (always faces the viewer)
       const coverBtn = sec.querySelector('.bk-cover-btn');    // "Alex Foster" pill on the full-screen cover
+      const mcover   = sec.querySelector('.bk-mcover');       // mobile-only full-bleed cover photo (Figma 17:1904)
       // the reverse we see (and that becomes the pill) shows book 8's own photo, not the dim page-back
       lastBackImg.style.filter = 'none'; lastBackImg.style.opacity = '1';
       lastBack.style.inset = 'auto'; lastBack.style.left = '50%'; lastBack.style.top = '50%';
@@ -3386,6 +3420,9 @@
         const p = clamp(map(praw, HOLD_END, 1), 0, 1);                          // flip runs after the hold
         // pill appears AFTER the photo and stays on it through the hold; it only fades once the flip begins
         coverBtn.style.opacity = (map(praw, 0.03, 0.07) * (1 - map(p, FLIP_A, 0.14))).toFixed(3);
+        // mobile full-bleed cover: opaque from the first scroll through the hold, then fades out as the
+        // book shrinks toward the card (gone by p≈0.20, when the scaled book ≈ fits the viewport width).
+        if (mcover) mcover.style.opacity = (map(praw, 0, 0.03) * (1 - map(p, FLIP_A, 0.20))).toFixed(3);
 
         const spreadOpen = eInOut(map(p, FLIP_A, 0.22));   // cover → open fan
         const closeC = eInOut(map(p, FLIP_B, 0.80));       // closed book 8 (its reverse) slides to centre
