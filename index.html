@@ -1320,7 +1320,7 @@
   /* the book: 8 photo "pages" hinged at the left spine. JS turns them one-by-one (book 1 cover →
      book 8 back), recentres the open spread, then closes onto book 8 and shrinks it toward the pill. */
   .bk-book {                               /* book 1 enters here at native 890×540, then JS scales it down */
-    position: relative; width: 890px; height: 540px;
+    position: relative; width: 890px; height: 540px; flex-shrink: 0;   /* never let the narrow mobile .bk-scene squeeze the 890px box */
     transform-style: preserve-3d; will-change: transform;
   }
   .bk-page {                               /* a leaf: front photo + reversed back, hinged at the spine (left edge) */
@@ -1385,6 +1385,11 @@
     display: none; opacity: 0; z-index: 5; pointer-events: none;
     mix-blend-mode: luminosity; will-change: opacity;
   }
+  /* Mobile-only: a SINGLE photo that shrinks on scroll from full-bleed (Figma 17:1904) down to the
+     353×220 centred card (Figma 17:1923) — same <img> throughout, no crossfade. Hidden on desktop;
+     the @media block below switches these on and hides the desktop 3D book. */
+  .bk-mcard { display: none; }
+  .bk-mpill { display: none; }
 
   /* ===== Footer (Figma 142:106): A top-left, social column top-right, bracketed CONTACT ME +
      dimmed BOOK A CALL centred, copyright row, F bottom-right. Laid out at the 1440×900 reference. ===== */
@@ -1454,17 +1459,37 @@
     .ft-brk, .ft-brk svg { width: 7px; height: 42px; }
     .ft-copy { left: 20px; bottom: 34px; font-size: 14px; }
 
-    /* Continuation (photo book → Contact Me): the same scroll animation, scaled to fit mobile.
-       0.64 turns the 890×540 book into the 353px centred card (Figma 17:1923/1961) and keeps the
-       3D ring centred. The cover state gets its own full-bleed photo (Figma 17:1904). */
-    .bk-scene { transform: scale(0.64); }
-    .bk-mcover { display: block; }
-    .bk-cta-label { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }   /* Contact Me text */
-    .bk-cover-btn {
-      bottom: 40px; gap: 12px; padding: 8px 16px 8px 8px;
-      font-size: 15px; line-height: 20px; letter-spacing: -0.15px;
+    /* Continuation on mobile — two chained phases driven by scroll position:
+       Phase 1 (Figma 17:1904 → 17:1923): ONE photo (.bk-mcard) shrinks from full-bleed to the
+         centred card. Same <img>, no second image, no crossfade.
+       Phase 2 (Figma 17:1930 → 17:1942 → 17:1961 → 17:1974): from that card the 3D book fans
+         through the photos and collapses into the "Contact Me" pill — the same engine as desktop,
+         scaled 0.64 so the open book lands exactly on the card footprint (seamless hand-off). */
+    #books { height: 600vh; }                       /* room for Phase 1 (shrink) + Phase 2 (fan → pill) */
+    .bk-scene { transform: scale(0.64); }           /* open book renders at the 353-card size; JS reveals it in Phase 2 */
+    .bk-mcover, .bk-cover-btn { display: none; }     /* the full-bleed shrink is .bk-mcard; its pill is .bk-mpill */
+    .bk-cta-label { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }   /* "Contact Me" pill text (17:1974) */
+    .bk-mcard {
+      display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 100vw; height: 100vh; overflow: hidden; z-index: 5; pointer-events: none; will-change: width, height;
     }
-    .bk-cover-avatar { width: 36px; height: 36px; }
+    .bk-mcard img {
+      width: 100%; height: 100%; object-fit: cover; display: block; mix-blend-mode: luminosity;
+    }
+    /* "Alex Foster" pill on the full-bleed cover; fades out as the photo leaves full-bleed (gone in 17:1923) */
+    .bk-mpill {
+      display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px;
+      position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%);
+      border-radius: 100px; background: rgba(255,255,255,0.10);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      color: #fff; font-family: Satoshi, sans-serif; font-size: 15px; font-weight: 500;
+      line-height: 20px; letter-spacing: -0.15px; white-space: nowrap; z-index: 6; will-change: opacity;
+    }
+    .bk-mpill img {
+      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+      object-position: center 20%; display: block; background: #fff;
+    }
 
     /* On a journey: video + plaque become a centred card (not fullscreen). The JS drives
        these via transform: translateY(), so centre them with left/top — never transform. */
@@ -2013,6 +2038,10 @@
           <span>Alex Foster</span>
         </div>
         <span class="bk-cta-label" aria-hidden="true">Contact Me</span>
+        <!-- Mobile-only: ONE photo that shrinks on scroll, full-bleed (Figma 17:1904) → 353×220 card
+             (Figma 17:1923). Same image throughout — the JS below scales this card down. Hidden on desktop. -->
+        <div class="bk-mcard"><img loading="lazy" decoding="async" src="images/main page/alex foster.webp" alt="Alex Foster" /></div>
+        <div class="bk-mpill"><img loading="lazy" decoding="async" src="images/main page/alex.webp" alt="" /><span>Alex Foster</span></div>
       </div>
     </section>
 
@@ -3401,6 +3430,8 @@
       const label    = sec.querySelector('.bk-cta-label');    // stage-level text (always faces the viewer)
       const coverBtn = sec.querySelector('.bk-cover-btn');    // "Alex Foster" pill on the full-screen cover
       const mcover   = sec.querySelector('.bk-mcover');       // mobile-only full-bleed cover photo (Figma 17:1904)
+      const mcard    = sec.querySelector('.bk-mcard');        // mobile single photo that shrinks (17:1904 → 17:1923)
+      const mpill    = sec.querySelector('.bk-mpill');        // "Alex Foster" pill shown on the mobile full-bleed cover
       // the reverse we see (and that becomes the pill) shows book 8's own photo, not the dim page-back
       lastBackImg.style.filter = 'none'; lastBackImg.style.opacity = '1';
       lastBack.style.inset = 'auto'; lastBack.style.left = '50%'; lastBack.style.top = '50%';
@@ -3412,31 +3443,19 @@
       const lerp   = (a,b,t) => a + (b-a)*t;
       const eInOut = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
 
-      function apply(praw) {
-        // Cover: the Alex Foster photo fades in FAST from transparency (centred at 890×540), THEN the pill
-        // appears on it, then a ~2-scroll HOLD, and only after that the flip begins (remapped progress p).
-        const HOLD_END = 0.30;
-        scene.style.opacity = map(praw, 0, 0.03).toFixed(3);                    // quick photo fade-in
-        const p = clamp(map(praw, HOLD_END, 1), 0, 1);                          // flip runs after the hold
-        // pill appears AFTER the photo and stays on it through the hold; it only fades once the flip begins
-        coverBtn.style.opacity = (map(praw, 0.03, 0.07) * (1 - map(p, FLIP_A, 0.14))).toFixed(3);
-        // mobile full-bleed cover: opaque from the first scroll through the hold, then fades out as the
-        // book shrinks toward the card (gone by p≈0.20, when the scaled book ≈ fits the viewport width).
-        if (mcover) mcover.style.opacity = (map(praw, 0, 0.03) * (1 - map(p, FLIP_A, 0.20))).toFixed(3);
-
-        const spreadOpen = eInOut(map(p, FLIP_A, 0.22));   // cover → open fan
-        const closeC = eInOut(map(p, FLIP_B, 0.80));       // closed book 8 (its reverse) slides to centre
-        const pileGone = eInOut(map(p, FLIP_B, 0.77));     // the rest of the reversed pile clears out
-        const ms = eInOut(map(p, 0.80, 0.95));             // book 8's reverse morphs into the pill (one element)
-
-        // 890 native cover → 0.62 while open/closed (the pill is sized in px, the label lives in the stage)
-        const scale = lerp(1.0, 0.62, spreadOpen);
+      // Shared book renderer (desktop + mobile Phase 2). Given the already-eased phase values, it lays
+      // out the 8 leaves of the fan and morphs book 8's reverse into the "Contact Me" pill. Inputs:
+      //   scale  – .bk-book scale (1.0 closed cover → 0.62 open; constant 0.62 on mobile)
+      //   spread – 0 cover centred → 1 spine centred (pages splay both sides)
+      //   F      – global turn angle that sweeps every leaf
+      //   closeC – book 8 (its reverse) slides to centre
+      //   pileGone – the reversed pile clears out
+      //   ms     – book 8's reverse morphs into the pill (one element, no crossfade)
+      //   labelT – "Contact Me" label opacity
+      function drawBook(scale, spread, F, closeC, pileGone, ms, labelT, openScale) {
         // cover centred → spine centred (open) → book 8's reverse centred (closed)
-        const tx = scale * (W / 2) * (spreadOpen + closeC);
+        const tx = scale * (W / 2) * (spread + closeC);
         book.style.transform = `translateX(${tx.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-
-        // ONE global "turn front" sweeps every leaf, book 8 included — it closes with the rest, no turn-back
-        const F = F_MAX * eInOut(map(p, FLIP_A, FLIP_B));
         pages.forEach((page, k) => {
           const isLast = (k === N - 1);
           const theta = clamp(F - k * GAP, 0, 180);
@@ -3455,11 +3474,10 @@
             page.style.opacity = (theta >= 179.5 ? (1 - pileGone) : 1).toFixed(3);
           }
         });
-
-        // book 8 itself becomes the pill — shrink to EXACTLY 240×72, round the corners, dim + blur the
-        // photo and reveal the label. No second element, so there's no fade-out/fade-in seam.
-        const rW = lerp(W * 0.62, PW, ms);               // rendered width  552 → 240
-        const rH = lerp(H * 0.62, PH, ms);               // rendered height 335 → 72
+        // book 8 itself becomes the pill — shrink to PW×PH, round the corners, dim + blur the photo and
+        // reveal the label. No second element, so there's no fade-out/fade-in seam.
+        const rW = lerp(W * openScale, PW, ms);   // open book width → pill width (openScale: 0.62 desktop, 0.585 mobile)
+        const rH = lerp(H * openScale, PH, ms);
         lastBack.style.transform = 'translate(-50%, -50%) rotateY(180deg)';
         lastBack.style.width  = (rW / scale).toFixed(1) + 'px';
         lastBack.style.height = (rH / scale).toFixed(1) + 'px';
@@ -3469,8 +3487,64 @@
           `0 ${lerp(30,8,ms).toFixed(1)}px ${lerp(90,40,ms).toFixed(1)}px rgba(0,0,0,${lerp(0.55,0.20,ms).toFixed(3)})`;
         lastBackImg.style.opacity = lerp(1.0, 0.30, ms).toFixed(3);
         lastBackImg.style.filter  = `blur(${(lerp(0, 2, ms) / scale).toFixed(2)}px)`;
-        label.style.opacity = eInOut(map(p, 0.88, 0.99)).toFixed(3);
+        label.style.opacity = labelT.toFixed(3);
         last.style.pointerEvents = ms > 0.5 ? 'auto' : 'none';
+      }
+
+      // Mobile open-book footprint = the card the shrink hands off to. 890×540 × 0.62 × 0.64(.bk-scene)
+      // → 353×214 (ratio 1.648 = the book leaf's crop), so the photo is pixel-identical across the seam.
+      const M_CARD_W = 353, M_CARD_H = +(353 * H / W).toFixed(1);   // 353 × 214.3
+
+      function applyMobile(praw) {
+        const SH = 0.18;                                   // Phase 1 (shrink) ends here; Phase 2 (fan) begins
+        // Phase 1: ONE photo shrinks full-bleed → the card footprint (Figma 17:1904 → 17:1923)
+        const e = eInOut(map(praw, 0.02, SH));
+        mcard.style.width  = lerp(innerWidth,  M_CARD_W, e).toFixed(1) + 'px';
+        mcard.style.height = lerp(innerHeight, M_CARD_H, e).toFixed(1) + 'px';
+        mcard.style.borderRadius = lerp(0, 12, e).toFixed(2) + 'px';
+        mcard.style.boxShadow =
+          `0 ${lerp(0,24,e).toFixed(1)}px ${lerp(0,70,e).toFixed(1)}px rgba(0,0,0,${(0.45*e).toFixed(3)})`;
+        mpill.style.opacity = (1 - map(praw, 0.02, 0.14)).toFixed(3);   // "Alex Foster" pill gone off full-bleed
+
+        // Hand-off: the card and the open book are the same photo at the same size/position, so swapping
+        // which one is visible at SH is invisible. The book stays drawn underneath the whole time.
+        const inBook = praw >= SH;
+        mcard.style.opacity = inBook ? '0' : '1';
+        scene.style.opacity = inBook ? '1' : '0';
+
+        // Phase 2: the book fans from the open card → "Contact Me" pill (Figma 17:1930/1942/1961/1974).
+        // q ∈ [0,1]; 0..0.08 holds the flat centred cover (== the card, so no jump at the hand-off), then
+        // the SAME windows as desktop drive spine-slide + fan together (coupled, so pages fill both sides).
+        const q = map(praw, SH, 1);
+        const spread   = eInOut(map(q, 0.08, 0.22));   // cover centred → spine centred, pages splay both sides
+        const F        = F_MAX * eInOut(map(q, 0.08, 0.68));
+        const closeC   = eInOut(map(q, 0.68, 0.80));
+        const pileGone = eInOut(map(q, 0.68, 0.77));
+        const ms       = eInOut(map(q, 0.80, 0.95));
+        // book scale 0.62 (== the 353 card at the hand-off) → 0.585 as it opens, so the fan leaves settle
+        // at Figma 17:1942's 332×204 (a touch smaller than the card). Coupled to `spread`, like desktop.
+        const M_OPEN = 0.585;
+        drawBook(lerp(0.62, M_OPEN, spread), spread, F, closeC, pileGone, ms, eInOut(map(q, 0.88, 0.99)), M_OPEN);
+        stage.style.pointerEvents = praw >= 0.999 ? 'none' : 'auto';
+      }
+
+      function apply(praw) {
+        if (isMobile) { applyMobile(praw); return; }
+        // Cover: the Alex Foster photo fades in FAST from transparency (centred at 890×540), THEN the pill
+        // appears on it, then a ~2-scroll HOLD, and only after that the flip begins (remapped progress p).
+        const HOLD_END = 0.30;
+        scene.style.opacity = map(praw, 0, 0.03).toFixed(3);                    // quick photo fade-in
+        const p = clamp(map(praw, HOLD_END, 1), 0, 1);                          // flip runs after the hold
+        // pill appears AFTER the photo and stays on it through the hold; it only fades once the flip begins
+        coverBtn.style.opacity = (map(praw, 0.03, 0.07) * (1 - map(p, FLIP_A, 0.14))).toFixed(3);
+
+        const spreadOpen = eInOut(map(p, FLIP_A, 0.22));   // cover → open fan
+        const closeC = eInOut(map(p, FLIP_B, 0.80));       // closed book 8 (its reverse) slides to centre
+        const pileGone = eInOut(map(p, FLIP_B, 0.77));     // the rest of the reversed pile clears out
+        const ms = eInOut(map(p, 0.80, 0.95));             // book 8's reverse morphs into the pill (one element)
+        const F = F_MAX * eInOut(map(p, FLIP_A, FLIP_B));  // ONE global turn sweeps every leaf, book 8 included
+        // 890 native cover → 0.62 while open/closed (the pill is sized in px, the label lives in the stage)
+        drawBook(lerp(1.0, 0.62, spreadOpen), spreadOpen, F, closeC, pileGone, ms, eInOut(map(p, 0.88, 0.99)), 0.62);
 
         stage.style.pointerEvents = p >= 0.999 ? 'none' : 'auto';
       }
