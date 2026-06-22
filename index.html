@@ -1447,17 +1447,46 @@
   }
   .ft-rights { color: #808080; }
 
+  /* "Keep scrolling → next page" progress (Figma 9:1077 / 17:2211).
+     Two stacked pills: a full-width back pill ("Projects / next page", right-aligned) and a
+     front pill ("Keep scrolling / to explore", left-aligned) whose width grows with overscroll
+     until it fully covers the back pill, at which point it navigates to the next page. */
+  .ft-progress {
+    position: absolute; left: 50%; bottom: 56px; transform: translateX(-50%);
+    width: 340px; height: 90px; z-index: 3; cursor: pointer; user-select: none;
+  }
+  .ft-prog-pill {
+    position: absolute; left: 0; top: 0; box-sizing: border-box;
+    padding: 10px 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .ft-prog-bg {
+    width: 100%; align-items: flex-end; text-align: right;
+    background: rgba(255,255,255,0.08); box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+  }
+  .ft-prog-fg {
+    width: 50%; align-items: flex-start; overflow: hidden; white-space: nowrap;
+    background: linear-gradient(to left, rgba(255,255,255,0.20), rgba(255,255,255,0));
+    transition: width .12s linear;
+  }
+  .ft-prog-t1 { font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px; color: #fff; }
+  .ft-prog-t2 { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; color: #b2b2b2; text-transform: uppercase; }
+
   /* ---- Footer: mobile fit ---- */
   @media (max-width: 700px) {
-    .ft-letter-a { top: 26px; left: 20px; width: 60px; height: auto; }
-    .ft-letter-f { bottom: 36px; right: 20px; width: 58px; height: auto; }
-    .ft-social { top: 26px; right: 20px; gap: 10px; }
-    .ft-cta { gap: 16px; }
-    .ft-cta-line { font-size: 32px; line-height: 36px; letter-spacing: -1.2px; gap: 12px; }
-    .ft-roll-mask, .ft-roll span { height: 36px; }
-    .ft-cta-line:hover .ft-roll { transform: translateY(-36px); }
-    .ft-brk, .ft-brk svg { width: 7px; height: 42px; }
-    .ft-copy { left: 20px; bottom: 34px; font-size: 14px; }
+    .ft-letter-a { top: 80px; left: 20px; width: 91px; height: auto; }
+    .ft-letter-f { bottom: 20px; right: 20px; width: 88px; height: auto; }
+    .ft-social { top: 80px; right: 20px; gap: 12px; }
+    .ft-cta { gap: 20px; top: calc(50% - 40px); }
+    .ft-cta-line { font-size: 36px; line-height: 40px; letter-spacing: -0.72px; gap: 12px; }
+    .ft-roll-mask, .ft-roll span { height: 40px; }
+    .ft-cta-line:hover .ft-roll { transform: translateY(-40px); }
+    .ft-brk, .ft-brk svg { width: 7px; height: 47px; }
+    .ft-copy { left: 20px; bottom: 20px; font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
+
+    /* progress pill: 353 wide, sits below the CTA (≈Figma top 464 of an 800-tall footer) */
+    .ft-progress { width: min(353px, calc(100% - 40px)); bottom: auto; top: calc(50% + 64px); }
+    .ft-prog-t1 { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
+    .ft-prog-t2 { font-size: 14px; line-height: 16px; }
 
     /* Continuation on mobile — two chained phases driven by scroll position:
        Phase 1 (Figma 17:1904 → 17:1923): ONE photo (.bk-mcard) shrinks from full-bleed to the
@@ -2082,6 +2111,17 @@
         </a>
       </div>
 
+      <div class="ft-progress" id="ftProgress" role="link" tabindex="0" aria-label="Keep scrolling to Projects — next page">
+        <div class="ft-prog-pill ft-prog-bg">
+          <span class="ft-prog-t1">Projects</span>
+          <span class="ft-prog-t2">next page</span>
+        </div>
+        <div class="ft-prog-pill ft-prog-fg" id="ftProgFg">
+          <span class="ft-prog-t1">Keep scrolling</span>
+          <span class="ft-prog-t2">to explore</span>
+        </div>
+      </div>
+
       <span class="ft-copy">© 2026 Alex Foster. <span class="ft-rights">All rights reserved.</span></span>
 
       <img class="ft-letter ft-letter-f" loading="lazy" decoding="async" src="images/main page/F.svg" alt="" aria-hidden="true" />
@@ -2291,6 +2331,80 @@
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && open && !busy) closeMenu();
       });
+      // desktop: clicking anywhere outside the panel closes the menu
+      document.addEventListener("pointerdown", (e) => {
+        if (open && !busy && !isMobile() && !panel.contains(e.target)) closeMenu();
+      });
+    })();
+
+    /* ---------- Footer "keep scrolling → next page" ----------
+       Once the footer is in view and the page is scrolled to its end, continued downward
+       scroll/swipe fills the front pill; when full it navigates to the next page. The target
+       is prefetched as soon as the footer appears so the transition is instant. The pill is
+       also directly clickable. */
+    (() => {
+      const NEXT_PAGE_URL = "index.html";   // TODO: point at the Projects page once it exists
+      const footer = document.getElementById("footer");
+      const prog = document.getElementById("ftProgress");
+      const bg = prog && prog.querySelector(".ft-prog-bg");
+      const fg = document.getElementById("ftProgFg");
+      if (!footer || !prog || !bg || !fg) return;
+
+      const THRESHOLD = 1100;               // px of overscroll to fill the bar
+      let acc = 0, navigating = false, prefetched = false;
+
+      const maxW = () => bg.getBoundingClientRect().width;
+      const minW = () => maxW() * 0.5;      // front pill starts at half width (matches Figma)
+
+      function render() {
+        const p = Math.max(0, Math.min(1, acc / THRESHOLD));
+        fg.style.width = (minW() + p * (maxW() - minW())) + "px";
+        if (p >= 1) go();
+      }
+
+      function atBottom() {                 // footer fully in view at the page end
+        return footer.getBoundingClientRect().bottom <= window.innerHeight + 2;
+      }
+
+      function go() {
+        if (navigating) return;
+        navigating = true;
+        fg.style.width = maxW() + "px";
+        window.location.href = NEXT_PAGE_URL;
+      }
+
+      // prefetch the target the moment the footer scrolls into view
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !prefetched) {
+            prefetched = true;
+            const l = document.createElement("link");
+            l.rel = "prefetch"; l.as = "document"; l.href = NEXT_PAGE_URL;
+            document.head.appendChild(l);
+          }
+        });
+      }, { threshold: 0.35 });
+      io.observe(footer);
+
+      window.addEventListener("wheel", (e) => {
+        if (navigating) return;
+        if (e.deltaY > 0 ? atBottom() : true) acc += e.deltaY;
+        acc = Math.max(0, Math.min(THRESHOLD, acc));
+        render();
+      }, { passive: true });
+
+      let ty = 0;
+      window.addEventListener("touchstart", (e) => { ty = e.touches[0].clientY; }, { passive: true });
+      window.addEventListener("touchmove", (e) => {
+        if (navigating) return;
+        const y = e.touches[0].clientY, dy = (ty - y) * 2.4; ty = y;   // dy>0 = swiping up/scroll down
+        if (dy > 0 ? atBottom() : true) acc += dy;
+        acc = Math.max(0, Math.min(THRESHOLD, acc));
+        render();
+      }, { passive: true });
+
+      prog.addEventListener("click", go);
+      prog.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
     })();
   </script>
 
