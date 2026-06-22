@@ -1464,7 +1464,7 @@
     background: rgba(255,255,255,0.08); box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
   }
   .ft-prog-fg {
-    width: 50%; align-items: flex-start; overflow: hidden; white-space: nowrap;
+    width: 0; align-items: flex-start; overflow: hidden; white-space: nowrap;
     background: linear-gradient(to left, rgba(255,255,255,0.20), rgba(255,255,255,0));
     transition: width .12s linear;
   }
@@ -2354,7 +2354,7 @@
       let acc = 0, navigating = false, prefetched = false;
 
       const maxW = () => bg.getBoundingClientRect().width;
-      const minW = () => maxW() * 0.5;      // front pill starts at half width (matches Figma)
+      const minW = () => 0;                 // front pill starts empty, fills 0 → 100%
 
       function render() {
         const p = Math.max(0, Math.min(1, acc / THRESHOLD));
