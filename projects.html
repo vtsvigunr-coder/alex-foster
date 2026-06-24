@@ -1666,21 +1666,35 @@
     width: min(360px, 46vh, 80vw); aspect-ratio: 1 / 1; pointer-events: none; }
   .pjv-logo img { width: 100%; height: 100%; object-fit: contain; }
 
-  .pjv-text { position: absolute; width: min(386px, 86vw); display: flex; flex-direction: column; gap: 16px;
-    color: #fff; transform: translateY(var(--ty, 0px)); }
+  /* text reveals UP from behind a mask (no fade — like the cube/ecosystem section) */
+  .pjv-text { position: absolute; overflow: hidden; width: min(386px, 86vw); }
+  .pjv-text-in { display: flex; flex-direction: column; gap: 16px; color: #fff;
+    transform: translateY(var(--ty, 0%)); will-change: transform; }
   .pjv-text .pj-h3 { color: #fff; }
   /* Vertus — left (Figma 78:906) */
-  .s-vertus .pjv-text { left: var(--gut); top: 39%; text-align: left; align-items: flex-start; }
+  .s-vertus .pjv-text { left: var(--gut); top: 38%; }
+  .s-vertus .pjv-text-in { text-align: left; align-items: flex-start; }
   /* Alpha Ledger — lower right (Figma 78:917) */
-  .s-alpha .pjv-text { right: var(--gut); top: 73%; text-align: right; align-items: flex-end; }
+  .s-alpha .pjv-text { right: var(--gut); top: 70%; }
+  .s-alpha .pjv-text-in { text-align: right; align-items: flex-end; }
   .s-alpha .pjv-text .pj-desc { width: min(290px, 80vw); }
   /* Vanquish — centred (Figma 239:2518 / 78:923) */
-  .s-vanq .pjv-text { left: 50%; top: 60%; text-align: center; align-items: center;
-    transform: translateX(-50%) translateY(var(--ty, 0px)); }
+  .s-vanq .pjv-text { left: 50%; transform: translateX(-50%); top: 58%; }
+  .s-vanq .pjv-text-in { text-align: center; align-items: center; }
   .s-vanq .pjv-text .pj-desc { width: min(340px, 86vw); }
 
-  .pjv-intro, .pjv-square, .pjv-explore, .pjv-scroll { z-index: 2; }
-  .pjv-explore { left: auto; right: var(--gut); top: 40%; opacity: 0; }
+  /* per-venture Explore pill at its Figma position; appears with the text */
+  .pjv-explore { position: absolute; left: auto; opacity: 0; z-index: 2; }
+  .s-vertus .pjv-explore { right: 11%; top: 55%; }
+  .s-alpha .pjv-explore  { right: 11%; top: 17%; }
+  .s-vanq .pjv-explore   { right: 11%; top: 52%; }
+
+  .pjv-intro, .pjv-scroll { z-index: 2; }
+
+  /* travelling square — draws its outline, fills white and rotates (same idea as #ecosystem) */
+  .pjv-square { position: absolute; left: 0; top: 0; width: 62px; height: 62px; opacity: 0; z-index: 2; will-change: transform, opacity; }
+  .pjv-square svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .sq-frame { stroke-dasharray: 100; stroke-dashoffset: 100; }
 
   .pjv-square { position: absolute; left: 0; top: 0; width: 60px; height: 60px;
     border: 1px solid #fff; opacity: 0; will-change: transform, opacity; }
@@ -1697,7 +1711,9 @@
     .pjv-logo { position: static; transform: none; top: auto; order: 2; width: min(300px, 72vw); margin: 0 auto; }
     .s-vertus .pjv-text, .s-alpha .pjv-text, .s-vanq .pjv-text {
       position: static; left: auto; right: auto; top: auto; transform: none;
-      order: 1; width: 100%; text-align: center; align-items: center; }
+      order: 1; width: 100%; overflow: visible; }
+    .s-vertus .pjv-text-in, .s-alpha .pjv-text-in, .s-vanq .pjv-text-in {
+      transform: none; text-align: center; align-items: center; }
     .s-alpha .pjv-text .pj-desc, .s-vanq .pjv-text .pj-desc { width: auto; max-width: 320px; }
   }
 
@@ -1897,33 +1913,39 @@
           <h2 class="pjv-headline pj-h3">Beyond individual projects</h2>
         </div>
 
-        <div class="pjv-square" aria-hidden="true"></div>
+        <div class="pjv-square" aria-hidden="true">
+          <svg viewBox="0 0 62 62" width="62" height="62">
+            <rect class="sq-fill"  x="1" y="1" width="60" height="60" fill="#fff" fill-opacity="0" />
+            <rect class="sq-frame" x="1" y="1" width="60" height="60" fill="none" stroke="#fff" stroke-width="1" pathLength="100" />
+          </svg>
+        </div>
 
         <div class="pjv-slide s-vertus">
           <div class="pjv-logo"><img src="images/projects/logo-vertus.webp" alt="Vertus" decoding="async" /></div>
-          <div class="pjv-text">
+          <div class="pjv-text"><div class="pjv-text-in">
             <h3 class="pj-h3">Vertus</h3>
-            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design. Every detail reflects a commitment to quality.</p>
-          </div>
+            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br /><br />Every detail reflects a commitment to quality.</p>
+          </div></div>
+          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
 
         <div class="pjv-slide s-alpha">
           <div class="pjv-logo"><img src="images/projects/logo-alpha.webp" alt="Alpha Ledger" decoding="async" /></div>
-          <div class="pjv-text">
+          <div class="pjv-text"><div class="pjv-text-in">
             <h3 class="pj-h3">Alpha Ledger</h3>
             <p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p>
-          </div>
+          </div></div>
+          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
 
         <div class="pjv-slide s-vanq">
           <div class="pjv-logo"><img src="images/projects/logo-vanquish.webp" alt="Vanquish" decoding="async" /></div>
-          <div class="pjv-text">
+          <div class="pjv-text"><div class="pjv-text-in">
             <h3 class="pj-h3">Vanquish</h3>
             <p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
-          </div>
+          </div></div>
+          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
-
-        <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
 
         <div class="pjv-scroll">
           scroll to explore
@@ -2262,32 +2284,46 @@
       const intro   = sec.querySelector(".pjv-intro");
       const scrollT = sec.querySelector(".pjv-scroll");
       const square  = sec.querySelector(".pjv-square");
-      const explore = sec.querySelector(".pjv-explore");
+      const sqFrame = sec.querySelector(".sq-frame");
+      const sqFill  = sec.querySelector(".sq-fill");
       const slides  = { vertus: sec.querySelector(".s-vertus"), alpha: sec.querySelector(".s-alpha"), vanq: sec.querySelector(".s-vanq") };
-      const logoEl  = (n) => slides[n].querySelector(".pjv-logo");
-      const textEl  = (n) => slides[n].querySelector(".pjv-text");
+      const logoEl   = (n) => slides[n].querySelector(".pjv-logo");
+      const textInEl = (n) => slides[n].querySelector(".pjv-text-in");
+      const pillEl   = (n) => slides[n].querySelector(".pjv-explore");
 
       const clamp  = (v, a, b) => Math.max(a, Math.min(b, v));
       const map    = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
       const lerp   = (a, b, t) => a + (b - a) * t;
       const eInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
       const eOut   = (t) => 1 - (1 - t) * (1 - t);
+      const eIn    = (t) => t * t;
       const mobile = () => innerWidth <= 768;
 
-      const animated = () => [fill, intro, scrollT, square, explore,
+      // text reveal: rises up from behind the mask (no fade). 120% (below) → 0 (shown) → -120% (gone, up).
+      const revealTy = (s, inA, inB, outA, outB) => {
+        const enter = eOut(map(s, inA, inB));
+        const exit  = (outB != null) ? eIn(map(s, outA, outB)) : 0;
+        return (120 * (1 - enter) - 120 * exit).toFixed(1) + "%";
+      };
+      const visOf = (s, inA, inB, outA, outB) =>
+        clamp(map(s, inA, inB), 0, 1) * (outB != null ? (1 - map(s, outA, outB)) : 1);
+
+      const animated = () => [fill, intro, scrollT, square,
         slides.vertus, slides.alpha, slides.vanq,
         logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
-        textEl("vertus"), textEl("alpha"), textEl("vanq")];
-      const clearInline = () => { stage.style.background = ""; animated().forEach((e) => e.removeAttribute("style")); };
+        textInEl("vertus"), textInEl("alpha"), textInEl("vanq"),
+        pillEl("vertus"), pillEl("alpha"), pillEl("vanq")];
+      const clearInline = () => animated().forEach((e) => e.removeAttribute("style"));
 
-      const setSlide = (name, logoOp, textOp, topPct, textRise) => {
-        const sl = slides[name], lg = logoEl(name), tx = textEl(name);
+      const setSlide = (name, logoOp, topPct, textTy, pillOp) => {
+        const sl = slides[name];
         sl.style.opacity = "1";
-        sl.style.pointerEvents = (logoOp > 0.5 || textOp > 0.5) ? "auto" : "none";
+        sl.style.pointerEvents = (logoOp > 0.5 || pillOp > 0.5) ? "auto" : "none";
+        const lg = logoEl(name);
         lg.style.opacity = logoOp.toFixed(3);
         lg.style.top = topPct.toFixed(2) + "%";
-        tx.style.opacity = textOp.toFixed(3);
-        tx.style.setProperty("--ty", lerp(60, 0, textRise).toFixed(1) + "px");
+        textInEl(name).style.setProperty("--ty", textTy);
+        pillEl(name).style.opacity = pillOp.toFixed(3);
       };
 
       function apply(s) {
@@ -2301,31 +2337,32 @@
         intro.style.transform = `translateX(-50%) translateY(${lerp(0, -30, map(s, 0.45, 1.0)).toFixed(1)}px)`;
         scrollT.style.opacity = (1 - map(s, 0.3, 0.7)).toFixed(3);
 
-        // explore pill fades in once dark
-        explore.style.opacity = clamp(map(s, 1.25, 1.7), 0, 1).toFixed(3);
-
-        // logo rises from centre (42%) to up (18%) between 1.3 and 1.9
+        // logo rises from centre (42%) to up (18%) between 1.3 and 1.9 (Vertus only; others sit up)
         const riseY = lerp(42, 18, eInOut(map(s, 1.3, 1.9)));
 
-        // Vertus: logo is present from the intro and stays put; its text rises from the bottom (~0.9).
-        const vLogo = 1 - map(s, 1.95, 2.30);
-        const vText = clamp(map(s, 0.90, 1.30), 0, 1) * (1 - map(s, 1.95, 2.20));
-        // Alpha / Vanquish: logo + text cross-fade in together once the logo has risen.
-        const aOp = clamp(map(s, 1.95, 2.30), 0, 1) * (1 - map(s, 2.60, 2.95));
-        const nOp = clamp(map(s, 2.60, 2.95), 0, 1);
-        setSlide("vertus", vLogo, vText, riseY, eOut(map(s, 0.90, 1.45)));
-        setSlide("alpha",  aOp,   aOp,   18,    eOut(map(s, 1.95, 2.40)));
-        setSlide("vanq",   nOp,   nOp,   18,    eOut(map(s, 2.60, 3.05)));
+        // Logo swaps are quick & sharp (~0.12 windows). Vertus logo is present from the intro.
+        const vLogo = 1 - map(s, 2.05, 2.18);
+        const aLogo = clamp(map(s, 2.05, 2.18), 0, 1) * (1 - map(s, 2.88, 3.00));
+        const nLogo = clamp(map(s, 2.88, 3.00), 0, 1);
+        // Text rises from the bottom (no fade); the pill appears together with it.
+        setSlide("vertus", vLogo, riseY,
+          revealTy(s, 0.95, 1.30, 2.00, 2.18), visOf(s, 0.98, 1.28, 2.00, 2.18));
+        setSlide("alpha",  aLogo, 18,
+          revealTy(s, 2.08, 2.42, 2.78, 2.95), visOf(s, 2.10, 2.40, 2.78, 2.93));
+        setSlide("vanq",   nLogo, 18,
+          revealTy(s, 2.82, 3.12, null, null), visOf(s, 2.85, 3.08, null, null));
 
-        // travelling square: top-right → centre-left → bottom-centre
-        const sqO = clamp(map(s, 1.0, 1.3), 0, 1) * (1 - map(s, 3.3, 3.6));
-        square.style.opacity = sqO.toFixed(3);
+        // travelling square — draws its outline, rotates, then fills solid white, ending bottom-centre (Figma 78:923)
+        square.style.opacity = clamp(map(s, 1.0, 1.15), 0, 1).toFixed(3);
+        sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.0, 1.6)))).toFixed(2);
+        sqFill.style.fillOpacity = eInOut(map(s, 2.5, 3.0)).toFixed(3);
+        const rot = lerp(0, 180, eInOut(map(s, 1.2, 3.0)));
         const W = innerWidth, H = innerHeight, g = Math.max(24, W / 2 - 640) + 50;
-        const P0 = [W - g, H * 0.13], P1 = [g, H * 0.50], P2 = [W * 0.50, H * 0.90];
+        const P0 = [W - g, H * 0.13], P1 = [g, H * 0.50], P2 = [W * 0.50, H * 0.86];
         let sx, sy;
         if (s < 2.2) { const t = eInOut(map(s, 1.2, 2.2)); sx = lerp(P0[0], P1[0], t); sy = lerp(P0[1], P1[1], t); }
         else { const t = eInOut(map(s, 2.2, 3.0)); sx = lerp(P1[0], P2[0], t); sy = lerp(P1[1], P2[1], t); }
-        square.style.transform = `translate(${(sx - 30).toFixed(1)}px, ${(sy - 30).toFixed(1)}px)`;
+        square.style.transform = `translate(${(sx - 31).toFixed(1)}px, ${(sy - 31).toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
       }
 
       // debug: open projects.html#s=2.0 to freeze the sequence at a given progress (for screenshots)
