@@ -1575,6 +1575,75 @@
   .pj-hero-title { max-width: 800px; color: #fff; font-weight: 500;
     font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em; }
 
+  /* ============ Ventures (Figma 78:886 / 78:906 / 78:917 / 78:923) ============ */
+  .projects { --gut: max(24px, calc(50% - 640px)); }     /* 1280 content column */
+  .pj-sec { position: relative; height: 100vh; min-height: 660px; overflow: hidden; }
+  .pj-h3 { font-weight: 500; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em; }
+  .pj-desc { font-weight: 400; font-size: 16px; line-height: 20px; letter-spacing: -0.16px; color: #808080; }
+
+  .pj-chrome { position: absolute; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
+  .pj-chrome img { width: min(500px, 62vh, 86vw); height: auto; aspect-ratio: 1 / 1; object-fit: contain; object-position: center bottom; }
+  .pj-chrome.center { top: 50%; transform: translateY(-50%); }
+
+  /* Explore Venture pill (glass, rounded-100) */
+  .pj-explore { position: absolute; display: inline-flex; align-items: center; justify-content: center;
+    height: 60px; padding: 10px 32px; border-radius: 100px;
+    background: rgba(255,255,255,0.10); box-shadow: 0 8px 40px 0 rgba(0,0,0,0.10);
+    color: #fff; font-size: 20px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px;
+    white-space: nowrap; text-decoration: none; cursor: pointer;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    transition: background .3s var(--ease), transform .3s var(--ease); }
+  .pj-explore:hover { background: rgba(255,255,255,0.20); transform: translateY(-2px); }
+
+  /* corner framing brackets [ ] */
+  .pj-brackets { position: absolute; width: 60px; height: 60px; }
+  .pj-brackets i { position: absolute; top: 0; bottom: 0; width: 14px; }
+  .pj-brackets i.l { left: 0;  border: 1.5px solid currentColor; border-right: 0; }
+  .pj-brackets i.r { right: 0; border: 1.5px solid currentColor; border-left: 0; }
+
+  /* Intro — white (78:886) */
+  .pj-vintro { background: #fff; color: #000; }
+  .pj-vintro .head { position: absolute; left: 50%; transform: translateX(-50%); top: 17.8%;
+    width: min(494px, 86vw); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+  .pj-vintro .pj-eyebrow { color: #000; }
+  .pj-vintro .pj-chrome { top: 47.3%; }
+  .pj-scroll { position: absolute; left: var(--gut); bottom: 11.1%; display: flex; align-items: center; gap: 16px;
+    font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; text-transform: uppercase; color: #000; }
+  .pj-scroll svg { width: 20px; height: 20px; display: block; }
+
+  /* Vertus — white→black split (78:906) */
+  .pj-vertus { background: linear-gradient(to bottom, #fff 0, #fff 46.1%, #000 46.1%, #000 100%); color: #000; }
+  .pj-vertus .info { position: absolute; left: var(--gut); top: calc(50% - 36px); transform: translateY(-50%);
+    width: min(386px, 80vw); display: flex; flex-direction: column; gap: 20px; }
+  .pj-vertus .pj-h3 { color: #000; }
+  .pj-vertus .pj-chrome { top: 47.3%; }
+  .pj-vertus .pj-explore { left: 72.1%; top: 55.8%; }
+  .pj-vertus .pj-brackets { top: 8.9%; right: var(--gut); color: rgba(0,0,0,0.55); }
+
+  /* Alpha Ledger — black (78:917) */
+  .pj-alpha { background: #000; color: #fff; }
+  .pj-alpha .info { position: absolute; right: var(--gut); top: 82.9%; transform: translateY(-50%);
+    width: min(386px, 80vw); text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 20px; }
+  .pj-alpha .pj-desc { width: min(290px, 80vw); }
+  .pj-alpha .pj-explore { left: 74.3%; top: 17.3%; }
+  .pj-alpha .sq { position: absolute; left: var(--gut); top: 50%; transform: translateY(-50%);
+    width: 60px; height: 60px; border: 1px solid #fff; }
+
+  /* Vanquish — black (78:923) */
+  .pj-vanq { background: #000; color: #fff; }
+  .pj-vanq .pj-chrome { top: -24%; opacity: .3; }
+  .pj-vanq .info { position: absolute; left: 50%; top: 48.2%; transform: translate(-50%, -50%);
+    width: min(386px, 86vw); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .pj-vanq .pj-desc { width: min(340px, 86vw); }
+  .pj-vanq .sq { position: absolute; left: 50%; transform: translateX(-50%); top: 84.4%;
+    width: 60px; height: 60px; background: #fff; }
+
+  /* entrance + parallax */
+  .pj-anim { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+  .pj-anim.in { opacity: 1; transform: none; }
+  .pj-fade { opacity: 0; transition: opacity .9s var(--ease); }   /* for transform-centered elements */
+  .pj-fade.in { opacity: 1; }
+
 </style>
 </head>
 <body>
@@ -1672,6 +1741,51 @@
         <h1 class="pj-hero-title">Built with intention. Designed to create lasting impact.</h1>
         <a class="pj-pill" href="#pj-ventures">Explore ventures</a>
       </div>
+    </section>
+
+    <!-- Ventures Overview — intro (Figma 78:886) -->
+    <section id="pj-ventures" class="pj-sec pj-vintro" data-header="dark">
+      <div class="head">
+        <span class="pj-eyebrow pj-anim"><i class="dot"></i><span>Ventures Overview</span></span>
+        <h2 class="pj-h3 pj-anim">Beyond individual projects</h2>
+      </div>
+      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vertus.webp" alt="" decoding="async" /></div>
+      <div class="pj-scroll pj-anim">
+        scroll to explore
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </section>
+
+    <!-- Vertus (Figma 78:906) -->
+    <section class="pj-sec pj-vertus" data-header="dark">
+      <div class="info">
+        <h3 class="pj-h3 pj-anim">Vertus</h3>
+        <p class="pj-desc pj-anim">Designed to create meaningful solutions through thoughtful execution and distinctive design. Every detail reflects a commitment to quality.</p>
+      </div>
+      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vertus.webp" alt="" decoding="async" /></div>
+      <a class="pj-explore pj-anim" href="#">Explore Venture</a>
+      <div class="pj-brackets pj-anim"><i class="l"></i><i class="r"></i></div>
+    </section>
+
+    <!-- Alpha Ledger (Figma 78:917) -->
+    <section class="pj-sec pj-alpha" data-header="light">
+      <div class="pj-chrome center"><img class="pj-anim" src="images/projects/chrome-alpha.webp" alt="" decoding="async" /></div>
+      <div class="info">
+        <h3 class="pj-h3 pj-anim">Alpha Ledger</h3>
+        <p class="pj-desc pj-anim">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p>
+      </div>
+      <a class="pj-explore pj-anim" href="#">Explore Venture</a>
+      <div class="sq pj-fade"></div>
+    </section>
+
+    <!-- Vanquish (Figma 78:923) -->
+    <section class="pj-sec pj-vanq" data-header="light">
+      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vanquish.webp" alt="" decoding="async" /></div>
+      <div class="info">
+        <h3 class="pj-h3 pj-anim">Vanquish</h3>
+        <p class="pj-desc pj-anim">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
+      </div>
+      <div class="sq pj-fade"></div>
     </section>
 
     <!--PJ-SECTIONS-->
@@ -1910,6 +2024,28 @@
 
       panel.classList.add("header-on-dark"); // default before first measure
       update();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Projects: entrance reveals + light parallax ---------- */
+    (() => {
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const anims = [...document.querySelectorAll(".pj-anim, .pj-fade")];
+      if (reduce) { anims.forEach((el) => el.classList.add("in")); }
+      else {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const sec = e.target.closest("section");
+            const sibs = [...sec.querySelectorAll(".pj-anim, .pj-fade")];
+            e.target.style.transitionDelay = (Math.max(0, sibs.indexOf(e.target)) * 0.08) + "s";
+            e.target.classList.add("in");
+            io.unobserve(e.target);
+          });
+        }, { threshold: 0.18 });
+        anims.forEach((el) => io.observe(el));
+      }
     })();
   </script>
 
