@@ -1657,6 +1657,18 @@
   .pj-bigword.left  { left: calc(50% - 717px); background-image: linear-gradient(to right, #000 0, #000 60.154%, #fff 100%); }
   .pj-bigword.right { left: calc(50% + 260px); background-image: linear-gradient(to right, #fff 0, #000 39.846%, #000 100%); }
 
+  /* ============ CTA / Future Ventures (Figma 78:1221) ============ */
+  .pj-cta { background: #000; color: #fff; }
+  .pj-cta-lightbox { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+    width: min(400px, 64vw); aspect-ratio: 400 / 530; border-radius: 10px; overflow: hidden; will-change: transform; }
+  .pj-cta-lightbox img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; display: block; }
+  .pj-cta-word { position: absolute; left: 50%; top: 80.6%; transform: translateX(-50%); text-align: center;
+    white-space: nowrap; font-weight: 500; font-size: clamp(44px, 5.6vw, 80px); line-height: 1.05; letter-spacing: -0.05em;
+    color: #fff; will-change: transform; }
+  .pj-cta-brk { position: absolute; top: calc(80.6% - 40px); width: 14px; height: 80px; }
+  .pj-cta-brk.l { left: var(--gut);  border: 1.5px solid #fff; border-right: 0; }
+  .pj-cta-brk.r { right: var(--gut); border: 1.5px solid #fff; border-left: 0; }
+
 </style>
 </head>
 <body>
@@ -1807,6 +1819,14 @@
       <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
       <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
       <div class="pj-bigword right pj-fade">SHARED VISION</div>
+    </section>
+
+    <!-- CTA / Future Ventures (Figma 78:1221) -->
+    <section class="pj-sec pj-cta" data-header="light">
+      <div class="pj-cta-lightbox pj-fade"><img src="images/projects/cta-lightbox.webp" alt="" decoding="async" /></div>
+      <span class="pj-cta-brk l pj-anim"></span>
+      <h2 class="pj-cta-word pj-fade">FUTURE VENTURES</h2>
+      <span class="pj-cta-brk r pj-anim"></span>
     </section>
 
     <!--PJ-SECTIONS-->
@@ -2077,6 +2097,9 @@
       const shared = document.querySelector(".pj-shared");
       const sL = shared && shared.querySelector(".pj-bigword.left");
       const sR = shared && shared.querySelector(".pj-bigword.right");
+      const cta = document.querySelector(".pj-cta");
+      const box = cta && cta.querySelector(".pj-cta-lightbox");
+      const word = cta && cta.querySelector(".pj-cta-word");
       // signed progress of a section's centre vs the viewport centre: -1 below → 0 centred → 1 above
       const prog = (el) => {
         const r = el.getBoundingClientRect(), vh = innerHeight;
@@ -2088,6 +2111,11 @@
           const p = prog(shared), amt = 160;
           if (sL) sL.style.transform = `translateX(${-amt * p}px)`;
           if (sR) sR.style.transform = `translateX(${amt * p}px)`;
+        }
+        if (cta) {
+          const p = prog(cta);
+          if (box) box.style.transform = `translate(-50%, -50%) scale(${1 + 0.05 * (1 - Math.abs(p))})`;
+          if (word) word.style.transform = `translateX(-50%) translateY(${-22 * p}px)`;
         }
         ticking = false;
       };
