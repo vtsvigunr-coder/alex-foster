@@ -1917,6 +1917,7 @@
           <svg viewBox="0 0 62 62" width="62" height="62">
             <rect class="sq-fill"  x="1" y="1" width="60" height="60" fill="#fff" fill-opacity="0" />
             <rect class="sq-frame" x="1" y="1" width="60" height="60" fill="none" stroke="#fff" stroke-width="1" pathLength="100" />
+            <path class="sq-corners" fill="none" stroke="#fff" stroke-width="1" d="M1 11V1H11 M1 51V61H11 M61 11V1H51 M61 51V61H51" />
           </svg>
         </div>
 
@@ -1924,7 +1925,7 @@
           <div class="pjv-logo"><img src="images/projects/logo-vertus.webp" alt="Vertus" decoding="async" /></div>
           <div class="pjv-text"><div class="pjv-text-in">
             <h3 class="pj-h3">Vertus</h3>
-            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br /><br />Every detail reflects a commitment to quality.</p>
+            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br />Every detail reflects a commitment to quality.</p>
           </div></div>
           <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
@@ -2352,9 +2353,10 @@
         setSlide("vanq",   nLogo, 18,
           revealTy(s, 2.82, 3.12, null, null), visOf(s, 2.85, 3.08, null, null));
 
-        // travelling square — draws its outline, rotates, then fills solid white, ending bottom-centre (Figma 78:923)
-        square.style.opacity = clamp(map(s, 1.0, 1.15), 0, 1).toFixed(3);
-        sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.0, 1.6)))).toFixed(2);
+        // travelling square — corners first, then the outline draws along the line, then a solid fill
+        // (same sequence as #ecosystem), rotating on scroll and ending bottom-centre (Figma 78:923)
+        square.style.opacity = clamp(map(s, 1.0, 1.12), 0, 1).toFixed(3);
+        sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.2, 1.9)))).toFixed(2);
         sqFill.style.fillOpacity = eInOut(map(s, 2.5, 3.0)).toFixed(3);
         const rot = lerp(0, 180, eInOut(map(s, 1.2, 3.0)));
         const W = innerWidth, H = innerHeight, g = Math.max(24, W / 2 - 640) + 50;
