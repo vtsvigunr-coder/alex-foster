@@ -1658,15 +1658,28 @@
     font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; text-transform: uppercase; color: #000; }
   .pjv-scroll svg { width: 20px; height: 20px; display: block; }
 
-  .pjv-slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  /* black fills up from the bottom (Figma 78:906 — black bottom panel) */
+  .pjv-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #000; z-index: 0; }
+
+  .pjv-slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 1; }
   .pjv-logo { position: absolute; left: 50%; transform: translateX(-50%); top: 42%;
     width: min(360px, 46vh, 80vw); aspect-ratio: 1 / 1; pointer-events: none; }
   .pjv-logo img { width: 100%; height: 100%; object-fit: contain; }
-  .pjv-text { position: absolute; left: 50%; top: 62%; transform: translateX(-50%);
-    width: min(420px, 86vw); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; color: #fff; }
-  .pjv-text .pj-h3 { color: #fff; }
-  .pjv-text .pj-desc { width: min(360px, 86vw); }
 
+  .pjv-text { position: absolute; width: min(386px, 86vw); display: flex; flex-direction: column; gap: 16px;
+    color: #fff; transform: translateY(var(--ty, 0px)); }
+  .pjv-text .pj-h3 { color: #fff; }
+  /* Vertus — left (Figma 78:906) */
+  .s-vertus .pjv-text { left: var(--gut); top: 39%; text-align: left; align-items: flex-start; }
+  /* Alpha Ledger — lower right (Figma 78:917) */
+  .s-alpha .pjv-text { right: var(--gut); top: 73%; text-align: right; align-items: flex-end; }
+  .s-alpha .pjv-text .pj-desc { width: min(290px, 80vw); }
+  /* Vanquish — centred (Figma 239:2518 / 78:923) */
+  .s-vanq .pjv-text { left: 50%; top: 60%; text-align: center; align-items: center;
+    transform: translateX(-50%) translateY(var(--ty, 0px)); }
+  .s-vanq .pjv-text .pj-desc { width: min(340px, 86vw); }
+
+  .pjv-intro, .pjv-square, .pjv-explore, .pjv-scroll { z-index: 2; }
   .pjv-explore { left: auto; right: var(--gut); top: 40%; opacity: 0; }
 
   .pjv-square { position: absolute; left: 0; top: 0; width: 60px; height: 60px;
@@ -1678,11 +1691,14 @@
       display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px 48px; gap: 44px; }
     .pjv-intro { position: static; transform: none; width: 100%; color: #fff; gap: 20px; }
     .pjv-intro .pj-eyebrow, .pjv-headline { color: #fff; }
-    .pjv-scroll, .pjv-square, .pjv-explore { display: none; }
+    .pjv-fill, .pjv-scroll, .pjv-square, .pjv-explore { display: none; }
     .pjv-slide { position: static; opacity: 1; pointer-events: auto; width: 100%;
       display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .pjv-logo { position: static; transform: none; top: auto; order: 2; width: min(300px, 72vw); margin: 0 auto; }
-    .pjv-text { position: static; transform: none; top: auto; order: 1; width: 100%; }
+    .s-vertus .pjv-text, .s-alpha .pjv-text, .s-vanq .pjv-text {
+      position: static; left: auto; right: auto; top: auto; transform: none;
+      order: 1; width: 100%; text-align: center; align-items: center; }
+    .s-alpha .pjv-text .pj-desc, .s-vanq .pjv-text .pj-desc { width: auto; max-width: 320px; }
   }
 
   /* ============ Shared vision (Figma 72:705) ============ */
@@ -1873,6 +1889,8 @@
     <!-- Ventures — pinned scroll sequence (Figma 78:886 / 906 / 917 / 923 / 239:2518) -->
     <section id="pj-ventures" class="pjv" data-header="dark">
       <div class="pjv-stage">
+
+        <div class="pjv-fill" aria-hidden="true"></div>
 
         <div class="pjv-intro">
           <span class="pj-eyebrow"><i class="dot"></i><span>Ventures Overview</span></span>
@@ -2240,6 +2258,7 @@
       const sec = document.getElementById("pj-ventures");
       if (!sec) return;
       const stage   = sec.querySelector(".pjv-stage");
+      const fill    = sec.querySelector(".pjv-fill");
       const intro   = sec.querySelector(".pjv-intro");
       const scrollT = sec.querySelector(".pjv-scroll");
       const square  = sec.querySelector(".pjv-square");
@@ -2255,7 +2274,7 @@
       const eOut   = (t) => 1 - (1 - t) * (1 - t);
       const mobile = () => innerWidth <= 768;
 
-      const animated = () => [intro, scrollT, square, explore,
+      const animated = () => [fill, intro, scrollT, square, explore,
         slides.vertus, slides.alpha, slides.vanq,
         logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
         textEl("vertus"), textEl("alpha"), textEl("vanq")];
@@ -2268,14 +2287,13 @@
         lg.style.opacity = logoOp.toFixed(3);
         lg.style.top = topPct.toFixed(2) + "%";
         tx.style.opacity = textOp.toFixed(3);
-        tx.style.transform = `translateX(-50%) translateY(${lerp(60, 0, textRise).toFixed(1)}px)`;
+        tx.style.setProperty("--ty", lerp(60, 0, textRise).toFixed(1) + "px");
       };
 
       function apply(s) {
-        // background white → black
+        // black fills up from the bottom (Figma 78:906 — black bottom panel)
         const bgP = eInOut(map(s, 0.6, 1.25));
-        const v = Math.round(lerp(255, 0, bgP));
-        stage.style.background = `rgb(${v},${v},${v})`;
+        fill.style.height = (bgP * 100).toFixed(2) + "%";
         sec.setAttribute("data-header", bgP > 0.5 ? "light" : "dark");
 
         // intro heading + scroll cue leave
