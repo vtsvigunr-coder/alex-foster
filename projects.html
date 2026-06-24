@@ -1544,8 +1544,36 @@
   /* ============================================================
      Projects page — section styles (Figma 84:1426)
      ============================================================ */
+  html { scroll-behavior: smooth; }
   .projects { position: relative; background: #000; color: #fff; }
-  /* section blocks added in later tasks */
+
+  /* shared eyebrow + pill ------------------------------------ */
+  .pj-eyebrow { display: inline-flex; align-items: center; gap: 16px; }
+  .pj-eyebrow .dot { width: 6px; height: 6px; flex: 0 0 6px; background: currentColor; }
+  .pj-eyebrow span { font-size: 20px; font-weight: 700; line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase; }
+  .pj-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 24px; border-radius: 12px;
+    background: rgba(255,255,255,0.16);
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    color: #fff; font-size: 16px; font-weight: 500; letter-spacing: -0.16px;
+    text-decoration: none; cursor: pointer; border: 0;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    transition: background .3s var(--ease), transform .3s var(--ease);
+  }
+  .pj-pill:hover { background: rgba(255,255,255,0.26); transform: translateY(-2px); }
+
+  /* ---- Hero (Figma 72:479) ---- */
+  .pj-hero { position: relative; height: 100vh; min-height: 660px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; background: #000; }
+  .pj-hero-bg { position: absolute; inset: 0; }
+  .pj-hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+  .pj-hero-veil { position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 100%), rgba(0,0,0,0.55); }
+  .pj-hero-inner { position: relative; z-index: 2; display: flex; flex-direction: column;
+    align-items: center; gap: 28px; padding: 0 24px; text-align: center; }
+  .pj-hero-title { max-width: 800px; color: #fff; font-weight: 500;
+    font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em; }
 
 </style>
 </head>
@@ -1635,6 +1663,17 @@
     </div>
 
   <main class="projects">
+
+    <!-- Hero (Figma 72:479) -->
+    <section class="pj-hero" data-header="light">
+      <div class="pj-hero-bg"><img src="images/projects/hero.webp" alt="" decoding="async" /></div>
+      <div class="pj-hero-veil"></div>
+      <div class="pj-hero-inner">
+        <h1 class="pj-hero-title">Built with intention. Designed to create lasting impact.</h1>
+        <a class="pj-pill" href="#pj-ventures">Explore ventures</a>
+      </div>
+    </section>
+
     <!--PJ-SECTIONS-->
   </main>
 
