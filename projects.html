@@ -1645,6 +1645,46 @@
   .pj-fade { opacity: 0; transition: opacity .9s var(--ease); }   /* for transform-centered elements */
   .pj-fade.in { opacity: 1; }
 
+  /* ============ Ventures — pinned scroll sequence ============ */
+  .pjv { position: relative; height: 480vh; background: #fff; }
+  .pjv-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
+
+  .pjv-intro { position: absolute; left: 50%; top: 16%; transform: translateX(-50%);
+    width: min(520px, 86vw); display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; color: #000; }
+  .pjv-intro .pj-eyebrow { color: #000; }
+  .pjv-headline { color: #000; }
+
+  .pjv-scroll { position: absolute; left: var(--gut); bottom: 11%; display: flex; align-items: center; gap: 16px;
+    font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; text-transform: uppercase; color: #000; }
+  .pjv-scroll svg { width: 20px; height: 20px; display: block; }
+
+  .pjv-slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+  .pjv-logo { position: absolute; left: 50%; transform: translateX(-50%); top: 42%;
+    width: min(360px, 46vh, 80vw); aspect-ratio: 1 / 1; pointer-events: none; }
+  .pjv-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .pjv-text { position: absolute; left: 50%; top: 62%; transform: translateX(-50%);
+    width: min(420px, 86vw); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; color: #fff; }
+  .pjv-text .pj-h3 { color: #fff; }
+  .pjv-text .pj-desc { width: min(360px, 86vw); }
+
+  .pjv-explore { left: auto; right: var(--gut); top: 40%; opacity: 0; }
+
+  .pjv-square { position: absolute; left: 0; top: 0; width: 60px; height: 60px;
+    border: 1px solid #fff; opacity: 0; will-change: transform, opacity; }
+
+  @media (max-width: 768px) {
+    .pjv { height: auto; background: #000; }
+    .pjv-stage { position: static; height: auto; overflow: visible; background: #000;
+      display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px 48px; gap: 44px; }
+    .pjv-intro { position: static; transform: none; width: 100%; color: #fff; gap: 20px; }
+    .pjv-intro .pj-eyebrow, .pjv-headline { color: #fff; }
+    .pjv-scroll, .pjv-square, .pjv-explore { display: none; }
+    .pjv-slide { position: static; opacity: 1; pointer-events: auto; width: 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .pjv-logo { position: static; transform: none; top: auto; order: 2; width: min(300px, 72vw); margin: 0 auto; }
+    .pjv-text { position: static; transform: none; top: auto; order: 1; width: 100%; }
+  }
+
   /* ============ Shared vision (Figma 72:705) ============ */
   .pj-shared { background: #000; color: #fff; }
   .pj-shared .pj-eyebrow { position: absolute; left: 50%; transform: translateX(-50%); top: 11.1%; color: #fff; }
@@ -1830,49 +1870,49 @@
       </div>
     </section>
 
-    <!-- Ventures Overview — intro (Figma 78:886) -->
-    <section id="pj-ventures" class="pj-sec pj-vintro" data-header="dark">
-      <div class="head">
-        <span class="pj-eyebrow pj-anim"><i class="dot"></i><span>Ventures Overview</span></span>
-        <h2 class="pj-h3 pj-anim">Beyond individual projects</h2>
-      </div>
-      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vertus.webp" alt="" decoding="async" /></div>
-      <div class="pj-scroll pj-anim">
-        scroll to explore
-        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </section>
+    <!-- Ventures — pinned scroll sequence (Figma 78:886 / 906 / 917 / 923 / 239:2518) -->
+    <section id="pj-ventures" class="pjv" data-header="dark">
+      <div class="pjv-stage">
 
-    <!-- Vertus (Figma 78:906) -->
-    <section class="pj-sec pj-vertus" data-header="dark">
-      <div class="info">
-        <h3 class="pj-h3 pj-anim">Vertus</h3>
-        <p class="pj-desc pj-anim">Designed to create meaningful solutions through thoughtful execution and distinctive design. Every detail reflects a commitment to quality.</p>
-      </div>
-      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vertus.webp" alt="" decoding="async" /></div>
-      <a class="pj-explore pj-anim" href="#">Explore Venture</a>
-      <div class="pj-brackets pj-anim"><i class="l"></i><i class="r"></i></div>
-    </section>
+        <div class="pjv-intro">
+          <span class="pj-eyebrow"><i class="dot"></i><span>Ventures Overview</span></span>
+          <h2 class="pjv-headline pj-h3">Beyond individual projects</h2>
+        </div>
 
-    <!-- Alpha Ledger (Figma 78:917) -->
-    <section class="pj-sec pj-alpha" data-header="light">
-      <div class="pj-chrome center"><img class="pj-anim" src="images/projects/chrome-alpha.webp" alt="" decoding="async" /></div>
-      <div class="info">
-        <h3 class="pj-h3 pj-anim">Alpha Ledger</h3>
-        <p class="pj-desc pj-anim">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p>
-      </div>
-      <a class="pj-explore pj-anim" href="#">Explore Venture</a>
-      <div class="sq pj-fade"></div>
-    </section>
+        <div class="pjv-square" aria-hidden="true"></div>
 
-    <!-- Vanquish (Figma 78:923) -->
-    <section class="pj-sec pj-vanq" data-header="light">
-      <div class="pj-chrome"><img class="pj-anim" src="images/projects/chrome-vanquish.webp" alt="" decoding="async" /></div>
-      <div class="info">
-        <h3 class="pj-h3 pj-anim">Vanquish</h3>
-        <p class="pj-desc pj-anim">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
+        <div class="pjv-slide s-vertus">
+          <div class="pjv-logo"><img src="images/projects/logo-vertus.webp" alt="Vertus" decoding="async" /></div>
+          <div class="pjv-text">
+            <h3 class="pj-h3">Vertus</h3>
+            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design. Every detail reflects a commitment to quality.</p>
+          </div>
+        </div>
+
+        <div class="pjv-slide s-alpha">
+          <div class="pjv-logo"><img src="images/projects/logo-alpha.webp" alt="Alpha Ledger" decoding="async" /></div>
+          <div class="pjv-text">
+            <h3 class="pj-h3">Alpha Ledger</h3>
+            <p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p>
+          </div>
+        </div>
+
+        <div class="pjv-slide s-vanq">
+          <div class="pjv-logo"><img src="images/projects/logo-vanquish.webp" alt="Vanquish" decoding="async" /></div>
+          <div class="pjv-text">
+            <h3 class="pj-h3">Vanquish</h3>
+            <p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
+          </div>
+        </div>
+
+        <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
+
+        <div class="pjv-scroll">
+          scroll to explore
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
       </div>
-      <div class="sq pj-fade"></div>
     </section>
 
     <!-- Shared vision (Figma 72:705) -->
@@ -2189,6 +2229,107 @@
       addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
       addEventListener("resize", frame);
       frame();
+    })();
+  </script>
+
+  <script>
+    /* ---------- Ventures: pinned scroll sequence (same engine as #ecosystem) ----------
+       white intro → bg fades to black + heading leaves → Vertus text rises from the bottom →
+       logo rises and swaps Vertus → Alpha Ledger → Vanquish; a square travels top-right → centre → down. */
+    (() => {
+      const sec = document.getElementById("pj-ventures");
+      if (!sec) return;
+      const stage   = sec.querySelector(".pjv-stage");
+      const intro   = sec.querySelector(".pjv-intro");
+      const scrollT = sec.querySelector(".pjv-scroll");
+      const square  = sec.querySelector(".pjv-square");
+      const explore = sec.querySelector(".pjv-explore");
+      const slides  = { vertus: sec.querySelector(".s-vertus"), alpha: sec.querySelector(".s-alpha"), vanq: sec.querySelector(".s-vanq") };
+      const logoEl  = (n) => slides[n].querySelector(".pjv-logo");
+      const textEl  = (n) => slides[n].querySelector(".pjv-text");
+
+      const clamp  = (v, a, b) => Math.max(a, Math.min(b, v));
+      const map    = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+      const lerp   = (a, b, t) => a + (b - a) * t;
+      const eInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const eOut   = (t) => 1 - (1 - t) * (1 - t);
+      const mobile = () => innerWidth <= 768;
+
+      const animated = () => [intro, scrollT, square, explore,
+        slides.vertus, slides.alpha, slides.vanq,
+        logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
+        textEl("vertus"), textEl("alpha"), textEl("vanq")];
+      const clearInline = () => { stage.style.background = ""; animated().forEach((e) => e.removeAttribute("style")); };
+
+      const setSlide = (name, logoOp, textOp, topPct, textRise) => {
+        const sl = slides[name], lg = logoEl(name), tx = textEl(name);
+        sl.style.opacity = "1";
+        sl.style.pointerEvents = (logoOp > 0.5 || textOp > 0.5) ? "auto" : "none";
+        lg.style.opacity = logoOp.toFixed(3);
+        lg.style.top = topPct.toFixed(2) + "%";
+        tx.style.opacity = textOp.toFixed(3);
+        tx.style.transform = `translateX(-50%) translateY(${lerp(60, 0, textRise).toFixed(1)}px)`;
+      };
+
+      function apply(s) {
+        // background white → black
+        const bgP = eInOut(map(s, 0.6, 1.25));
+        const v = Math.round(lerp(255, 0, bgP));
+        stage.style.background = `rgb(${v},${v},${v})`;
+        sec.setAttribute("data-header", bgP > 0.5 ? "light" : "dark");
+
+        // intro heading + scroll cue leave
+        intro.style.opacity = (1 - map(s, 0.45, 0.95)).toFixed(3);
+        intro.style.transform = `translateX(-50%) translateY(${lerp(0, -30, map(s, 0.45, 1.0)).toFixed(1)}px)`;
+        scrollT.style.opacity = (1 - map(s, 0.3, 0.7)).toFixed(3);
+
+        // explore pill fades in once dark
+        explore.style.opacity = clamp(map(s, 1.25, 1.7), 0, 1).toFixed(3);
+
+        // logo rises from centre (42%) to up (18%) between 1.3 and 1.9
+        const riseY = lerp(42, 18, eInOut(map(s, 1.3, 1.9)));
+
+        // Vertus: logo is present from the intro and stays put; its text rises from the bottom (~0.9).
+        const vLogo = 1 - map(s, 1.95, 2.30);
+        const vText = clamp(map(s, 0.90, 1.30), 0, 1) * (1 - map(s, 1.95, 2.20));
+        // Alpha / Vanquish: logo + text cross-fade in together once the logo has risen.
+        const aOp = clamp(map(s, 1.95, 2.30), 0, 1) * (1 - map(s, 2.60, 2.95));
+        const nOp = clamp(map(s, 2.60, 2.95), 0, 1);
+        setSlide("vertus", vLogo, vText, riseY, eOut(map(s, 0.90, 1.45)));
+        setSlide("alpha",  aOp,   aOp,   18,    eOut(map(s, 1.95, 2.40)));
+        setSlide("vanq",   nOp,   nOp,   18,    eOut(map(s, 2.60, 3.05)));
+
+        // travelling square: top-right → centre-left → bottom-centre
+        const sqO = clamp(map(s, 1.0, 1.3), 0, 1) * (1 - map(s, 3.3, 3.6));
+        square.style.opacity = sqO.toFixed(3);
+        const W = innerWidth, H = innerHeight, g = Math.max(24, W / 2 - 640) + 50;
+        const P0 = [W - g, H * 0.13], P1 = [g, H * 0.50], P2 = [W * 0.50, H * 0.90];
+        let sx, sy;
+        if (s < 2.2) { const t = eInOut(map(s, 1.2, 2.2)); sx = lerp(P0[0], P1[0], t); sy = lerp(P0[1], P1[1], t); }
+        else { const t = eInOut(map(s, 2.2, 3.0)); sx = lerp(P1[0], P2[0], t); sy = lerp(P1[1], P2[1], t); }
+        square.style.transform = `translate(${(sx - 30).toFixed(1)}px, ${(sy - 30).toFixed(1)}px)`;
+      }
+
+      // debug: open projects.html#s=2.0 to freeze the sequence at a given progress (for screenshots)
+      const dbg = location.hash.match(/s=([\d.]+)/);
+      if (dbg) { apply(parseFloat(dbg[1])); return; }
+
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.2;
+      const tick = () => {
+        raf = 0; if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.002) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur); raf = requestAnimationFrame(tick);
+      };
+      const onScroll = () => {
+        if (mobile()) { clearInline(); return; }
+        target = clamp(-sec.getBoundingClientRect().top / innerHeight, 0, 12);
+        if (!raf) raf = requestAnimationFrame(tick);
+      };
+      addEventListener("scroll", onScroll, { passive: true });
+      addEventListener("resize", () => { cur = null; onScroll(); });
+      onScroll();
     })();
   </script>
 
