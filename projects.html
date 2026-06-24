@@ -1644,6 +1644,19 @@
   .pj-fade { opacity: 0; transition: opacity .9s var(--ease); }   /* for transform-centered elements */
   .pj-fade.in { opacity: 1; }
 
+  /* ============ Shared vision (Figma 72:705) ============ */
+  .pj-shared { background: #000; color: #fff; }
+  .pj-shared .pj-eyebrow { position: absolute; left: 50%; transform: translateX(-50%); top: 11.1%; color: #fff; }
+  .pj-shared-poster { position: absolute; left: 50%; top: 78.6%; transform: translate(-50%, -50%);
+    width: 172px; height: 186px; border-radius: 8px; overflow: hidden; }
+  .pj-shared-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pj-shared-poster::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
+  .pj-bigword { position: absolute; top: 74.8%; white-space: nowrap;
+    font-weight: 500; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em;
+    -webkit-background-clip: text; background-clip: text; color: transparent; will-change: transform; }
+  .pj-bigword.left  { left: calc(50% - 717px); background-image: linear-gradient(to right, #000 0, #000 60.154%, #fff 100%); }
+  .pj-bigword.right { left: calc(50% + 260px); background-image: linear-gradient(to right, #fff 0, #000 39.846%, #000 100%); }
+
 </style>
 </head>
 <body>
@@ -1786,6 +1799,14 @@
         <p class="pj-desc pj-anim">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
       </div>
       <div class="sq pj-fade"></div>
+    </section>
+
+    <!-- Shared vision (Figma 72:705) -->
+    <section class="pj-sec pj-shared" data-header="light">
+      <span class="pj-eyebrow pj-fade"><i class="dot"></i><span>Shared vision</span></span>
+      <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
+      <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
+      <div class="pj-bigword right pj-fade">SHARED VISION</div>
     </section>
 
     <!--PJ-SECTIONS-->
@@ -2046,6 +2067,33 @@
         }, { threshold: 0.18 });
         anims.forEach((el) => io.observe(el));
       }
+    })();
+  </script>
+
+  <script>
+    /* ---------- Projects: scroll-driven parallax (Shared vision sweep, CTA) ---------- */
+    (() => {
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const shared = document.querySelector(".pj-shared");
+      const sL = shared && shared.querySelector(".pj-bigword.left");
+      const sR = shared && shared.querySelector(".pj-bigword.right");
+      // signed progress of a section's centre vs the viewport centre: -1 below → 0 centred → 1 above
+      const prog = (el) => {
+        const r = el.getBoundingClientRect(), vh = innerHeight;
+        return Math.max(-1, Math.min(1, (vh / 2 - (r.top + r.height / 2)) / (vh / 2 + r.height / 2)));
+      };
+      let ticking = false;
+      const frame = () => {
+        if (shared) {
+          const p = prog(shared), amt = 160;
+          if (sL) sL.style.transform = `translateX(${-amt * p}px)`;
+          if (sR) sR.style.transform = `translateX(${amt * p}px)`;
+        }
+        ticking = false;
+      };
+      addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
+      addEventListener("resize", frame);
+      frame();
     })();
   </script>
 
