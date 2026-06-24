@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Alex Foster</title>
+<link rel="icon" type="image/webp" href="images/main page/alex.webp" />
+<style>
+  /* ---------- Satoshi ---------- */
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Regular.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Medium.woff2") format("woff2");
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Satoshi";
+    src: url("fonts/Satoshi-Bold.woff2") format("woff2");
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  :root { --ease: cubic-bezier(.16, 1, .3, 1); }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #000000; }
+  body {
+    font-family: "Satoshi", system-ui, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body.preloading { overflow: hidden; }
+
+  /* ============ Site (hero + menu) ============ */
+  .site { position: relative; background: #000; color: #fff; }
+
+  /* ---- Hero ---- */
+  .hero { position: relative; height: 100vh; overflow: hidden; }
+  .hero-video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+  }
+  .hero-veil {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 22%,
+      rgba(0,0,0,0) 52%, rgba(0,0,0,0.6) 100%);
+  }
+
+  /* ---- Top bar (stays crisp above the menu) ---- */
+  /* ---- Hero title ---- */
+  .hero-title {
+    position: absolute; left: 0; right: 0; bottom: clamp(36px, 6vh, 84px);
+    z-index: 10; display: flex; justify-content: center; align-items: flex-start;
+    gap: .55rem; pointer-events: none;
+  }
+  .hero-title h1 {
+    color: #fff; font-weight: 400;
+    font-size: clamp(3rem, 9vw, 100px);
+    line-height: 1; letter-spacing: -0.06em;
+  }
+  .hero-title .sup {
+    font-weight: 400; font-size: clamp(.8rem, 1.6vw, 22px);
+    letter-spacing: -0.01em; margin-top: .5em; opacity: .92;
+  }
+
+  /* ---- Morphing header / menu panel ---- */
+  .panel {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 40; width: 520px; height: 56px; overflow: hidden;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    backdrop-filter: blur(18px);
+    transition: width .5s var(--ease), height .5s var(--ease), background .35s var(--ease);
+  }
+  .panel.is-wide { width: 1280px; }   /* 1) header spreads */
+  .panel.is-tall { height: 480px; }   /* 2) curtain drops  */
+
+  /* adaptive header background: dark blur over light sections, light blur over dark */
+  .header-on-light {
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .header-on-dark {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .panel-bar {
+    position: relative; z-index: 2; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 8px 8px 20px;
+  }
+  .panel-body { z-index: 1; }
+  .nav-toggle {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: none; border: 0; color: #fff; cursor: pointer;
+    font: 500 15px/1 "Satoshi", sans-serif; letter-spacing: -0.01em;
+  }
+  .nav-toggle .icon { position: relative; width: 20px; height: 20px; }
+  .nav-toggle .icon svg {
+    position: absolute; inset: 0;
+    transition: opacity .35s var(--ease), transform .4s var(--ease);
+  }
+  .nav-toggle .ic-close { opacity: 0; transform: rotate(-45deg) scale(.6); }
+  .panel.is-wide .ic-open { opacity: 0; transform: rotate(45deg) scale(.6); }
+  .panel.is-wide .ic-close { opacity: 1; transform: none; }
+
+  .panel-bar .brand {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap;
+  }
+  .nav-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 10px 24px; border-radius: 12px;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 500;
+    white-space: nowrap; transition: background .3s var(--ease);
+  }
+  .nav-cta:hover { background: rgba(255,255,255,.26); }
+
+  /* ---- Panel body (3 menu columns) ---- */
+  .panel-body {
+    position: absolute; left: 0; right: 0; top: 56px; bottom: 0;
+    padding: 0 20px;
+    opacity: 0; transition: opacity .3s var(--ease);
+  }
+  body.menu-open .panel-body { opacity: 1; transition-delay: .1s; }
+  .menu-grid {
+    height: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .menu-grid > * { flex: 0 0 auto; }   /* keep column widths, never squish */
+
+  .m-card {
+    position: relative; display: flex; flex-direction: column;
+    width: 360px; height: 360px; padding: 20px;
+    justify-content: space-between; align-items: flex-start;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+  }
+  .m-mid {
+    display: flex; flex-direction: column; align-items: flex-start;
+    width: 324px; height: 360px; gap: 32px;
+  }
+
+  .m-label {
+    font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px;
+    text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 16px;
+  }
+  .m-label.center { text-align: center; }
+
+  .m-nav { display: flex; flex-direction: column; width: 100%; }
+  .m-link {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    padding: 11px 0; text-decoration: none; color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    transition: padding-left .35s var(--ease);
+  }
+  .m-link:hover { padding-left: 8px; }
+  .rv-mask { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .rv {
+    display: inline-block;
+    font-size: 20px; font-weight: 500; line-height: 24px; letter-spacing: -0.2px;
+    transform: translateY(115%); transition: transform .7s var(--ease);
+  }
+  body.menu-open .rv { transform: none; }
+  .badge {
+    font-size: 11px; font-weight: 600; font-style: normal; letter-spacing: .04em;
+    background: #fff; color: #000; border-radius: 5px; padding: 2px 7px;
+  }
+
+  .m-card-foot {
+    margin-top: auto; color: rgba(255,255,255,.4); font-size: 13px; padding-top: 18px;
+  }
+
+  /* explore / middle social — pushed to the column bottom so it lines up with the side blocks */
+  .m-social { display: flex; gap: 12px; justify-content: flex-start; margin-top: auto; }
+  .m-social a {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12);
+    transition: background .3s var(--ease);
+  }
+  .m-social a:hover { background: rgba(255,255,255,.22); }
+  .m-social svg { width: 16px; height: 16px; }
+
+  /* LET'S TALK card */
+  .m-talk { align-items: center; text-align: center; justify-content: space-between; }
+  .m-talk-head { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .m-talk-head .m-label { margin-bottom: 0; }
+  .m-email {
+    display: inline-flex; gap: .25em; color: #fff; text-decoration: none;
+    font-size: 24px; font-weight: 500; line-height: 28px; letter-spacing: -0.48px;
+  }
+  .m-email b { font-weight: 400; }
+  .m-desc {
+    color: #fff; text-align: center;
+    font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.48px;
+  }
+
+  /* photo deck + button (Figma: inline-flex column, gap -8px) */
+  .m-stackwrap { display: inline-flex; flex-direction: column; align-items: center; }
+  .m-stack { position: relative; width: 159px; height: 104px; }
+  .m-stack .spic {
+    position: absolute;
+    width: 99.048px; height: 64px; aspect-ratio: 65 / 42;
+    object-fit: cover; border-radius: 4px;
+    border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 6px 16px rgba(0,0,0,.45);
+    opacity: 0; transition: opacity .55s var(--ease);
+  }
+  body.menu-open .m-stack .spic { opacity: 1; }
+
+  .m-explore {
+    position: relative; z-index: 6; margin-top: -8px;   /* Figma gap: -8px */
+    display: flex; padding: 10px 24px; justify-content: center; align-items: center; gap: 10px;
+    border-radius: 12px; background: #fff; color: #0c0c0e;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    transition: transform .3s var(--ease);
+  }
+  .m-explore:hover { transform: translateY(-2px); }
+
+  /* reveal helpers */
+  .panel .fade { opacity: 0; transform: translateY(20px); transition: opacity .6s var(--ease), transform .6s var(--ease); }
+  body.menu-open .panel .fade { opacity: 1; transform: none; }
+
+  @media (max-width: 1340px) {
+    .panel.is-wide { width: calc(100vw - 32px); }
+  }
+  @media (max-width: 1140px) {
+    .panel { top: 12px; width: min(520px, calc(100vw - 16px)); }
+    .panel.is-wide { width: calc(100vw - 16px); }
+    .panel.is-tall { height: auto; max-height: calc(100dvh - 24px); overflow-y: auto; }
+    .panel-body { position: static; top: auto; padding: 0 12px 16px; }
+    .menu-grid { flex-direction: column; align-items: stretch; height: auto; gap: 14px; }
+    .m-card, .m-mid { height: auto; width: 100%; }
+    .hero-title h1 { letter-spacing: -0.04em; }
+  }
+
+  /* ---- Mobile (Figma): hero pill that expands into a floating drop-down ---- */
+  .m-mobile-only { display: none; }
+  .menu-backdrop { display: none; }
+
+  @media (max-width: 700px) {
+    /* Hero title: bottom-left, "By design." tucked top-right */
+    .hero-title {
+      display: block; left: 20px; right: 20px; bottom: 40px;
+    }
+    .hero-title h1 {
+      font-size: clamp(46px, 15.5vw, 60px);
+      line-height: 1.06; letter-spacing: -0.04em;
+    }
+    .hero-title .sup {
+      position: absolute; right: 2px; top: 0; margin: 0;
+      font-size: clamp(15px, 5.2vw, 20.6px);
+      letter-spacing: -0.046em; opacity: .95;
+    }
+
+    /* Full-screen blurred backdrop sitting BEHIND the floating panel */
+    .menu-backdrop {
+      display: block; position: fixed; inset: 0; z-index: 39;
+      background: rgba(0,0,0,0.30);
+      opacity: 0; pointer-events: none;
+      transition: opacity .4s var(--ease);
+    }
+    body.menu-open .menu-backdrop {
+      opacity: 1; pointer-events: auto;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    }
+    body.menu-open { overflow: hidden; }
+
+    /* The panel IS the frosted pill; it grows downward into the drop-down card */
+    .panel, .panel.is-wide, .panel.is-tall {
+      top: 20px; left: 50%; right: auto; transform: translateX(-50%);
+      width: 353px; max-width: calc(100vw - 40px);
+      height: auto; max-height: 50px; overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      transition: max-height .55s var(--ease), background .35s var(--ease);
+    }
+    /* adaptive frosted bg on mobile too (parity with desktop):
+       dark pill over light sections, light pill over dark sections.
+       Higher specificity than the .panel rule above so it wins. */
+    .panel.header-on-light { background: rgba(20, 20, 20, 0.45); }
+    .panel.header-on-dark  { background: rgba(255, 255, 255, 0.15); }
+    body.menu-open .panel {
+      max-height: calc(100vh - 40px);
+      max-height: calc(100dvh - 40px);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+
+    /* Header row inside the card (frosted bg comes from the panel itself) */
+    .panel-bar {
+      position: relative; z-index: 2; height: 50px;
+      padding: 8px 20px; border-radius: 0;
+      background: transparent; box-shadow: none;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    body.menu-open .panel-bar { height: auto; padding: 15px 20px 0; }
+    .panel-bar .brand {
+      position: static; transform: none; order: 0;
+      font-size: 16px; font-weight: 700; letter-spacing: -0.03em;
+    }
+    .nav-toggle { order: 1; font-size: 15px; }
+    .nav-cta { display: none; }
+
+    /* Body flows inside the card, 32px below the header row */
+    .panel-body {
+      position: static; inset: auto; z-index: 1;
+      padding: 32px 20px 15px;
+      background: transparent; backdrop-filter: none;
+      opacity: 0; transition: opacity .3s var(--ease);
+    }
+    body.menu-open .panel-body { opacity: 1; transition-delay: .12s; }
+
+    .menu-grid {
+      flex-direction: column; align-items: stretch;
+      height: auto; gap: 8px; justify-content: flex-start;
+    }
+    .m-card, .m-mid { width: 100%; height: auto; }
+
+    /* BUILD + LET'S TALK = frosted inner cards; EXPLORE = transparent block */
+    .m-card {
+      padding: 16px; border: 0;
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 6.9px 34.7px 0 rgba(0,0,0,0.20);
+    }
+    .m-mid { padding: 16px; gap: 20px; background: transparent; }
+
+    .m-label {
+      margin-bottom: 0; color: #b2b2b2;
+      font-size: 14px; letter-spacing: -0.14px;
+    }
+    .m-nav { gap: 0; }
+    .m-link { padding: 9px 0; }
+    .m-nav .m-link:last-child { border-bottom: 0; padding-bottom: 0; }
+    .rv { font-size: 16px; line-height: 20px; letter-spacing: -0.16px; }
+
+    /* LET'S TALK card: left-aligned, underlined email */
+    .m-talk, .m-talk-head { align-items: flex-start; }
+    .m-talk { text-align: left; gap: 20px; }
+    .m-talk-head { gap: 20px; }
+    .m-talk-head .m-label, .m-desc { text-align: left; }
+    .m-email {
+      font-size: 16px; line-height: 20px; letter-spacing: -0.16px;
+      width: 100%; padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .m-desc { font-size: 16px; line-height: 20px; letter-spacing: -0.16px; }
+    .m-stackwrap { width: 100%; align-items: flex-start; }
+    .m-stack { margin-top: 4px; }
+
+    /* drop the in-card copyright + desktop "Explore" CTA in favour of the
+       Figma frosted "Let's Talk" button + centred copyright */
+    .m-card-foot, .m-explore { display: none; }
+
+    .m-mobile-only { display: flex; }
+    .m-talk-btn {
+      align-items: center; justify-content: center;
+      width: 100%; height: 36px; padding: 10px 24px; margin-top: 8px;
+      border-radius: 10px; background: rgba(255,255,255,0.15);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      color: #fff; font-size: 14px; font-weight: 500;
+      letter-spacing: -0.14px; text-decoration: none;
+      transition: background .3s var(--ease);
+    }
+    .m-talk-btn:active { background: rgba(255,255,255,0.26); }
+    .m-copy {
+      justify-content: center; text-align: center;
+      color: #b2b2b2; font-size: 14px; letter-spacing: -0.14px;
+      padding: 16px 0 4px;
+    }
+  }
+
+  /* ============ About (scroll-driven) ============ */
+  .about { position: relative; height: 580vh; background: #fff; }
+  .about-stage {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    background: #fff; color: #000;
+  }
+
+  /* image that grows to fullscreen */
+  .ab-imgbox {
+    position: absolute; left: 50%; top: 50%;
+    width: 400px; height: 530px; transform: translate(-50%, -50%);
+    border-radius: 12px; overflow: hidden; z-index: 2;
+    box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    clip-path: inset(100% 0 0 0);     /* fixed in place; reveals bottom → top */
+    will-change: width, height, clip-path;
+  }
+  .ab-img {
+    position: absolute; left: 0; top: -15%; width: 100%; height: 130%;
+    object-fit: cover; object-position: center 30%;
+    will-change: transform;
+  }
+  .ab-dark { position: absolute; inset: 0; background: #000; opacity: 0; z-index: 3; }
+
+  /* "More than a founder." with scanning bars */
+  .ab-founder {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ab-ftext {
+    position: relative; display: inline-block; white-space: nowrap;
+    font-weight: 500; font-size: clamp(2rem, 5vw, 64px);
+    line-height: 1.1; letter-spacing: -0.03em; color: #111;
+  }
+  .ftxt {
+    display: inline-block;
+    opacity: 0; transform: translateY(26px); will-change: transform, opacity;
+  }
+  .ftxt.revealed { opacity: 1; transform: none; transition: opacity .85s var(--ease), transform .85s var(--ease); }
+
+  /* Per-character cover: each letter gets its own block that scales in left→right */
+  .char { position: relative; display: inline-block; }
+  .char-block {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #1a1a1a; transform: scaleX(0); transform-origin: left center;
+    pointer-events: none; z-index: 2;
+  }
+
+  /* "Ideas Into Reality" */
+  .ab-ideas {
+    position: absolute; inset: 0; z-index: 6; opacity: 0; pointer-events: none;
+    font-weight: 500; font-size: clamp(2rem, 5vw, 64px); letter-spacing: -0.03em;
+  }
+  .ab-ideas span { position: absolute; top: 50%; white-space: nowrap; will-change: transform; }
+  /* Into centred in the section (over the image centre) */
+  .w-into { left: 50%; transform: translate(-50%, -50%); color: #fff; }
+  /* Ideas / Reality sit 60px out from the 400px image's edges (image half = 200px) */
+  .w-ideas { right: calc(50% + 260px); transform: translateY(-50%); color: #111; }
+  .w-reality { left: calc(50% + 260px); transform: translateY(-50%); color: #111; }
+
+  /* glass plaque (docked → expanded) */
+  .ab-plaque {
+    position: absolute; right: 173.14px; bottom: 0; z-index: 10;
+    width: 547px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    padding: 28px 28px 60px 28px;
+    border-radius: 16px 16px 0 0;
+    background: rgba(255,255,255,0.07); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    backdrop-filter: blur(20px);
+    transform: translateY(560px); will-change: transform;
+  }
+  .ab-block { display: flex; flex-direction: column; gap: 10px; }
+  .ab-label {
+    font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -0.16px;
+    color: #868686; text-transform: capitalize;
+  }
+  .ab-block p {
+    font-size: 28px; font-weight: 400; line-height: 34px; letter-spacing: -0.28px; color: #fff;
+  }
+  .ab-block2 { overflow: hidden; max-height: 0; opacity: 0; }
+
+  @media (max-width: 1140px) {
+    .ab-ideas { gap: 24px; }
+    .ab-ideas-mid { width: 260px; }
+    .ab-plaque { right: 16px; left: 16px; width: auto; }
+  }
+
+  /* ---- About: mobile fit (keeps the scroll animation) ---- */
+  @media (max-width: 700px) {
+    .ab-ftext { font-size: clamp(22px, 7vw, 34px); }
+
+    /* photo fills the screen and never scales — JS only reveals it + parallax (no zoom) */
+    .ab-imgbox {
+      width: 100vw !important; height: 100vh !important;
+      border-radius: 0 !important; box-shadow: none;
+    }
+
+    /* "Ideas Into Reality" — one centred line, fully white (Figma 17:601) */
+    .ab-ideas {
+      display: flex; align-items: center; justify-content: center;
+      column-gap: 0.28em; font-size: clamp(28px, 9vw, 36px); letter-spacing: -0.02em;
+    }
+    .ab-ideas span {
+      position: static; top: auto; transform: none !important; color: #fff !important;
+    }
+
+    /* glass plaque — Figma mobile spec */
+    .ab-plaque { left: 16px; right: 16px; gap: 0; padding: 20px; border-radius: 12px 12px 0 0; }
+    .ab-block { gap: 20px; }
+    .ab-label { font-size: 12px; line-height: 16px; color: #b2b2b2; letter-spacing: -0.12px; }
+    .ab-block p { font-size: 18px; line-height: 22px; letter-spacing: -0.18px; }
+  }
+
+  /* ---------- Preloader ---------- */
+  .preloader {
+    position: fixed; inset: 0; background: #ffffff; z-index: 100; overflow: hidden;
+    transition: opacity 0.9s var(--ease), visibility 0.9s;
+  }
+  .preloader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  /* Image stage */
+  .stage {
+    position: absolute; inset: 0; opacity: 0;
+    transition: opacity 0.5s var(--ease);
+  }
+  .stage.visible { opacity: 1; }
+
+  .bg {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: center bottom;
+    opacity: 0; transform: scale(1.04);
+    will-change: transform;   /* no opacity transition: hard swap, no white flash */
+  }
+  .bg.show { opacity: 1; animation: kenburns 2.4s linear forwards; }
+  @keyframes kenburns { from { transform: scale(1.04); } to { transform: scale(1.18); } }
+
+  .overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); transition: opacity .4s var(--ease); }
+  .whiteout { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 5; transition: opacity .45s var(--ease); }
+
+  /* ---------- Text layers ---------- */
+  .text {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 6vw; pointer-events: none;
+  }
+  .line {
+    display: flex; flex-wrap: nowrap; white-space: nowrap;
+    column-gap: 0.28em;
+    font-weight: 500;
+    font-size: clamp(2rem, 8.2vw, 80px);
+    line-height: 1.12;            /* room so glyphs are never clipped */
+    letter-spacing: -0.05em;
+    color: #000;
+    transition: transform 0.5s var(--ease), opacity 0.5s var(--ease), color 0.45s var(--ease);
+  }
+  .line.on-image { color: #fff; }
+  .line.exit { transform: translateX(-72px); opacity: 0; }   /* whole sentence leaves left */
+
+  .word {
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.45s var(--ease);
+  }
+  .word.slide { transform: translateX(-0.5em); }   /* left→right reveal */
+  .word.in { opacity: 1; transform: none; }
+
+  @media (max-width: 640px) {
+    .line { flex-wrap: wrap; white-space: normal; justify-content: center; }
+  }
+
+  /* ============ Circles scene: orbit pair → 3-face rotating prism carousel ============ */
+  #circles-scene { position: relative; height: 700vh; background: #fff; }
+  .cs-stage {
+    position: sticky; top: 0; height: 100vh;
+    overflow: hidden; background: #fff;
+  }
+  .cs-scene { position: absolute; inset: 0; }
+
+  /* ---- intro content: title + description (top-left) ---- */
+  .cs-intro-text {
+    position: absolute;
+    top: 160px;
+    left: 60px;
+    z-index: 5;
+  }
+  .cs-title {
+    margin: 0;
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 64px;
+    font-weight: 500;
+    line-height: 68px;
+    letter-spacing: -2.56px;
+  }
+  .cs-desc {
+    margin: 44px 0 0 0;
+    color: #767676;
+    font-family: Satoshi, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.16px;
+    white-space: normal;
+  }
+
+  /* ---- "Journey" bracket button (top-right) ---- */
+  .cs-journey {
+    position: absolute;
+    top: 192px;
+    right: 80px;
+    height: 36px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: default;
+    pointer-events: none;
+    z-index: 5;
+  }
+  /* small 6×6 dot that replaces the bracket frame on every section tag */
+  .tag-dot { width: 6px; height: 6px; flex-shrink: 0; background: #000; }
+  .cs-journey-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 24px;
+    letter-spacing: -0.6px;
+    text-transform: uppercase;
+  }
+  .cs-bracket {
+    width: 6px;
+    height: 36px;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+  /* hover: brackets expand outward */
+  .cs-journey:hover .cs-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .cs-journey:hover .cs-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+
+  /* intro text + journey: fade up on entry (IntersectionObserver toggles class) */
+  .cs-intro-text, .cs-journey { opacity: 0; transform: translateY(30px); }
+  #circles-scene.cs-entered .cs-intro-text,
+  #circles-scene.cs-entered .cs-journey {
+    opacity: 1; transform: translateY(0);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  /* ---- big counters (Ventures / Chapters), Y driven by JS ---- */
+  .cs-counter {
+    position: absolute;
+    top: 0;
+    z-index: 5;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 12px;
+    visibility: hidden; /* hidden until they scroll up from below */
+  }
+  .cs-counter-left  { left: 80px;  align-items: flex-start; }
+  .cs-counter-right { right: 80px; align-items: flex-end; justify-content: center; }
+  .cs-counter-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: -0.14px;
+    text-transform: uppercase;
+  }
+  .cs-counter-right .cs-counter-label,
+  .cs-counter-right .cs-counter-num { text-align: right; }
+  .cs-counter-num {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 128px;
+    font-weight: 700;
+    line-height: 128px;
+    letter-spacing: -7.68px;
+  }
+
+  /* ---- content layer below/over the cube (offsets include the +40px cube shift) ---- */
+  .cs-line {
+    position: absolute; left: 50%;
+    top: 545px;                      /* CHANGE 3: 35px below cube bottom (110 + 400 + 35) */
+    height: 1px; width: 0;           /* width grows via JS */
+    background: #000;
+    transform: translateX(-50%);
+    opacity: 0; z-index: 5;
+  }
+  .cs-timeline {
+    position: absolute; left: 50%;
+    top: 569px;                      /* 24px below the line */
+    transform: translateX(-50%);
+    display: flex; width: 1000px;
+    align-items: center; justify-content: center;
+    gap: 169px;
+    opacity: 0; z-index: 5;
+  }
+  .cs-year {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #A6A6A6;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 700; line-height: 24px;
+    letter-spacing: -0.6px; text-transform: uppercase;
+    white-space: nowrap;
+    transition: color 0.4s ease;
+  }
+  .cs-year svg { flex-shrink: 0; }
+  .cs-year svg path { stroke: currentColor; }
+  .cs-year-2024 { color: #000; }
+  .cs-year.active { color: #000; }
+
+  .cs-chapter {
+    position: absolute; left: 50%;
+    top: 634px;                      /* FIX 3: 28px rendered gap below the timeline row */
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0; z-index: 5;
+  }
+  .cs-chapter-title {
+    margin: 0; color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 64px; font-weight: 500; line-height: 68px; letter-spacing: -2.56px;
+    white-space: nowrap;            /* FIX 2: title is one line, one block — never wraps */
+  }
+  .cs-chapter-desc {
+    margin: 15px 0 0 0; color: #767676; text-align: center;
+    font-family: Satoshi, sans-serif;
+    font-size: 16px; font-weight: 400; line-height: 20px; letter-spacing: -0.16px;
+  }
+
+  .cs-plaque {
+    position: absolute;
+    /* CHANGE 1: glued to the circle — left edge at the circle's right edge
+       (centre 50% + radius 200), then pulled left 25% of its own width so 25%
+       overlaps the circle. top = cube top (110) + 60% of circle height (240). */
+    left: calc(50% + 200px);
+    top: 350px;
+    transform: translateX(-25%);
+    display: inline-flex; height: 60px; padding: 10px 32px;
+    justify-content: center; align-items: center; gap: 16px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.10);
+    background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(20px);            /* FIX 3: frosted glass over the image */
+    -webkit-backdrop-filter: blur(20px);
+    text-decoration: none;
+    opacity: 0; z-index: 6;
+  }
+  .cs-plaque-label {
+    color: #000;
+    font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 500; line-height: 24px;
+    letter-spacing: -0.2px; text-transform: capitalize;
+  }
+
+  /* FIX 2: triggered bottom-up text swap. The "cur" layer is in flow (sizes the
+     clip box); the "new" layer overlays it, parked one line below. A class change
+     at the flip midpoint runs a one-shot 0.25s ease-out animation (self-paced,
+     not scroll-scrubbed): cur shoots up & out, new shoots in from below. */
+  .cs-swap { position: relative; overflow: hidden; display: block; }
+  .cs-chapter-title.cs-swap { height: 68px; width: 460px; } /* FIX 2: fits the longest title (≤429px) on one line so the incoming layer never wraps */
+  .cs-chapter-desc.cs-swap  { height: 40px; }
+  .cs-plaque-label.cs-swap  { height: 24px; }
+  /* keep "Open chapter [ 0X ]" on one line so the trailing bracket never wraps to a clipped row */
+  .cs-plaque-label .cs-swap-cur, .cs-plaque-label .cs-swap-new { white-space: nowrap; }
+  .cs-swap-cur { display: block; }
+  .cs-swap-new {
+    display: block; position: absolute; left: 0; top: 0; width: 100%;
+    transform: translateY(110%);
+  }
+  /* FIX 2: direction-aware swap. DOWN (default): old exits up, new enters from below.
+     UP (.dir-up): old exits down, new enters from above. Same 0.25s ease-out. */
+  .cs-swap.swapping .cs-swap-cur { animation: csOutUp   0.25s ease-out forwards; }
+  .cs-swap.swapping .cs-swap-new { animation: csInBelow 0.25s ease-out forwards; }
+  .cs-swap.swapping.dir-up .cs-swap-cur { animation: csOutDown 0.25s ease-out forwards; }
+  .cs-swap.swapping.dir-up .cs-swap-new { animation: csInAbove 0.25s ease-out forwards; }
+  @keyframes csOutUp    { from { transform: translateY(0); }     to { transform: translateY(-110%); } }
+  @keyframes csInBelow  { from { transform: translateY(110%); }  to { transform: translateY(0); } }
+  @keyframes csOutDown  { from { transform: translateY(0); }     to { transform: translateY(110%); } }
+  @keyframes csInAbove  { from { transform: translateY(-110%); } to { transform: translateY(0); } }
+
+  /* orbiting pair — windows into one fixed shared image */
+  .cs-circle {
+    position: absolute; top: 50%; left: 50%;
+    width: 400px; height: 400px;
+    margin: -200px 0 0 -200px;
+    border-radius: 50%; overflow: hidden;
+    will-change: transform, opacity;
+  }
+  .cs-circle img {
+    position: absolute; top: 50%; left: 50%;
+    /* 220% → ±240px safe counter-translate (vs 200px orbit radius); fixImg is the
+       EXACT unclamped negative of each circle's orbit offset, so both windows stay
+       perfectly in sync and the photo never splits between them. */
+    width: 220%; height: 220%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+  }
+
+  /* 3-face prism (Framer-style: perspective inside own transform) */
+  .cs-prism {
+    position: absolute; top: 50%; left: 50%;
+    width: 400px; height: 400px;
+    margin: -200px 0 0 -200px;
+    transform-style: preserve-3d; /* depth-sort faces so front sits over sides */
+    will-change: transform;
+    opacity: 0;
+    visibility: hidden;           /* FIX 1: fully gone until the binary swap */
+  }
+  .cs-face {
+    position: absolute; inset: 0;
+    border-radius: 200px; overflow: hidden;
+    background: #131415;
+    /* No backface-visibility:hidden — the side faces must peek out at the
+       resting rotateY(0) (FIX 3). Depth sorting (preserve-3d) keeps the front
+       face on top; the sides only show as thin slivers at the left/right edges. */
+  }
+  .cs-face img {
+    display: block; width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  /* Front face is the SAME window as circle A: oversized + centred so JS can
+     pin it with the identical CHAR_FRAME_Y offset → invisible A→prism swap.
+     Matches .cs-circle img scale (220%) so the swap shows no zoom jump. */
+  .cs-face-front img {
+    position: absolute; top: 50%; left: 50%;
+    width: 220%; height: 220%;
+    object-fit: cover;
+  }
+  /* 4-face CUBE: faces 90° apart, apothem = 200px (half of 400px face) so the
+     side faces protrude visibly. Prism compensates with translateZ(-200px) in JS.
+     front → left → back are shown in turn; right is filler for the side silhouette. */
+  .cs-face-front { transform: rotateY(0deg)    translateZ(200px); }
+  .cs-face-right { transform: rotateY(-90deg)  translateZ(200px); }
+  .cs-face-back  { transform: rotateY(-180deg) translateZ(200px); }
+  .cs-face-left  { transform: rotateY(-270deg) translateZ(200px); }
+
+  /* ============ Ecosystem: pinned intro → cards strip → plus morphs to square → white ============ */
+  #ecosystem { position: relative; height: 700vh; background: #000; }
+  .eco-stage {
+    position: sticky; top: 0; height: 100vh;
+    overflow: hidden; background: #000;
+  }
+  /* heading: ECOSYSTEM bracket-tag + paragraph (rises from bottom to top, scroll-driven) */
+  .eco-head {
+    position: absolute; left: 80px; right: 0; top: 120px;
+    padding-right: 152px;             /* CHANGE 1: 152px right offset for the text block */
+    display: flex; justify-content: space-between; align-items: flex-start;
+    z-index: 4; will-change: transform;
+  }
+  .eco-tag {
+    display: inline-flex; align-items: center; gap: 16px; flex-shrink: 0;
+    height: 36px; cursor: default; pointer-events: none;
+  }
+  .eco-tag .tag-dot { background: #fff; }
+  .eco-tag-label {
+    color: #fff; font-family: Satoshi, sans-serif;
+    font-size: 20px; font-weight: 700; line-height: 24px;
+    letter-spacing: -0.6px; text-transform: uppercase; white-space: nowrap;
+  }
+  .eco-bracket { width: 6px; height: 36px; display: block; flex-shrink: 0; transition: transform 0.3s ease; }
+  .eco-bracket path { stroke: #fff; }
+  /* CHANGE 3: identical bracket hover to .cs-journey — brackets expand outward */
+  .eco-tag:hover .eco-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .eco-tag:hover .eco-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  .eco-desc {
+    margin: 0; width: 568px; flex-shrink: 0;
+    color: #fff; font-family: Satoshi, sans-serif;
+    font-size: 28px; font-weight: 400; line-height: 34px; letter-spacing: -0.28px;
+  }
+  /* horizontal cards strip (rides in from below, pans left) */
+  .eco-strip {
+    position: absolute; left: 0; top: 660px;
+    display: flex; gap: 20px; align-items: center;
+    z-index: 2; will-change: transform;
+  }
+  .eco-card {
+    width: 240px; height: 160px; flex-shrink: 0;
+    border-radius: 4px; overflow: hidden;
+  }
+  .eco-card img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    mix-blend-mode: luminosity;
+  }
+  .eco-dup { display: none; }   /* duplicate marquee set: shown only on mobile */
+  /* slow, cyclic marquee for the mobile ecosystem strip (content is doubled → -50% loops seamlessly) */
+  @keyframes ecoMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  /* Vector plus → solid white square → fullscreen white (immersion). The morph
+     wrapper travels to centre + spins; a white <rect> grows from the centre while
+     the plus strokes fade out (→ solid white square); the square then scales up to
+     cover the whole viewport. preserveAspectRatio:none lets it become a rectangle. */
+  .eco-morph {
+    position: absolute; top: 0; left: 0; z-index: 6; will-change: transform;
+    box-shadow: none; filter: none; -webkit-filter: none;   /* FIX 1: no shadow/glow */
+  }
+  .eco-shape {
+    position: absolute; top: 0; left: 0; transform: translate(-50%, -50%);
+    width: 52px; height: 52px; display: block; overflow: visible;
+    will-change: width, height;
+    box-shadow: none; filter: none; -webkit-filter: none;   /* FIX 1: no shadow/glow */
+  }
+  .eco-shape path, .eco-shape rect { filter: none; }
+  /* FIX 1: the fullscreen expansion is scroll-driven (width/height are set in apply) so it
+     reverses naturally as p decreases — no one-shot CSS animation. */
+
+  /* ---- "By Design" mobile static screen (Figma 54:426). Hidden on desktop; the
+          desktop scroll scene is hidden on mobile instead (see media query below). ---- */
+  .cs-m { display: none; flex-direction: column; align-items: center;
+          padding: 40px 20px; background: #fff; color: #000; font-family: Satoshi, sans-serif; }
+  .cs-m-head { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .cs-m-tag { display: inline-flex; align-items: center; gap: 12px;
+              font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .cs-m-title { margin: 0; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.72px; }
+  .cs-m-desc { margin: 0; max-width: 281px; color: #555;
+               font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m-photo { margin-top: 40px; width: 353px; max-width: calc(100vw - 40px);
+                aspect-ratio: 353 / 468; border-radius: 10px; overflow: hidden; }
+  .cs-m-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); }
+  .cs-m-stats { display: flex; gap: 60px; justify-content: center; margin-top: 40px; }
+  .cs-m-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .cs-m-stat-label { font-size: 14px; font-weight: 500; line-height: 16px; letter-spacing: -0.14px; text-transform: uppercase; }
+  .cs-m-stat-num { font-size: 96px; font-weight: 700; line-height: 100px; letter-spacing: -4.8px; }
+
+  /* ---- "By Design" mobile chapter carousel (Figma 54:606). Hidden on desktop; the
+          desktop cube/prism scene is hidden on mobile (see media query). One screen —
+          horizontal swipe on the circle (or arrows) slides between the 3 chapters; the
+          text swaps bottom→top like desktop. Vertical scroll just passes the section. ---- */
+  .cs-m2-track { display: none; position: relative; background: #fff; }
+  .cs-m2 {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px;
+    padding: 24px 20px; background: #fff; color: #000; font-family: Satoshi, sans-serif;
+  }
+  /* touch-action pan-y: vertical gestures scroll the page, horizontal ones are ours (swipe) */
+  .cs-m2-circle { position: relative; width: 353px; max-width: calc(100vw - 40px); aspect-ratio: 1; touch-action: pan-y; }
+  .cs-m2-circle-img { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+  .cs-m2-strip { display: flex; width: 100%; height: 100%; will-change: transform; }
+  .cs-m2-slide { flex: 0 0 100%; width: 100%; height: 100%; }
+  .cs-m2-slide img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1); }
+  .cs-m2-chip {
+    position: absolute; right: 0; top: 70%; z-index: 2;
+    display: inline-flex; align-items: center; padding: 5px 14px; border-radius: 100px;
+    background: rgba(255,255,255,0.4); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    font-size: 14px; font-weight: 500; letter-spacing: -0.14px; color: #000;
+    text-decoration: none; white-space: nowrap;
+  }
+  .cs-m2-mid { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; }
+  .csm-timeline { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .csm-timeline .cs-year { font-size: 15px; font-weight: 500; gap: 6px; letter-spacing: -0.15px; color: #b2b2b2; }
+  .csm-timeline .cs-year svg { width: 6px; height: 32px; }
+  .csm-timeline .cs-year.active { color: #000; }
+  .cs-m2-text { display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .cs-m2-title { margin: 0; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.72px; }
+  .cs-m2-title.cs-swap { height: 40px; width: 100%; }            /* one line */
+  .cs-m2-title .cs-swap-cur, .cs-m2-title .cs-swap-new { white-space: nowrap; }
+  .cs-m2-desc { margin: 0; color: #555; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+  .cs-m2-desc.cs-swap { height: 40px; width: min(360px, calc(100vw - 24px)); } /* exactly two lines (fits ch.2's longer line) */
+  .cs-m2-arrows { display: flex; gap: 12px; }
+  .cs-m2-arrow {
+    width: 40px; height: 40px; border: 0; border-radius: 100px; background: #000; color: #fff;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: opacity .2s ease;
+  }
+  .cs-m2-arrow:disabled { opacity: .35; cursor: default; }
+  .cs-m2-arrow svg { width: 20px; height: 20px; }
+
+  /* ---- Projects — mobile-only (Figma 17:1509). On desktop the trio lives in the pinned
+          zoom/accordion inside #ecosystem. On mobile: the FIRST card (Vertus) + PROJECTS tag are
+          revealed ON the white square as it fills (see .eco-proj, driven by the ecosystem scroll —
+          fades in as the square arrives, fades out + folds on reverse). Here AlphaLedger + Vanquish
+          just scroll up from below (no animation), 12px apart. Hidden on desktop. ---- */
+  #m-projects { display: none; background: #fff; color: #fff; padding: 0 20px 60px; font-family: Satoshi, sans-serif; }
+  .mpj-card { position: relative; width: 353px; max-width: calc(100vw - 40px); height: 530px; margin: 0 auto;
+              border-radius: 12px; overflow: hidden; }
+  .mpj-card + .mpj-card { margin-top: 12px; }                  /* 12px between cards */
+  /* Vertus + tag revealed on the white square (continuation), pinned inside #ecosystem */
+  .eco-proj { display: none; position: absolute; inset: 0; z-index: 7; opacity: 0; pointer-events: none;
+              flex-direction: column; align-items: center; justify-content: flex-end; gap: 60px; padding-bottom: 12px; }
+  .mpj-toptag { display: flex; align-items: center; gap: 12px; color: #000;
+                font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .mpj-toptag .tag-dot { background: #000; }
+  .mpj-tag .tag-dot { background: #fff; }
+  .mpj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+  .mpj-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
+  .mpj-body { position: absolute; left: 0; right: 0; top: 192px; bottom: 20px;
+              display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+              padding: 0 20px; text-align: center; }
+  .mpj-top { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .mpj-tag { display: inline-flex; align-items: center; gap: 12px;
+             font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: -0.42px; text-transform: uppercase; }
+  .mpj-titlewrap { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .mpj-name { margin: 0; font-size: clamp(40px, 12vw, 48px); font-weight: 500; line-height: 52px; letter-spacing: -1.44px; white-space: nowrap; }
+  .mpj-learn { display: inline-flex; align-items: center; padding: 10px 24px; border-radius: 10px;
+               background: rgba(255,255,255,0.15); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+               box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+               font-size: 14px; font-weight: 500; letter-spacing: -0.14px; color: #fff; text-decoration: none; text-transform: capitalize; }
+  .mpj-desc { margin: 0; width: 288px; max-width: 100%; font-size: 15px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; }
+
+  /* ---- Circles scene + Ecosystem: mobile fit ---- */
+  @media (max-width: 700px) {
+    /* "By Design" (circles): drop the desktop cube scene → static intro (54:426) + chapter carousel (54:606) */
+    #circles-scene { height: auto; }
+    .cs-stage { display: none; }
+    .cs-m { display: flex; }
+    .cs-m2-track { display: block; }
+
+    /* ecosystem intro (Figma 17:1478): tag + description centred in the viewport.
+       eco-head becomes a full-bleed flex box so the JS translateY (rise-in) still works —
+       it just rises into the centre instead of a top-left row. The white square fly-out
+       (morph → fullscreen) and Projects stay exactly as on desktop. */
+    .eco-head {
+      left: 0; right: 0; top: 0; bottom: 0; padding: 0;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 20px; text-align: center; pointer-events: none;
+    }
+    .eco-tag { gap: 12px; height: auto; }
+    .eco-tag-label { font-size: 14px; line-height: 18px; letter-spacing: -0.42px; }
+    .eco-desc { width: 353px; max-width: calc(100vw - 40px); font-size: 20px; line-height: 24px; letter-spacing: -0.2px; }
+
+    /* thumbnail strip near the bottom as a slow, cyclic marquee (cards 150×100). Margin-based
+       spacing (not gap) so the doubled content loops seamlessly at -50%. */
+    .eco-strip { top: auto; bottom: 20px; gap: 0; width: max-content; animation: ecoMarquee 32s linear infinite; }
+    .eco-card { width: 150px; height: 100px; border-radius: 2px; margin-right: 4px; }
+    .eco-dup { display: block; }
+
+    /* keep the pin long enough for the square to fill + Vertus to fade in on it; drop the
+       desktop zoom arc; reveal Vertus on the square (.eco-proj) and stack AlphaLedger/Vanquish */
+    #ecosystem { height: 330vh; }
+    .epj { display: none; }
+    .eco-proj { display: flex; }
+    #m-projects { display: block; }
+
+    /* ---- Founder / Vision (Figma 17:1680): top heading + centred photo card + scattered 48px
+            letters that assemble into "Alex Foster"; bg white→black, same logic as desktop. The
+            desktop 1440-frame is un-scaled here (JS forces --fk=1) and laid out for the viewport.
+            NB: #founder-scoped so these win over the desktop .fs-* rules, which are defined LATER
+            in the stylesheet (equal specificity → later wins) and would otherwise override them. */
+    /* trim the section on mobile (desktop is 340vh). Combined with the bg white→black window now
+       running to p≈0.92 (see applyMobile), the screen stays active the whole scroll and the word
+       lands at p=1 — so On a journey follows immediately with no static-black gap between them. */
+    #founder { height: 170vh; }
+    #founder .fs-frame { left: 0; top: 0; width: 100%; height: 100%; margin: 0; }
+    #founder .fs-btn { top: 80px; gap: 12px; }
+    #founder .fs-btn-label { font-size: 14px; line-height: 18px; letter-spacing: -0.42px; }
+    #founder .fs-head { top: 116px; width: 100%; padding: 0 20px; box-sizing: border-box; gap: 20px; }
+    #founder .fs-head-title { font-size: 36px; line-height: 40px; letter-spacing: -0.72px; }
+    #founder .fs-head-sub { width: 312px; max-width: 100%; font-size: 15px; line-height: 20px; letter-spacing: -0.15px; color: #555; }
+    #founder .fs-card { left: 50%; top: calc(50% + 109px); width: 353px; max-width: calc(100vw - 40px); height: 468px; margin-left: 0; border-radius: 10px; transform: translate(-50%, -50%); }
+    #founder .fs-title { top: auto; bottom: 90px; font-size: 48px; line-height: 52px; letter-spacing: -1.44px; }
+  }
+
+  /* ============ Projects (lives INSIDE #ecosystem, on the white canvas the square leaves) ============
+     No section of its own, no horizontal scroll. Once the white square fills the viewport the whole
+     layer fades in. STATE 1: all 15 cards as a concave arc of thin strips, all vertically centred
+     (Figma 87-331). STATE 2: vertical scroll zooms the centre trio (projects 7/8/9) into a 3-card
+     accordion (Figma 97-889/933/952) — active 1064w, flank strips 88w, on a 1440×900 reference that
+     is scaled to the viewport by --k. Geometry is interpolated State1→State2 by zoom progress. */
+  .epj {
+    position: absolute; inset: 0; z-index: 7;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  .epj.is-visible { opacity: 1; pointer-events: auto; }
+  /* PROJECTS bracket button — identical mechanic to .cs-journey, centred at the top */
+  .epj-btn {
+    position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 16px;
+    background: none; border: none; padding: 0; cursor: default; pointer-events: none; z-index: 9;
+  }
+  .epj.is-zoomed .epj-btn .tag-dot { background: #fff; }
+  .epj-btn-label {
+    color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
+    line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+  .epj-bracket { width: 6px; height: 36px; display: block; transition: transform 0.3s ease; }
+  .epj-bracket path { stroke: #000; transition: stroke 0.3s ease; }
+  .epj-btn:hover .epj-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .epj-btn:hover .epj-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  /* State 2 cards are dark → flip the button to white */
+  .epj.is-zoomed .epj-btn-label { color: #fff; }
+  .epj.is-zoomed .epj-bracket path { stroke: #fff; }
+
+  /* card layer — each card is absolutely positioned; JS sets left/top/width/height per frame */
+  .epj-cards { position: absolute; inset: 0; }
+  .epj-card {
+    position: absolute; overflow: hidden; background: #ececec;
+    will-change: left, top, width, height;
+    /* Shape is owned by JS: State 1 = perspective-fan clip-path + no border-radius; State 2 = no
+       clip + border-radius 8px. Outer cards fade out gradually across the zoom (opacity set in JS). */
+  }
+  .epj-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .epj-veil { position: absolute; inset: 0; background: rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.3s ease; }
+  .epj.is-zoomed .epj-trio .epj-veil { opacity: 1; }
+
+  /* number label — centred at the bottom of a strip (hidden on the active/wide card) */
+  .epj-num {
+    position: absolute; left: 50%; bottom: calc(20px * var(--k, 1));
+    transform: translateX(-50%);
+    font-family: Satoshi, sans-serif; font-weight: 500; color: #fff;
+    font-size: calc(20px * var(--k, 1)); line-height: 1.2;
+    letter-spacing: -0.6px; text-transform: uppercase; white-space: nowrap;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .epj.is-zoomed .epj-trio .epj-num { opacity: 1; }
+  /* FIX 4: active card never shows its number (needs higher specificity than the rule above) */
+  .epj.is-zoomed .epj-card.is-active .epj-num { opacity: 0; }
+
+  /* active-card content lives in a 1064×760 design-space box scaled by --k */
+  .epj-content {
+    position: absolute; top: 0; left: 0; width: 1064px; height: 760px;
+    transform-origin: top left; transform: scale(var(--k, 1)); pointer-events: none;
+  }
+  /* FIX 2: text is a PURE opacity fade — no transform, no slide, no movement ever. It only fades in
+     once its card is active (and, per the JS, fully settled), so it stays in its exact final
+     position the whole time. .is-active also gates flank strips so they never show clipped text. */
+  .epj-content-inner {
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .epj-card.is-active .epj-content-inner { opacity: 1; }
+  /* centred via left/right:0 + flex align (no translate, so nothing ever moves) */
+  .epj-tagwrap {
+    position: absolute; top: 285px; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+  .epj-tag { display: inline-flex; align-items: center; gap: 16px; }
+  .epj-tag-label {
+    font-family: Satoshi, sans-serif; font-size: 14px; font-weight: 500; line-height: 18px;
+    letter-spacing: -0.14px; text-transform: uppercase; color: #fff; white-space: nowrap;
+  }
+  .epj-dot { width: 6px; height: 6px; flex-shrink: 0; background: #fff; }
+  /* Learn More button: lives OUTSIDE .epj-content-inner so no opacity<1 ancestor ever disables its
+     backdrop-filter. Anchored 28px below the (80px) name, toggled instantly on is-active — so it
+     always appears already frosted, never as a blur-less transparent flash. */
+  .epj-learn {
+    position: absolute; top: 431px; left: 50%; transform: translateX(-50%);
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 24px; border-radius: 12px; text-decoration: none;
+    opacity: 0; pointer-events: none;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 500; line-height: 20px;
+    letter-spacing: -0.16px; text-transform: capitalize; color: #fff; white-space: nowrap;
+    transition: background .3s var(--ease);
+  }
+  .epj-learn:hover { background: rgba(255,255,255,.26); }
+  .epj-card.is-active .epj-learn { opacity: 1; pointer-events: auto; }
+  .epj-name {
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; color: #fff;
+    font-size: 80px; line-height: 80px; letter-spacing: -3.2px; white-space: nowrap; text-align: center;
+  }
+  .epj-desc {
+    position: absolute; top: 688px; left: 0; right: 0; width: 305px; margin: 0 auto;
+    text-align: center; font-family: Satoshi, sans-serif; font-size: 16px; font-weight: 400;
+    line-height: 20px; letter-spacing: -0.16px; color: #fff;
+  }
+  /* AlphaLedger copy only — wider to hold 3 lines (… of capital.); anchored to the BOTTOM of the
+     card so the description sits exactly 32px above the card's bottom edge (raised, not padded). */
+  .epj-card[data-i="6"] .epj-desc { width: 360px; top: auto; bottom: 32px; padding-bottom: 0; }
+  /* FIX 5: accordion open/close — fast start, heavy deceleration into the final position */
+  .epj.is-zoomed .epj-card.epj-interactive {
+    cursor: pointer;
+    transition: left 0.5s cubic-bezier(0.25,0.1,0.1,1.0), width 0.5s cubic-bezier(0.25,0.1,0.1,1.0),
+                top 0.5s cubic-bezier(0.25,0.1,0.1,1.0), height 0.5s cubic-bezier(0.25,0.1,0.1,1.0);
+  }
+
+  /* ============ Founder system (sticky, scroll-driven). White→black bg; scattered letters of
+     "Alex Foster" assemble below a rising photo card; a film-frame bracket border forms. Figma
+     79-224 / 87-172 / 87-219 / 87-194. Everything lives in a 1440×832 design frame scaled by --fk. */
+  #founder { position: relative; height: 340vh; background: #000; }   /* trimmed so assembly finishes at p=1 (no idle hold) */
+  .fs-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
+  .fs-frame {
+    position: absolute; left: 50%; top: 50%; width: 1440px; height: 832px;
+    margin-left: -720px; margin-top: -416px;
+    transform: scale(var(--fk, 1)); transform-origin: center center;
+  }
+  /* VISION bracket button — identical mechanic to .cs-journey / .epj-btn */
+  .fs-btn {
+    position: absolute; top: 100px; left: 50%; transform: translate(-50%, 0);
+    display: inline-flex; align-items: center; gap: 16px;
+    background: none; border: none; padding: 0; cursor: default; pointer-events: none; z-index: 3;
+  }
+  .fs-btn-label {
+    color: #000; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 700;
+    line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase;
+  }
+  .fs-bracket { width: 6px; height: 36px; display: block; transition: transform 0.3s ease; }
+  .fs-bracket path { stroke: #000; }
+  .fs-btn:hover .fs-bracket-l { transform: translate(-4px, 0) scaleY(1.12); }
+  .fs-btn:hover .fs-bracket-r { transform: translate(4px, 0) scaleY(1.12); }
+  /* heading + subtitle (Figma 87:160/161) */
+  .fs-head {
+    position: absolute; top: 228px; left: 50%; transform: translate(-50%, 0);
+    display: flex; flex-direction: column; align-items: center; gap: 20px; width: max-content;
+  }
+  .fs-head-title {
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; color: #000;
+    font-size: 64px; line-height: 68px; letter-spacing: -2.56px; white-space: nowrap;
+  }
+  .fs-head-sub {
+    margin: 0; width: 340px; text-align: center; color: #767676;
+    font-family: Satoshi, sans-serif; font-weight: 400; font-size: 16px; line-height: 20px; letter-spacing: -0.16px;
+  }
+  /* photo card (400×530, r10, image overscaled to cover; luminosity blend per Figma) */
+  .fs-card {
+    position: absolute; left: 50%; width: 400px; height: 530px; margin-left: -200px;
+    border-radius: 10px; overflow: hidden; transform: translateY(-50%); mix-blend-mode: luminosity;
+  }
+  .fs-card img {
+    position: absolute; left: -2.17%; top: -1.35%; width: 102.61%; height: 102.69%;
+    max-width: none; object-fit: cover; display: block;
+  }
+  /* assembled title "ALEX FOSTER" (Figma 87:205) — per-letter spans for the scatter→assemble */
+  .fs-title {
+    position: absolute; top: 725px; left: 50%; transform: translate(-50%, 0);
+    margin: 0; font-family: Satoshi, sans-serif; font-weight: 500; font-size: 80px;
+    line-height: 80px; letter-spacing: -3.2px; color: #fff; white-space: nowrap;
+  }
+  .fs-letter { display: inline-block; will-change: transform; }
+
+  /* ===== On a journey: sticky, scroll-driven (Figma 68:127 / 77:74 / 77:84 / 79:108) =====
+     Entry (p 0→0.15): black screen → the "alex foster" image card fades in (10px inset) with two buttons.
+     Cross (p 0.4→0.65): image fades out while the fullscreen video fades in.
+     Plaque (p 0.55→0.72): the "ON A JOURNEY" subtract plaque (10px inset, header blur) fades in.
+     Reverse scroll rewinds all of it; the image fades back to black by p=0. */
+  #journey { position: relative; height: 400vh; background: #000; }
+  .aj-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; }
+
+  /* expanding media card — image → video crossfade; luminosity blend + 35% dark veil per Figma */
+  .aj-media {                              /* image card — 10px margin on ALL sides */
+    position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px;
+    border-radius: 40px; overflow: hidden;
+    mix-blend-mode: luminosity; opacity: 0; will-change: opacity; z-index: 2;
+  }
+  .aj-media::after {                       /* linear-gradient rgba(0,0,0,0.35) overlay */
+    content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: rgba(0,0,0,0.35);
+  }
+  .aj-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }   /* FIX 1: static, no scale */
+  .aj-videos {                             /* fullscreen video that JS translates up from below */
+    position: absolute; inset: 0; width: 100vw; height: 100vh; z-index: 1; opacity: 0;
+    overflow: hidden; mix-blend-mode: luminosity;   /* per Figma: luminosity blend on the fill */
+    will-change: transform, opacity;
+  }
+  .aj-vid {                                /* two stacked players for video→video crossfade */
+    /* Figma fill framing: size 111.052% × 100%, offset -79.575px (≈ -5.53% of the 1440 frame) */
+    position: absolute; top: 0; left: -5.53%; width: 111.052%; height: 100%;
+    object-fit: cover; display: block; opacity: 0; transition: opacity 0.5s ease;
+  }
+
+  /* two buttons anchored to the image card (separate, NON-blended layer matching the 1420×880 card) */
+  .aj-card-ui {                            /* matches the 10px-inset card so buttons anchor to its edges */
+    position: absolute; top: 10px; bottom: 10px; left: 10px; right: 10px;
+    pointer-events: none; z-index: 4;
+  }
+  .aj-card-btns {                          /* FIX 2: bottom-centre, 44px from the bottom */
+    position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: row; align-items: center; gap: 16px;
+  }
+  .aj-cbtn {                               /* FIX 4: frosted-glass buttons over the image/video */
+    display: flex; justify-content: center; align-items: center; gap: 16px;
+    border-radius: 100px; background: rgba(255,255,255,0.10); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); cursor: pointer; border: 0;
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); pointer-events: auto;
+    color: #fff; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 500;
+    line-height: 24px; letter-spacing: -0.4px; white-space: nowrap;
+  }
+  .aj-cbtn-spiral { height: 60px; padding: 10px 48px; }
+  .aj-cbtn-person { padding: 10px 24px 10px 16px; }
+  .aj-cbtn-avatar {                        /* FIX 3: fills inner height → equal 10px above & below */
+    width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 18%;
+    background: #fff; display: block;
+  }
+
+  /* "On A Journey" plaque over the fullscreen video — 10px inset all sides. The wrapper stays at
+     opacity:1 (never animated): an opacity<1 ANCESTOR would disable the children's backdrop-filter
+     blur (that's what made the blur "disappear"). Each child fades its OWN opacity instead. */
+  .aj-plaque {
+    position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border-radius: 40px; pointer-events: none; z-index: 5; will-change: transform;
+  }
+  .plaque-shadow {                         /* drop shadow as its own fadeable, non-blurred layer */
+    position: absolute; inset: 0; border-radius: 40px;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); opacity: 0;
+  }
+  /* frosted-glass layer — always-on backdrop blur (like the header menu); only its OWN opacity fades */
+  .plaque-bg {
+    position: absolute; inset: 0; border-radius: 40px; overflow: hidden; opacity: 0;
+    background: rgba(255,255,255,0.10);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    /* knockout: the letter path is punched out of this frosted layer (and its blur) → the sharp
+       video behind shows through the letters. Overscaled so the path's inner rect = the plaque. */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M1390%2010C1412.09%2010%201430%2027.9086%201430%2050V850C1430%20872.091%201412.09%20890%201390%20890H50C27.9086%20890%2010%20872.091%2010%20850V50C10%2027.9086%2027.9086%2010%2050%2010H1390ZM606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M1390%2010C1412.09%2010%201430%2027.9086%201430%2050V850C1430%20872.091%201412.09%20890%201390%20890H50C27.9086%20890%2010%20872.091%2010%20850V50C10%2027.9086%2027.9086%2010%2050%2010H1390ZM606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+  }
+  /* FIX 2: dim + soft blur shown ONLY through the letters (letters-only mask) so the see-through
+     video reads as legible, defined shapes instead of sharp footage */
+  .aj-knockout-dim {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+    background: rgba(0,0,0,0.35);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%201440%20900%27%20preserveAspectRatio%3D%27none%27%3E%3Cpath%20fill%3D%27%23fff%27%20fill-rule%3D%27evenodd%27%20d%3D%27M606.933%20442.2V530.94C606.932%20539.44%20603.023%20544.71%20592.823%20544.71C582.283%20544.71%20578.543%20538.59%20578.543%20531.96V523.12H552.023V531.96C552.023%20553.72%20565.453%20570.21%20593.163%20570.21C618.493%20570.21%20634.473%20554.23%20634.473%20532.64V442.2H606.933ZM188.66%20439.99C152.28%20439.99%20127.12%20466.68%20127.12%20505.1C127.12%20543.52%20152.11%20570.04%20188.49%20570.04C225.04%20570.04%20250.37%20543.35%20250.37%20504.93C250.37%20466.51%20225.21%20439.99%20188.66%20439.99ZM704.198%20439.99C667.818%20439.99%20642.658%20466.68%20642.658%20505.1C642.658%20543.52%20667.648%20570.04%20704.028%20570.04C740.578%20570.04%20765.908%20543.35%20765.908%20504.93C765.908%20466.51%20740.748%20439.99%20704.198%20439.99ZM774.047%20442.2V520.74C774.047%20550.83%20794.277%20570.04%20825.727%20570.04C857.346%20570.04%20877.747%20550.66%20877.747%20520.74V442.2H850.207V518.87C850.207%20534.34%20841.367%20543.35%20825.727%20543.35C810.257%20543.349%20801.587%20534.68%20801.587%20518.87V442.2H774.047ZM259.358%20442.2V568H286.559V488.1L339.599%20568H366.799V442.2H339.599V522.27L286.559%20442.2H259.358ZM450.911%20442.2L406.031%20568H434.762L443.771%20541.48H484.401L493.241%20568H522.481L477.771%20442.2H450.911ZM892.861%20442.2V568H920.401V523.97H941.651L960.521%20568H990.611L968.511%20518.02C982.451%20510.88%20989.421%20499.32%20989.421%20483C989.421%20456.99%20972.081%20442.2%20941.481%20442.2H892.861ZM999.702%20442.2V568H1026.9V488.1L1079.94%20568H1107.14V442.2H1079.94V522.27L1026.9%20442.2H999.702ZM1123.14%20442.2V568H1203.04V542.5H1150.68V516.49H1197.09V492.35H1150.68V467.7H1203.04V442.2H1123.14ZM1203.99%20442.2L1246.49%20520.23V568H1274.03V520.23L1316.53%20442.2H1286.61L1265.53%20482.83C1263.49%20486.91%201262.13%20490.14%201260.6%20493.2C1259.24%20489.97%201257.88%20486.91%201255.84%20483L1234.76%20442.2H1203.99ZM188.83%20466.51C209.06%20466.51%20221.3%20480.96%20221.3%20504.93C221.3%20528.73%20209.06%20543.519%20188.83%20543.52C168.43%20543.52%20156.19%20529.07%20156.19%20504.93C156.191%20480.96%20168.43%20466.51%20188.83%20466.51ZM704.368%20466.51C724.598%20466.51%20736.838%20480.96%20736.838%20504.93C736.838%20528.73%20724.598%20543.52%20704.368%20543.52C683.968%20543.519%20671.729%20529.07%20671.729%20504.93C671.729%20480.96%20683.968%20466.51%20704.368%20466.51ZM464.172%20479.26C464.682%20482.32%20466.211%20487.25%20467.571%20491.5L476.582%20518.36H451.762L460.771%20491.5C462.301%20486.91%20463.662%20482.15%20464.172%20479.26ZM941.481%20466.68C953.721%20466.68%20960.352%20472.46%20960.352%20483C960.352%20493.71%20953.381%20499.83%20941.312%20499.83H920.401V466.68H941.481Z%27%2F%3E%3C%2Fsvg%3E") center / 101.408% 102.273% no-repeat;
+  }
+  .aj-eyebrow {                            /* "Building beyond companies" — white, above the cut-out title */
+    position: absolute; top: calc(50% - 149px); left: 50%; transform: translateX(-50%);
+    margin: 0; white-space: nowrap; color: #fff; z-index: 2; opacity: 0;
+    font-family: Satoshi, sans-serif; font-style: normal; font-weight: 500;
+    font-size: 20px; line-height: 24px; letter-spacing: -0.2px;
+  }
+
+  /* ===== Continuation of "On a journey": one photo card assembles into a 3D ring of all
+     eight photos, the ring spins so each photo sweeps through the front, then it collapses
+     into a "Contact Me" pill. Sticky, scroll-driven (mirrors #journey).
+     Figma 79:120 (card) / 79:135 (deck) / 79:157 (ring) / 79:183 (collapse) / 79:190 (pill). ===== */
+  #books { position: relative; height: 700vh; background: #000; }
+  .bk-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; }
+
+  /* perspective container — fades in from black on entry, out as the pill takes over */
+  .bk-scene {
+    position: absolute; inset: 0; opacity: 0; will-change: opacity;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 2000px;
+  }
+  /* the book: 8 photo "pages" hinged at the left spine. JS turns them one-by-one (book 1 cover →
+     book 8 back), recentres the open spread, then closes onto book 8 and shrinks it toward the pill. */
+  .bk-book {                               /* book 1 enters here at native 890×540, then JS scales it down */
+    position: relative; width: 890px; height: 540px; flex-shrink: 0;   /* never let the narrow mobile .bk-scene squeeze the 890px box */
+    transform-style: preserve-3d; will-change: transform;
+  }
+  .bk-page {                               /* a leaf: front photo + reversed back, hinged at the spine (left edge) */
+    position: absolute; inset: 0; transform-origin: left center;
+    transform-style: preserve-3d; will-change: transform, opacity;
+  }
+  .bk-face {                               /* JS shows the correct face per angle (no backface-visibility) */
+    position: absolute; inset: 0; overflow: hidden; border-radius: 16px;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+  }
+  .bk-face img {                           /* luminosity blend matches the journey media + on-brand B/W look */
+    width: 100%; height: 100%; object-fit: cover; display: block; mix-blend-mode: luminosity;
+  }
+  .bk-face-front { background: #000; }
+  .bk-face-front::after {                  /* spine shadow down the hinge edge → depth */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 12%);
+  }
+  .bk-face-back {                          /* the reverse of a turned leaf — we look at its back side */
+    transform: rotateY(180deg);
+    background: linear-gradient(270deg, #050505 0%, #141414 52%, #0a0a0a 100%);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.55), 0 30px 90px rgba(0,0,0,0.55);
+  }
+  .bk-face-back img {                      /* same photo, mirrored → reads as the page's reverse (no dimming) */
+    transform: scaleX(-1);
+    mix-blend-mode: normal;                /* luminosity renders black inside the rotated 3D face */
+  }
+  .bk-face-back::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 14%);
+  }
+
+  /* book 8 IS the final "Contact Me" pill — the same leaf morphs in place (Figma 79:190), no crossfade */
+  .bk-page-cta { text-decoration: none; color: #fff; cursor: pointer; }
+  .bk-page-cta .bk-face-front::after,
+  .bk-page-cta .bk-face-back::after { display: none; }     /* no spine shadow on the leaf that becomes the pill */
+  .bk-cta-label {                          /* stage-level overlay → always faces the viewer, never scaled/mirrored */
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    z-index: 10; opacity: 0; pointer-events: none; white-space: nowrap;
+    color: #fff; font-family: Satoshi, sans-serif; font-weight: 500;
+    font-size: 20px; line-height: 24px; letter-spacing: -0.2px;
+  }
+  /* "Alex Foster" pill at the bottom of the 890×540 cover (Figma 1040:377); stays while the cover is shown */
+  .bk-cover-btn {
+    position: absolute; left: 50%; bottom: 224px; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px; padding: 10px 24px 10px 16px;
+    border-radius: 100px; background: rgba(255,255,255,0.10); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+    color: #fff; font-family: Satoshi, sans-serif; font-size: 20px; font-weight: 500;
+    line-height: 24px; letter-spacing: -0.2px; white-space: nowrap;
+    z-index: 6; opacity: 0; pointer-events: none;
+  }
+  .bk-cover-avatar {
+    width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: center 18%;
+    display: block; background: #fff;
+  }
+  /* Mobile-only full-bleed cover photo (Figma 17:1904) — sits above the 3D scene, below the pill;
+     JS fades it out as the book begins to open. Desktop never shows it. */
+  .bk-mcover {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    display: none; opacity: 0; z-index: 5; pointer-events: none;
+    mix-blend-mode: luminosity; will-change: opacity;
+  }
+  /* Mobile-only: a SINGLE photo that shrinks on scroll from full-bleed (Figma 17:1904) down to the
+     353×220 centred card (Figma 17:1923) — same <img> throughout, no crossfade. Hidden on desktop;
+     the @media block below switches these on and hides the desktop 3D book. */
+  .bk-mcard { display: none; }
+  .bk-mpill { display: none; }
+
+  /* ===== Footer (Figma 142:106): A top-left, social column top-right, bracketed CONTACT ME +
+     dimmed BOOK A CALL centred, copyright row, F bottom-right. Laid out at the 1440×900 reference. ===== */
+  #footer {
+    position: relative; min-height: 100vh; background: #000; color: #fff; overflow: hidden;
+    font-family: Satoshi, sans-serif;
+  }
+  .ft-letter { position: absolute; display: block; user-select: none; pointer-events: none; }
+  .ft-letter-a { top: 60px; left: 80px; width: 127.5px; height: 140px; }
+  .ft-letter-f { bottom: 60px; right: 80px; width: 122.5px; height: 140px; }
+
+  /* social column, top-right (icons reused from the header menu) */
+  .ft-social { position: absolute; top: 60px; right: 80px; display: flex; flex-direction: column; gap: 12px; }
+  .ft-social a {
+    width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.15); background-blend-mode: screen;
+    box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20); transition: background .3s var(--ease);
+  }
+  .ft-social a:hover { background: rgba(255,255,255,0.28); }
+  .ft-social svg { width: 16px; height: 16px; }
+
+  /* centred CTAs */
+  .ft-cta { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .ft-cta-line {
+    display: inline-flex; align-items: center; gap: 28px; text-decoration: none;
+    font-size: 64px; font-weight: 500; line-height: 68px; letter-spacing: -2.56px; text-transform: uppercase;
+  }
+  .ft-cta-line { color: #363636; transition: color .45s var(--ease); }
+  /* CONTACT ME is the active (white, bracketed) line by default; hovering BOOK A CALL swaps which one
+     is active and dims the other to grey (:has lets the hovered line affect its sibling). */
+  .ft-contact { color: #fff; }
+  .ft-cta:has(.ft-book:hover) .ft-contact { color: #363636; }
+  .ft-cta:has(.ft-book:hover) .ft-book { color: #fff; }
+
+  /* "page-flip" text hover: a one-line mask with two stacked copies; on hover the pair rolls up a line */
+  .ft-roll-mask { display: block; height: 68px; overflow: hidden; }
+  .ft-roll { display: flex; flex-direction: column; transition: transform .6s var(--ease); }
+  .ft-roll span { display: block; height: 68px; white-space: nowrap; }
+  .ft-cta-line:hover .ft-roll { transform: translateY(-68px); }
+
+  /* corner brackets show only on the active line; expand outward on hover (Journey-button mechanic) */
+  .ft-brk { flex: 0 0 auto; display: block; width: 10px; height: 78px; transition: transform .3s ease, opacity .3s ease; }
+  .ft-brk svg { display: block; width: 10px; height: 78px; }
+  .ft-book .ft-brk { opacity: 0; }                                  /* hidden until BOOK A CALL is active */
+  .ft-cta:has(.ft-book:hover) .ft-contact .ft-brk { opacity: 0; }
+  .ft-cta:has(.ft-book:hover) .ft-book .ft-brk { opacity: 1; }
+  .ft-cta-line:hover .ft-brk-l { transform: translateX(-6px) scaleY(1.05); }
+  .ft-cta-line:hover .ft-brk-r { transform: translateX(6px) scaleY(1.05); }
+
+  /* bottom row */
+  .ft-copy {
+    position: absolute; bottom: 60px; left: 80px; color: #fff;
+    font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px;
+  }
+  .ft-rights { color: #808080; }
+
+  /* "Keep scrolling → next page" progress (Figma 9:1077 / 17:2211).
+     Two stacked pills: a full-width back pill ("Projects / next page", right-aligned) and a
+     front pill ("Keep scrolling / to explore", left-aligned) whose width grows with overscroll
+     until it fully covers the back pill, at which point it navigates to the next page. */
+  .ft-progress {
+    position: absolute; left: 50%; bottom: 56px; transform: translateX(-50%);
+    width: 340px; height: 90px; z-index: 3; cursor: pointer; user-select: none;
+  }
+  .ft-prog-pill {
+    position: absolute; left: 0; top: 0; box-sizing: border-box;
+    padding: 10px 20px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .ft-prog-bg {
+    width: 100%; align-items: flex-end; text-align: right;
+    background: rgba(255,255,255,0.08); box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+  }
+  .ft-prog-fg {
+    width: 0; align-items: flex-start; overflow: hidden; white-space: nowrap;
+    background: linear-gradient(to left, rgba(255,255,255,0.20), rgba(255,255,255,0));
+    transition: width .12s linear;
+  }
+  .ft-prog-t1 { font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px; color: #fff; }
+  .ft-prog-t2 { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; color: #b2b2b2; text-transform: uppercase; }
+
+  /* ---- Footer: mobile fit ---- */
+  @media (max-width: 700px) {
+    .ft-letter-a { top: 80px; left: 20px; width: 91px; height: auto; }
+    .ft-letter-f { bottom: 20px; right: 20px; width: 88px; height: auto; }
+    .ft-social { top: 80px; right: 20px; gap: 12px; }
+    .ft-cta { gap: 20px; top: calc(50% - 40px); }
+    .ft-cta-line { font-size: 36px; line-height: 40px; letter-spacing: -0.72px; gap: 12px; }
+    .ft-roll-mask, .ft-roll span { height: 40px; }
+    .ft-cta-line:hover .ft-roll { transform: translateY(-40px); }
+    .ft-brk, .ft-brk svg { width: 7px; height: 47px; }
+    .ft-copy { left: 20px; bottom: 20px; font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
+
+    /* progress pill: 353 wide, sits below the CTA (≈Figma top 464 of an 800-tall footer) */
+    .ft-progress { width: min(353px, calc(100% - 40px)); bottom: auto; top: calc(50% + 64px); }
+    .ft-prog-t1 { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
+    .ft-prog-t2 { font-size: 14px; line-height: 16px; }
+
+    /* Continuation on mobile — two chained phases driven by scroll position:
+       Phase 1 (Figma 17:1904 → 17:1923): ONE photo (.bk-mcard) shrinks from full-bleed to the
+         centred card. Same <img>, no second image, no crossfade.
+       Phase 2 (Figma 17:1930 → 17:1942 → 17:1961 → 17:1974): from that card the 3D book fans
+         through the photos and collapses into the "Contact Me" pill — the same engine as desktop,
+         scaled 0.64 so the open book lands exactly on the card footprint (seamless hand-off). */
+    #books { height: 600vh; }                       /* room for Phase 1 (shrink) + Phase 2 (fan → pill) */
+    .bk-scene { transform: scale(0.64); }           /* open book renders at the 353-card size; JS reveals it in Phase 2 */
+    .bk-mcover, .bk-cover-btn { display: none; }     /* the full-bleed shrink is .bk-mcard; its pill is .bk-mpill */
+    .bk-cta-label { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }   /* "Contact Me" pill text (17:1974) */
+    .bk-mcard {
+      display: block; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 100vw; height: 100vh; overflow: hidden; z-index: 5; pointer-events: none; will-change: width, height;
+    }
+    .bk-mcard img {
+      width: 100%; height: 100%; object-fit: cover; display: block; mix-blend-mode: luminosity;
+    }
+    /* "Alex Foster" pill on the full-bleed cover; fades out as the photo leaves full-bleed (gone in 17:1923) */
+    .bk-mpill {
+      display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px;
+      position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%);
+      border-radius: 100px; background: rgba(255,255,255,0.10);
+      box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+      -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+      color: #fff; font-family: Satoshi, sans-serif; font-size: 15px; font-weight: 500;
+      line-height: 20px; letter-spacing: -0.15px; white-space: nowrap; z-index: 6; will-change: opacity;
+    }
+    .bk-mpill img {
+      width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+      object-position: center 20%; display: block; background: #fff;
+    }
+
+    /* On a journey: video + plaque become a centred card (not fullscreen). The JS drives
+       these via transform: translateY(), so centre them with left/top — never transform. */
+    .aj-videos {
+      inset: auto; left: 50%; top: 50%;
+      width: 393px; height: 295px;
+      margin-left: -196.5px; margin-top: -147.5px;
+    }
+    .aj-plaque {
+      inset: auto; left: 50%; top: 50%;
+      width: 372px; height: 275px;
+      margin-left: -186px; margin-top: -137.5px;
+    }
+    .aj-plaque, .plaque-shadow, .plaque-bg { border-radius: 12px; }
+    /* "Building beyond companies" sits 16px above the "ON A JOURNEY" label (label top ≈ plaque centre) */
+    .aj-eyebrow {
+      top: calc(50% - 40px);
+      font-size: 15px; line-height: 20px; letter-spacing: -0.15px; font-weight: 500;
+    }
+  }
+
+
+  /* ============================================================
+     Projects page — section styles (Figma 84:1426)
+     ============================================================ */
+  .projects { position: relative; background: #000; color: #fff; }
+  /* section blocks added in later tasks */
+
+</style>
+</head>
+<body>
+
+    <!-- Mobile menu backdrop (full-screen blur behind the floating panel) -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- Morphing header / menu panel -->
+    <div class="panel" id="panel">
+      <header class="panel-bar">
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Toggle menu">
+          <span class="icon">
+            <svg class="ic-open" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.334 4.167h8.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.334 10h13.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.334 15.833h8.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="ic-close" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 5l-5 5m0 0l-5 5m5-5l5 5m-5-5L5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Menu</span>
+        </button>
+        <div class="brand">Alex Foster</div>
+        <a class="nav-cta" href="mailto:alex@foster.com">Let's Talk</a>
+      </header>
+
+      <div class="panel-body">
+        <div class="menu-grid">
+
+          <!-- BUILD -->
+          <div class="m-card">
+            <span class="m-label fade">Build</span>
+            <nav class="m-nav">
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Home</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Projects</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Blog</span></span></a>
+              <a class="m-link" href="#">
+                <span class="rv-mask"><span class="rv">AWF chapters</span></span>
+                <em class="badge fade">NEW</em>
+              </a>
+            </nav>
+            <div class="m-card-foot fade">© 2026 Alex Foster</div>
+          </div>
+
+          <!-- EXPLORE -->
+          <div class="m-mid">
+            <span class="m-label fade">Explore</span>
+            <nav class="m-nav">
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Timeline</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Media</span></span></a>
+              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Contact</span></span></a>
+            </nav>
+            <div class="m-social">
+              <a class="fade" href="https://www.linkedin.com/in/alexander-w-foster/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
+              </a>
+              <a class="fade" href="https://www.instagram.com/alexwfost/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              <a class="fade" href="https://www.youtube.com/@alexwfoster" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.33333 8.00002L7 9.33335V6.66669L9.33333 8.00002Z" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.3335 8.472V7.528C1.3335 5.598 1.3335 4.63266 1.93683 4.012C2.54083 3.39066 3.4915 3.364 5.39216 3.31C6.29216 3.28466 7.21216 3.26666 8.00016 3.26666C8.78816 3.26666 9.7075 3.28466 10.6082 3.31C12.5088 3.364 13.4595 3.39066 14.0628 4.012C14.6662 4.63333 14.6668 5.59866 14.6668 7.528V8.47133C14.6668 10.402 14.6668 11.3667 14.0635 11.988C13.4595 12.6087 12.5095 12.636 10.6082 12.6893C9.70816 12.7153 8.78816 12.7333 8.00016 12.7333C7.21216 12.7333 6.29283 12.7153 5.39216 12.6893C3.4915 12.636 2.54083 12.6093 1.93683 11.988C1.33283 11.3667 1.3335 10.4013 1.3335 8.472Z" stroke="#fff"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- LET'S TALK -->
+          <div class="m-card m-talk">
+            <div class="m-talk-head">
+              <span class="m-label center fade">Let's Talk</span>
+              <a class="m-email fade" href="mailto:alex@foster.com">alex@foster.com <b>+</b></a>
+              <p class="m-desc fade">Founder of Vanquish,<br />AlphaLedger and Vertus.</p>
+            </div>
+            <div class="m-stackwrap">
+              <div class="m-stack">
+                <img loading="lazy" decoding="async" class="spic" style="left:0; top:0; z-index:5" src="images/preloader/Preloader 2.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:15px; top:10px; z-index:4" src="images/preloader/Preloader 1.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:30.1px; top:20px; z-index:3" src="images/preloader/Preloader 8.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:45.1px; top:30px; z-index:2" src="images/preloader/Preloader 5.webp" alt="" />
+                <img loading="lazy" decoding="async" class="spic" style="left:60.2px; top:40px; z-index:1" src="images/preloader/Preloader 9.webp" alt="" />
+              </div>
+              <a class="m-explore" href="#">Explore</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Mobile-only footer (Figma): full-width CTA + copyright -->
+        <a class="m-talk-btn m-mobile-only" href="mailto:alex@foster.com">Let's Talk</a>
+        <div class="m-copy m-mobile-only">© 2026 Alex Foster</div>
+      </div>
+    </div>
+
+  <main class="projects">
+    <!--PJ-SECTIONS-->
+  </main>
+
+    <footer id="footer" data-header="light">
+      <img class="ft-letter ft-letter-a" loading="lazy" decoding="async" src="images/main page/A.svg" alt="" aria-hidden="true" />
+
+      <div class="ft-social">
+        <a href="https://www.linkedin.com/in/alexander-w-foster/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.667 6.666v4.667" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.333 8.666v2.667M7.333 8.666c0-1.105.895-2 2-2s1.999.895 1.999 2v2.667M7.333 8.666v-2" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.667 4.677v-.01" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><rect x="1.667" y="1.667" width="12.667" height="12.667" rx="3" stroke="#fff"/></svg>
+        </a>
+        <a href="https://www.instagram.com/alexwfost/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.667 8c0-2.986 0-4.479.927-5.406C3.522 1.666 5.015 1.666 8 1.666c2.986 0 4.479 0 5.406.928.927.927.927 2.42.927 5.406 0 2.985 0 4.478-.927 5.405-.927.928-2.42.928-5.406.928-2.985 0-4.478 0-5.406-.928C1.667 12.478 1.667 10.985 1.667 8Z" stroke="#fff"/><path d="M10.667 8a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#fff"/><path d="M11.673 4.333h.006" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://www.youtube.com/@alexwfoster" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.33333 8.00002L7 9.33335V6.66669L9.33333 8.00002Z" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"/><path d="M1.3335 8.472V7.528C1.3335 5.598 1.3335 4.63266 1.93683 4.012C2.54083 3.39066 3.4915 3.364 5.39216 3.31C6.29216 3.28466 7.21216 3.26666 8.00016 3.26666C8.78816 3.26666 9.7075 3.28466 10.6082 3.31C12.5088 3.364 13.4595 3.39066 14.0628 4.012C14.6662 4.63333 14.6668 5.59866 14.6668 7.528V8.47133C14.6668 10.402 14.6668 11.3667 14.0635 11.988C13.4595 12.6087 12.5095 12.636 10.6082 12.6893C9.70816 12.7153 8.78816 12.7333 8.00016 12.7333C7.21216 12.7333 6.29283 12.7153 5.39216 12.6893C3.4915 12.636 2.54083 12.6093 1.93683 11.988C1.33283 11.3667 1.3335 10.4013 1.3335 8.472Z" stroke="#fff"/></svg>
+        </a>
+      </div>
+
+      <div class="ft-cta">
+        <a class="ft-cta-line ft-contact" href="mailto:alex@foster.com" aria-label="Contact me">
+          <span class="ft-brk ft-brk-l" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 15V1H10" stroke="#fff" stroke-width="1.5"/><path d="M1 63V77H10" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+          <span class="ft-roll-mask"><span class="ft-roll"><span>Contact me</span><span aria-hidden="true">Contact me</span></span></span>
+          <span class="ft-brk ft-brk-r" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 15V1H0" stroke="#fff" stroke-width="1.5"/><path d="M9 63V77H0" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+        </a>
+        <a class="ft-cta-line ft-book" href="#" aria-label="Book a call">
+          <span class="ft-brk ft-brk-l" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 15V1H10" stroke="#fff" stroke-width="1.5"/><path d="M1 63V77H10" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+          <span class="ft-roll-mask"><span class="ft-roll"><span>Book a call</span><span aria-hidden="true">Book a call</span></span></span>
+          <span class="ft-brk ft-brk-r" aria-hidden="true">
+            <svg width="10" height="78" viewBox="0 0 10 78" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 15V1H0" stroke="#fff" stroke-width="1.5"/><path d="M9 63V77H0" stroke="#fff" stroke-width="1.5"/></svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="ft-progress" id="ftProgress" role="link" tabindex="0" aria-label="Keep scrolling to Projects — next page">
+        <div class="ft-prog-pill ft-prog-bg">
+          <span class="ft-prog-t1">Projects</span>
+          <span class="ft-prog-t2">next page</span>
+        </div>
+        <div class="ft-prog-pill ft-prog-fg" id="ftProgFg">
+          <span class="ft-prog-t1">Keep scrolling</span>
+          <span class="ft-prog-t2">to explore</span>
+        </div>
+      </div>
+
+      <span class="ft-copy">© 2026 Alex Foster. <span class="ft-rights">All rights reserved.</span></span>
+
+      <img class="ft-letter ft-letter-f" loading="lazy" decoding="async" src="images/main page/F.svg" alt="" aria-hidden="true" />
+    </footer>
+
+  <script>
+    /* ---------- Menu open/close (Osmo-style staggered reveal) ---------- */
+    (() => {
+      const body = document.body;
+      const panel = document.getElementById("panel");
+      const toggle = document.getElementById("navToggle");
+      // reveal order: left column → middle → right, top to bottom (DOM order)
+      const revealEls = [...panel.querySelectorAll(".rv, .fade, .spic")];
+      const WIDTH_MS = 520;          // matches the .5s width transition
+      const isMobile = () => window.matchMedia("(max-width: 700px)").matches;
+      let open = false, busy = false;
+
+      function setDelays(on) {
+        revealEls.forEach((el, i) => {
+          el.style.transitionDelay = on ? `${0.12 + i * 0.025}s` : "0s";
+        });
+      }
+
+      function openMenu() {
+        open = true;
+        toggle.setAttribute("aria-expanded", "true");
+        if (isMobile()) {                        // mobile: instant full-screen overlay
+          panel.classList.add("is-wide");        // toggles the ✕ icon
+          body.classList.add("menu-open");
+          setDelays(true);
+          return;
+        }
+        busy = true;
+        panel.classList.add("is-wide");          // 1) header spreads to 1280
+        setTimeout(() => {
+          panel.classList.add("is-tall");        // 2) curtain drops to 480
+          body.classList.add("menu-open");
+          setDelays(true);
+          busy = false;
+        }, WIDTH_MS);
+      }
+
+      function closeMenu() {
+        open = false;
+        toggle.setAttribute("aria-expanded", "false");
+        body.classList.remove("menu-open");      // 1) inner reverses + curtain up
+        setDelays(false);
+        if (isMobile()) {
+          panel.classList.remove("is-wide");
+          return;
+        }
+        busy = true;
+        panel.classList.remove("is-tall");
+        setTimeout(() => {
+          panel.classList.remove("is-wide");     // 2) header retracts to 520
+          busy = false;
+        }, WIDTH_MS);
+      }
+
+      toggle.addEventListener("click", () => { if (!busy) (open ? closeMenu() : openMenu()); });
+      // mobile: tap the blurred backdrop to close
+      const backdrop = document.getElementById("menuBackdrop");
+      if (backdrop) backdrop.addEventListener("click", () => {
+        if (open && !busy && isMobile()) closeMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && open && !busy) closeMenu();
+      });
+      // desktop: clicking anywhere outside the panel closes the menu
+      document.addEventListener("pointerdown", (e) => {
+        if (open && !busy && !isMobile() && !panel.contains(e.target)) closeMenu();
+      });
+    })();
+
+    /* ---------- Footer "keep scrolling → next page" ----------
+       Once the footer is in view and the page is scrolled to its end, continued downward
+       scroll/swipe fills the front pill; when full it navigates to the next page. The target
+       is prefetched as soon as the footer appears so the transition is instant. The pill is
+       also directly clickable. */
+    (() => {
+      const NEXT_PAGE_URL = "index.html";   // from Projects, the next-page pill loops back to the home page
+      const footer = document.getElementById("footer");
+      const prog = document.getElementById("ftProgress");
+      const bg = prog && prog.querySelector(".ft-prog-bg");
+      const fg = document.getElementById("ftProgFg");
+      if (!footer || !prog || !bg || !fg) return;
+
+      const THRESHOLD = 1100;               // px of overscroll to fill the bar
+      let acc = 0, navigating = false, prefetched = false;
+
+      const maxW = () => bg.getBoundingClientRect().width;
+      const minW = () => 0;                 // front pill starts empty, fills 0 → 100%
+
+      function render() {
+        const p = Math.max(0, Math.min(1, acc / THRESHOLD));
+        fg.style.width = (minW() + p * (maxW() - minW())) + "px";
+        if (p >= 1) go();
+      }
+
+      function atBottom() {                 // footer fully in view at the page end
+        return footer.getBoundingClientRect().bottom <= window.innerHeight + 2;
+      }
+
+      function go() {
+        if (navigating) return;
+        navigating = true;
+        fg.style.width = maxW() + "px";
+        window.location.href = NEXT_PAGE_URL;
+      }
+
+      // prefetch the target the moment the footer scrolls into view
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !prefetched) {
+            prefetched = true;
+            const l = document.createElement("link");
+            l.rel = "prefetch"; l.as = "document"; l.href = NEXT_PAGE_URL;
+            document.head.appendChild(l);
+          }
+        });
+      }, { threshold: 0.35 });
+      io.observe(footer);
+
+      window.addEventListener("wheel", (e) => {
+        if (navigating) return;
+        if (e.deltaY > 0 ? atBottom() : true) acc += e.deltaY;
+        acc = Math.max(0, Math.min(THRESHOLD, acc));
+        render();
+      }, { passive: true });
+
+      let ty = 0;
+      window.addEventListener("touchstart", (e) => { ty = e.touches[0].clientY; }, { passive: true });
+      window.addEventListener("touchmove", (e) => {
+        if (navigating) return;
+        const y = e.touches[0].clientY, dy = (ty - y) * 2.4; ty = y;   // dy>0 = swiping up/scroll down
+        if (dy > 0 ? atBottom() : true) acc += dy;
+        acc = Math.max(0, Math.min(THRESHOLD, acc));
+        render();
+      }, { passive: true });
+
+      prog.addEventListener("click", go);
+      prog.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const panel = document.getElementById("panel");
+      if (!panel) return;
+      const sections = [...document.querySelectorAll("section[data-header]")];
+      if (!sections.length) return;
+
+      // Which section sits under the header band right now?
+      const themeUnderHeader = () => {
+        const y = panel.getBoundingClientRect().bottom + 1; // viewport y just below header
+        for (const sec of sections) {
+          const r = sec.getBoundingClientRect();
+          if (r.top <= y && r.bottom > y) return sec.dataset.header;
+        }
+        return null; // between/past sections → keep current
+      };
+
+      let ticking = false;
+      const update = () => {
+        const theme = themeUnderHeader();
+        if (theme === "light") {            // light header
+          panel.classList.add("header-on-dark");
+          panel.classList.remove("header-on-light");
+        } else if (theme === "dark") {      // dark header
+          panel.classList.add("header-on-light");
+          panel.classList.remove("header-on-dark");
+        }
+        ticking = false;
+      };
+      addEventListener("scroll", () => {
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }, { passive: true });
+      addEventListener("resize", update);
+      addEventListener("load", update);
+      // re-measure once the preloader finishes fading (it covers the page during intro,
+      // so the first measure can be stale until it's gone)
+      const pre = document.getElementById("preloader");
+      if (pre) pre.addEventListener("transitionend", update);
+
+      panel.classList.add("header-on-dark"); // default before first measure
+      update();
+    })();
+  </script>
+
+  <!--PJ-ANIM-JS-->
+
+</body>
+</html>
