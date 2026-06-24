@@ -1668,6 +1668,67 @@
   .pj-cta-brk { position: absolute; top: calc(80.6% - 40px); width: 14px; height: 80px; }
   .pj-cta-brk.l { left: var(--gut);  border: 1.5px solid #fff; border-right: 0; }
   .pj-cta-brk.r { right: var(--gut); border: 1.5px solid #fff; border-left: 0; }
+  .pj-shared-copy { display: none; }
+
+  /* ============================================================
+     Mobile (Figma 268:1462) — single-column stacks
+     ============================================================ */
+  @media (max-width: 768px) {
+    .pj-hero-title { font-size: clamp(34px, 8.6vw, 44px); }
+
+    /* sections become auto-height stacked columns */
+    .pj-vintro, .pj-vertus, .pj-alpha, .pj-vanq, .pj-shared, .pj-cta {
+      height: auto; min-height: 100svh; overflow: visible;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 96px 20px 56px; gap: 0;
+    }
+    .pj-eyebrow span { font-size: 16px; letter-spacing: -0.3px; }
+    .pj-h3 { font-size: clamp(32px, 9.5vw, 40px); }
+    .pj-desc { width: auto !important; max-width: 320px; }
+
+    /* chrome → static, full width */
+    .pj-chrome, .pj-chrome.center { position: static; transform: none; display: block; margin: 24px auto; opacity: 1 !important; }
+    .pj-chrome img { width: min(360px, 86vw); margin: 0 auto; }
+    .pj-vanq .pj-chrome { opacity: .55 !important; }
+
+    /* explore pill → centered, smaller */
+    .pj-explore { position: static; left: auto; top: auto; height: auto; padding: 13px 26px;
+      font-size: 16px; line-height: 20px; margin: 22px auto 0; }
+
+    /* hide desktop-only decorations */
+    .pj-brackets, .pj-alpha .sq, .pj-vanq .sq, .pj-cta-brk { display: none; }
+
+    /* Intro */
+    .pj-vintro { color: #000; justify-content: flex-start; }
+    .pj-vintro .head { position: static; transform: none; width: 100%; top: auto; }
+    .pj-vintro .pj-chrome { margin-top: 8px; }
+    .pj-scroll { position: static; left: auto; bottom: auto; margin-top: auto; padding-top: 28px; justify-content: center; }
+
+    /* Venture cards — order: name/desc → explore → chrome */
+    .pj-vertus { background: #000; color: #fff; }
+    .pj-vertus .info, .pj-alpha .info, .pj-vanq .info {
+      position: static; transform: none; width: 100%; align-items: center; text-align: center; order: 1; }
+    .pj-vertus .pj-h3 { color: #fff; }
+    .pj-vertus .pj-explore, .pj-alpha .pj-explore { order: 2; }
+    .pj-vertus .pj-chrome, .pj-alpha .pj-chrome, .pj-vanq .pj-chrome { order: 3; }
+
+    /* Shared vision — stacked, solid white words + paragraph */
+    .pj-shared .pj-eyebrow { position: static; transform: none; order: 1; }
+    .pj-shared-poster { position: static; transform: none; order: 2;
+      width: min(353px, 90vw); height: auto; aspect-ratio: 353 / 382; margin: 32px 0 28px; }
+    .pj-bigword { position: static !important; transform: none !important; order: 3;
+      left: auto !important; white-space: normal; background: none !important; background-image: none !important;
+      -webkit-background-clip: border-box !important; background-clip: border-box !important;
+      -webkit-text-fill-color: #fff; color: #fff; font-size: clamp(30px, 8.5vw, 40px); line-height: 1.1; }
+    .pj-shared-copy { display: block; order: 4; max-width: 320px; margin-top: 18px;
+      font-size: 16px; line-height: 20px; letter-spacing: -0.16px; color: #808080; }
+
+    /* CTA — image above wordmark, centered */
+    .pj-cta { justify-content: center; gap: 28px; }
+    .pj-cta-lightbox { position: static; transform: none !important; order: 1; width: min(300px, 78vw); }
+    .pj-cta-word { position: static !important; transform: none !important; order: 2;
+      white-space: normal; font-size: clamp(34px, 9.5vw, 46px); }
+  }
 
 </style>
 </head>
@@ -1819,6 +1880,7 @@
       <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
       <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
       <div class="pj-bigword right pj-fade">SHARED VISION</div>
+      <p class="pj-shared-copy pj-fade">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
     </section>
 
     <!-- CTA / Future Ventures (Figma 78:1221) -->
@@ -2107,6 +2169,10 @@
       };
       let ticking = false;
       const frame = () => {
+        if (innerWidth <= 768) {                 // mobile: static stacked layout, no sweep/parallax
+          [sL, sR, box, word].forEach((e) => e && e.style.removeProperty("transform"));
+          ticking = false; return;
+        }
         if (shared) {
           const p = prog(shared), amt = 160;
           if (sL) sL.style.transform = `translateX(${-amt * p}px)`;
