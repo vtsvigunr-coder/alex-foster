@@ -4,6 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Projects — Alex Foster</title>
+<script>
+  /* Landing here counts as "the site is open" — so a later jump to Home won't replay the intro. */
+  try { sessionStorage.setItem('introPlayed', '1'); } catch (e) {}
+</script>
 <link rel="icon" type="image/webp" href="images/main page/alex.webp" />
 <style>
   /* ---------- Satoshi ---------- */
@@ -34,6 +38,15 @@
     text-rendering: optimizeLegibility;
   }
   body.preloading { overflow: hidden; }
+
+  /* ---------- Cross-page transition: new page slides up over the old ---------- */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: none; }                 /* old stays put underneath */
+  ::view-transition-new(root) { animation: vt-slide-up .5s var(--ease) both; }
+  @keyframes vt-slide-up { from { transform: translateY(100%); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-new(root) { animation: none; }
+  }
 
   /* ============ Site (hero + menu) ============ */
   .site { position: relative; background: #000; color: #fff; }
@@ -77,7 +90,8 @@
     background: rgba(255,255,255,0.04);
     box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
     backdrop-filter: blur(18px);
-    transition: width .5s var(--ease), height .5s var(--ease), background .35s var(--ease);
+    /* width/height morph animates; background (light↔dark over sections) switches sharply */
+    transition: width .5s var(--ease), height .5s var(--ease);
   }
   .panel.is-wide { width: 1280px; }   /* 1) header spreads */
   .panel.is-tall { height: 480px; }   /* 2) curtain drops  */
@@ -117,6 +131,7 @@
   .panel-bar .brand {
     position: absolute; left: 50%; transform: translateX(-50%);
     font-size: 20px; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap;
+    color: inherit; text-decoration: none;
   }
   .nav-cta {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -1576,6 +1591,11 @@
   .pj-hero-title { max-width: 800px; color: #fff; font-weight: 500;
     font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em; }
 
+  /* Hero entrance — background + content arrive together (all at once) */
+  .pj-hero-reveal { animation: pj-hero-in .7s var(--ease) both; }
+  @keyframes pj-hero-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .pj-hero-reveal { animation: none; } }
+
   /* ============ Ventures (Figma 78:886 / 78:906 / 78:917 / 78:923) ============ */
   .projects { --gut: max(24px, calc(50% - 640px)); }     /* 1280 content column */
   .pj-sec { position: relative; height: 100vh; min-height: 660px; overflow: hidden; }
@@ -1646,7 +1666,7 @@
   .pj-fade.in { opacity: 1; }
 
   /* ============ Ventures — pinned scroll sequence ============ */
-  .pjv { position: relative; height: 480vh; background: #fff; }
+  .pjv { position: relative; height: 620vh; background: #fff; }
   .pjv-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
 
   .pjv-intro { position: absolute; left: 50%; top: 16%; transform: translateX(-50%);
@@ -1666,28 +1686,45 @@
     width: min(360px, 46vh, 80vw); aspect-ratio: 1 / 1; pointer-events: none; }
   .pjv-logo img { width: 100%; height: 100%; object-fit: contain; }
 
-  /* text reveals UP from behind a mask (no fade — like the cube/ecosystem section) */
-  .pjv-text { position: absolute; overflow: hidden; width: min(386px, 86vw); }
-  .pjv-text-in { display: flex; flex-direction: column; gap: 16px; color: #fff;
-    transform: translateY(var(--ty, 0%)); will-change: transform; }
+  /* text reveals UP from behind a mask (no fade — like the cube/ecosystem section).
+     Heading and description each get their own mask so they rise independently (staggered). */
+  .pjv-text { position: absolute; width: min(386px, 86vw); }
+  .pjv-text-in { display: flex; flex-direction: column; gap: 16px; color: #fff; }
+  /* mask clips the rise reveal; padding (cancelled by equal negative margin so layout is unchanged)
+     gives the glyphs room so ascenders/descenders aren't cropped */
+  .pjv-line { overflow: hidden; padding: 0.08em 0.06em 0.24em; margin: -0.08em -0.06em -0.24em; }
+  .pjv-line > * { margin: 0; transform: translateY(var(--ty, 0%)); will-change: transform; }
   .pjv-text .pj-h3 { color: #fff; }
   /* Vertus — left (Figma 78:906) */
   .s-vertus .pjv-text { left: var(--gut); top: 38%; }
   .s-vertus .pjv-text-in { text-align: left; align-items: flex-start; }
-  /* Alpha Ledger — lower right (Figma 78:917) */
-  .s-alpha .pjv-text { right: var(--gut); top: 70%; }
-  .s-alpha .pjv-text-in { text-align: right; align-items: flex-end; }
+  /* Alpha Ledger — lower left */
+  .s-alpha .pjv-text { left: var(--gut); top: 70%; }
+  .s-alpha .pjv-text-in { text-align: left; align-items: flex-start; }
   .s-alpha .pjv-text .pj-desc { width: min(290px, 80vw); }
   /* Vanquish — centred (Figma 239:2518 / 78:923) */
   .s-vanq .pjv-text { left: 50%; transform: translateX(-50%); top: 58%; }
   .s-vanq .pjv-text-in { text-align: center; align-items: center; }
   .s-vanq .pjv-text .pj-desc { width: min(340px, 86vw); }
 
-  /* per-venture Explore pill at its Figma position; appears with the text */
-  .pjv-explore { position: absolute; left: auto; opacity: 0; z-index: 2; }
-  .s-vertus .pjv-explore { right: 11%; top: 55%; }
-  .s-alpha .pjv-explore  { right: 11%; top: 17%; }
-  .s-vanq .pjv-explore   { right: 11%; top: 52%; }
+  /* single Explore pill — ALWAYS fully solid (no opacity transition, never fades). It is parked
+     off-screen (top-right) until the first reveal, flies in once to the cursor and then trails it;
+     show/hide is done purely by moving it on/off screen, so switching ventures never crossfades.
+     Visual only: pointer-events are off so the full-stage .pjv-hit link catches every click. */
+  .pjv-pill { position: absolute; left: 0; top: 0; z-index: 4;
+    pointer-events: none; transform: translate(120vw, -20vh) translate(-50%, -50%);
+    transition: transform .5s var(--ease); will-change: transform; }
+
+  /* white panel the square expands into — a zero-size box at the square's end point (50%, 86%) that
+     grows by animating its four insets to 0; each edge finishes together so the screen fills evenly
+     (top travels farther → faster, bottom shorter → slower). JS drives the insets. */
+  .pjv-white { position: absolute; left: 50%; right: 50%; top: 86%; bottom: 14%;
+    background: #fff; z-index: 3; pointer-events: none; }
+
+  /* full-stage click target — whatever the active venture is, clicking anywhere on the
+     stage follows the pill to that venture's site (JS toggles pointer-events + href). */
+  .pjv-hit { position: absolute; inset: 0; z-index: 3; display: block;
+    pointer-events: none; cursor: pointer; }
 
   .pjv-intro, .pjv-scroll { z-index: 2; }
 
@@ -1696,16 +1733,13 @@
   .pjv-square svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .sq-frame { stroke-dasharray: 100; stroke-dashoffset: 100; }
 
-  .pjv-square { position: absolute; left: 0; top: 0; width: 60px; height: 60px;
-    border: 1px solid #fff; opacity: 0; will-change: transform, opacity; }
-
   @media (max-width: 768px) {
     .pjv { height: auto; background: #000; }
     .pjv-stage { position: static; height: auto; overflow: visible; background: #000;
       display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px 48px; gap: 44px; }
     .pjv-intro { position: static; transform: none; width: 100%; color: #fff; gap: 20px; }
     .pjv-intro .pj-eyebrow, .pjv-headline { color: #fff; }
-    .pjv-fill, .pjv-scroll, .pjv-square, .pjv-explore { display: none; }
+    .pjv-fill, .pjv-scroll, .pjv-square, .pjv-pill, .pjv-white, .pjv-hit, .pjv-shared { display: none; }
     .pjv-slide { position: static; opacity: 1; pointer-events: auto; width: 100%;
       display: flex; flex-direction: column; align-items: center; gap: 20px; }
     .pjv-logo { position: static; transform: none; top: auto; order: 2; width: min(300px, 72vw); margin: 0 auto; }
@@ -1718,29 +1752,54 @@
   }
 
   /* ============ Shared vision (Figma 72:705) ============ */
-  .pj-shared { background: #000; color: #fff; }
-  .pj-shared .pj-eyebrow { position: absolute; left: 50%; transform: translateX(-50%); top: 11.1%; color: #fff; }
-  .pj-shared-poster { position: absolute; left: 50%; top: 78.6%; transform: translate(-50%, -50%);
-    width: 172px; height: 186px; border-radius: 8px; overflow: hidden; }
-  .pj-shared-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .pj-shared-poster::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
-  .pj-bigword { position: absolute; top: 74.8%; white-space: nowrap;
-    font-weight: 500; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em;
-    -webkit-background-clip: text; background-clip: text; color: transparent; will-change: transform; }
-  .pj-bigword.left  { left: calc(50% - 717px); background-image: linear-gradient(to right, #000 0, #000 60.154%, #fff 100%); }
-  .pj-bigword.right { left: calc(50% + 260px); background-image: linear-gradient(to right, #fff 0, #000 39.846%, #000 100%); }
+  /* DESKTOP: revealed inside the ventures pinned stage (.pjv-shared) on the white the square leaves —
+     so the standalone section is hidden on desktop and used only for the mobile stacked layout. */
+  .pj-shared { display: none; background: #fff; color: #000; }
+  .pj-shared-stage { display: contents; }
 
-  /* ============ CTA / Future Ventures (Figma 78:1221) ============ */
-  .pj-cta { background: #000; color: #fff; }
-  .pj-cta-lightbox { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
-    width: min(400px, 64vw); aspect-ratio: 400 / 530; border-radius: 10px; overflow: hidden; will-change: transform; }
-  .pj-cta-lightbox img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; display: block; }
-  .pj-cta-word { position: absolute; left: 50%; top: 80.6%; transform: translateX(-50%); text-align: center;
-    white-space: nowrap; font-weight: 500; font-size: clamp(44px, 5.6vw, 80px); line-height: 1.05; letter-spacing: -0.05em;
-    color: #fff; will-change: transform; }
-  .pj-cta-brk { position: absolute; top: calc(80.6% - 40px); width: 14px; height: 80px; }
-  .pj-cta-brk.l { left: var(--gut);  border: 1.5px solid #fff; border-right: 0; }
-  .pj-cta-brk.r { right: var(--gut); border: 1.5px solid #fff; border-left: 0; }
+  /* the on-the-white reveal overlay inside the ventures stage. The pieces are choreographed by JS
+     (svReveal): the two words slide in from the left/right edges out of a blur ("from shadow"),
+     then converge toward the centre while the poster grows from small to large between them. */
+  .pjv-shared { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+  .pjv-shared > * { opacity: 0; }
+  .pjv-shared .pj-eyebrow { position: absolute; left: 50%; top: 11.1%; transform: translateX(-50%); color: #000; z-index: 2; will-change: opacity, transform; }
+
+  .pj-shared-poster { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1;
+    width: 172px; height: 186px; border-radius: 8px; overflow: hidden; will-change: width, height, opacity; }
+  .pj-shared-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* light theme: a faint white veil (not the dark overlay) so the black words stay legible where
+     they cross the enlarged poster at the end of the sequence. */
+  .pj-shared-poster::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,0.16); }
+  .pj-bigword { position: absolute; left: 50%; top: 50%; white-space: nowrap; z-index: 2; color: #000;
+    font-weight: 500; font-size: clamp(40px, 4.6vw, 64px); line-height: 1.0625; letter-spacing: -0.04em;
+    will-change: transform, opacity, filter; }
+
+  /* paragraph at the bottom (Figma 84:1380) — appears rising from below: it starts 80px lower and
+     travels up into place as it fades in (JS drives the opacity + translateY). */
+  .pjv-shared .pj-shared-copy { display: block; position: absolute; left: 50%; top: 86.7%;
+    transform: translateX(-50%); width: 322px; text-align: center; color: #808080;
+    font-size: 16px; line-height: 20px; letter-spacing: -0.16px; z-index: 2; will-change: opacity, transform; }
+
+  /* ============ CTA / Future Ventures (Figma 78:1221 → 84:1285 → 84:1263) ============ */
+  /* Pinned scroll sequence (desktop): the vanquish banner wipes in top→down while FUTURE VENTURES
+     fades in at the bottom; the word then rises to the centre and fades out behind the image; finally
+     the image shrinks and morphs in place into a "Contact me" pill (same morph as the book → pill on
+     the main page — one element, no crossfade). */
+  .pj-cta { height: 400vh; overflow: visible; background: #000; color: #fff; }
+  .pj-cta-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; }
+
+  .pj-cta-card { position: absolute; left: 50%; top: 50%; z-index: 2; text-decoration: none;
+    width: 400px; height: 530px; border-radius: 10px; overflow: hidden;
+    transform: translate(-50%, -50%); will-change: transform, width, height; }
+  .pj-cta-card img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
+    will-change: opacity, filter; }
+  /* stage-level label — always faces the viewer (never scaled), revealed as the pill forms */
+  .pj-cta-label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+    opacity: 0; pointer-events: none; white-space: nowrap; color: #fff;
+    font-weight: 500; font-size: 18px; line-height: 24px; letter-spacing: -0.18px; }
+  .pj-cta-word { position: absolute; left: 50%; top: 80.6%; z-index: 1; transform: translateX(-50%);
+    text-align: center; white-space: nowrap; font-weight: 500; font-size: clamp(44px, 5.6vw, 80px);
+    line-height: 1.05; letter-spacing: -0.05em; color: #fff; will-change: transform, opacity; }
   .pj-shared-copy { display: none; }
 
   /* ============================================================
@@ -1769,7 +1828,7 @@
       font-size: 16px; line-height: 20px; margin: 22px auto 0; }
 
     /* hide desktop-only decorations */
-    .pj-brackets, .pj-alpha .sq, .pj-vanq .sq, .pj-cta-brk { display: none; }
+    .pj-brackets, .pj-alpha .sq, .pj-vanq .sq { display: none; }
 
     /* Intro */
     .pj-vintro { color: #000; justify-content: flex-start; }
@@ -1785,21 +1844,29 @@
     .pj-vertus .pj-explore, .pj-alpha .pj-explore { order: 2; }
     .pj-vertus .pj-chrome, .pj-alpha .pj-chrome, .pj-vanq .pj-chrome { order: 3; }
 
-    /* Shared vision — stacked, solid white words + paragraph */
+    /* Shared vision — mobile uses the standalone section, stacked, content shown (no scroll reveal) */
+    .pj-shared { height: auto; }                 /* undo the desktop pinned height */
+    .pj-shared-stage { display: contents; }      /* wrapper vanishes → children stack in the flex */
+    .pj-shared .pj-fade { opacity: 1; translate: none; }   /* static layout → always visible */
     .pj-shared .pj-eyebrow { position: static; transform: none; order: 1; }
     .pj-shared-poster { position: static; transform: none; order: 2;
       width: min(353px, 90vw); height: auto; aspect-ratio: 353 / 382; margin: 32px 0 28px; }
     .pj-bigword { position: static !important; transform: none !important; order: 3;
       left: auto !important; white-space: normal; background: none !important; background-image: none !important;
       -webkit-background-clip: border-box !important; background-clip: border-box !important;
-      -webkit-text-fill-color: #fff; color: #fff; font-size: clamp(30px, 8.5vw, 40px); line-height: 1.1; }
+      -webkit-text-fill-color: #000; color: #000; font-size: clamp(30px, 8.5vw, 40px); line-height: 1.1; }
     .pj-shared-copy { display: block; order: 4; max-width: 320px; margin-top: 18px;
       font-size: 16px; line-height: 20px; letter-spacing: -0.16px; color: #808080; }
 
-    /* CTA — image above wordmark, centered */
-    .pj-cta { justify-content: center; gap: 28px; }
-    .pj-cta-lightbox { position: static; transform: none !important; order: 1; width: min(300px, 78vw); }
-    .pj-cta-word { position: static !important; transform: none !important; order: 2;
+    /* CTA — static stack: banner above the wordmark, centered (no pinned reveal/morph on mobile) */
+    .pj-cta { height: auto; justify-content: center; gap: 28px; }
+    .pj-cta-stage { display: contents; }         /* wrapper vanishes → children stack in the flex */
+    .pj-cta-card { position: static; transform: none !important; order: 1; width: min(300px, 78vw);
+      height: auto; aspect-ratio: 400 / 530; border-radius: 10px !important;
+      clip-path: none !important; background: none !important; box-shadow: none !important; pointer-events: auto !important; }
+    .pj-cta-card img { opacity: 1 !important; filter: none !important; }
+    .pj-cta-label { display: none; }
+    .pj-cta-word { position: static !important; transform: none !important; opacity: 1 !important; order: 2;
       white-space: normal; font-size: clamp(34px, 9.5vw, 46px); }
   }
 
@@ -1820,7 +1887,7 @@
           </span>
           <span>Menu</span>
         </button>
-        <div class="brand">Alex Foster</div>
+        <a class="brand" href="index.html">Alex Foster</a>
         <a class="nav-cta" href="mailto:alex@foster.com">Let's Talk</a>
       </header>
 
@@ -1831,8 +1898,8 @@
           <div class="m-card">
             <span class="m-label fade">Build</span>
             <nav class="m-nav">
-              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Home</span></span></a>
-              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Projects</span></span></a>
+              <a class="m-link" href="index.html"><span class="rv-mask"><span class="rv">Home</span></span></a>
+              <a class="m-link" href="projects.html"><span class="rv-mask"><span class="rv">Projects</span></span></a>
               <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Blog</span></span></a>
               <a class="m-link" href="#">
                 <span class="rv-mask"><span class="rv">AWF chapters</span></span>
@@ -1894,9 +1961,9 @@
 
     <!-- Hero (Figma 72:479) -->
     <section class="pj-hero" data-header="light">
-      <div class="pj-hero-bg"><img src="images/projects/hero.webp" alt="" decoding="async" /></div>
+      <div class="pj-hero-bg pj-hero-reveal"><img src="images/projects/hero.webp" alt="" decoding="async" /></div>
       <div class="pj-hero-veil"></div>
-      <div class="pj-hero-inner">
+      <div class="pj-hero-inner pj-hero-reveal">
         <h1 class="pj-hero-title">Built with intention. Designed to create lasting impact.</h1>
         <a class="pj-pill" href="#pj-ventures">Explore ventures</a>
       </div>
@@ -1924,29 +1991,46 @@
         <div class="pjv-slide s-vertus">
           <div class="pjv-logo"><img src="images/projects/logo-vertus.webp" alt="Vertus" decoding="async" /></div>
           <div class="pjv-text"><div class="pjv-text-in">
-            <h3 class="pj-h3">Vertus</h3>
-            <p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br />Every detail reflects a commitment to quality.</p>
+            <div class="pjv-line"><h3 class="pj-h3">Vertus</h3></div>
+            <div class="pjv-line"><p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br />Every detail reflects a commitment to quality.</p></div>
           </div></div>
-          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
 
         <div class="pjv-slide s-alpha">
           <div class="pjv-logo"><img src="images/projects/logo-alpha.webp" alt="Alpha Ledger" decoding="async" /></div>
           <div class="pjv-text"><div class="pjv-text-in">
-            <h3 class="pj-h3">Alpha Ledger</h3>
-            <p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p>
+            <div class="pjv-line"><h3 class="pj-h3">Alpha Ledger</h3></div>
+            <div class="pjv-line"><p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p></div>
           </div></div>
-          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
 
         <div class="pjv-slide s-vanq">
           <div class="pjv-logo"><img src="images/projects/logo-vanquish.webp" alt="Vanquish" decoding="async" /></div>
           <div class="pjv-text"><div class="pjv-text-in">
-            <h3 class="pj-h3">Vanquish</h3>
-            <p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p>
+            <div class="pjv-line"><h3 class="pj-h3">Vanquish</h3></div>
+            <div class="pjv-line"><p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p></div>
           </div></div>
-          <a class="pjv-explore pj-explore" href="#">Explore Venture</a>
         </div>
+
+        <!-- white panel the square expands into (fills the screen at the end), then the next section
+             fades in on top of it -->
+        <div class="pjv-white" aria-hidden="true"></div>
+
+        <!-- Shared vision revealed ON the white canvas the square leaves (same pattern as the main
+             page's Projects inside #ecosystem) — fades in immediately, in place, bottom-to-top.
+             Desktop only; mobile uses the standalone .pj-shared section below. -->
+        <div class="pjv-shared" aria-hidden="true">
+          <span class="pj-eyebrow"><i class="dot"></i><span>Shared vision</span></span>
+          <div class="pj-bigword left">CREATE IMPACT</div>
+          <div class="pj-shared-poster"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
+          <div class="pj-bigword right">SHARED VISION</div>
+          <p class="pj-shared-copy">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
+        </div>
+
+        <!-- single cursor-following pill (always solid — never fades) + full-stage click target.
+             Both point at the active venture; JS swaps the href as the sequence advances. -->
+        <a class="pjv-hit" target="_blank" rel="noopener" aria-label="Explore venture" tabindex="-1"></a>
+        <a class="pjv-pill pj-explore" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">Explore Venture</a>
 
         <div class="pjv-scroll">
           scroll to explore
@@ -1956,21 +2040,25 @@
       </div>
     </section>
 
-    <!-- Shared vision (Figma 72:705) -->
-    <section class="pj-sec pj-shared" data-header="light">
-      <span class="pj-eyebrow pj-fade"><i class="dot"></i><span>Shared vision</span></span>
-      <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
-      <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
-      <div class="pj-bigword right pj-fade">SHARED VISION</div>
-      <p class="pj-shared-copy pj-fade">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
+    <!-- Shared vision (Figma 72:705) — pinned: content holds at its positions and fades in on the
+         white the venture square leaves behind (it does NOT scroll up into view) -->
+    <section class="pj-sec pj-shared" data-header="dark">
+      <div class="pj-shared-stage">
+        <span class="pj-eyebrow pj-fade"><i class="dot"></i><span>Shared vision</span></span>
+        <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
+        <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
+        <div class="pj-bigword right pj-fade">SHARED VISION</div>
+        <p class="pj-shared-copy pj-fade">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
+      </div>
     </section>
 
-    <!-- CTA / Future Ventures (Figma 78:1221) -->
+    <!-- CTA / Future Ventures (Figma 78:1221 → 84:1285 → 84:1263) — pinned reveal → text leaves → pill -->
     <section class="pj-sec pj-cta" data-header="light">
-      <div class="pj-cta-lightbox pj-fade"><img src="images/projects/cta-lightbox.webp" alt="" decoding="async" /></div>
-      <span class="pj-cta-brk l pj-anim"></span>
-      <h2 class="pj-cta-word pj-fade">FUTURE VENTURES</h2>
-      <span class="pj-cta-brk r pj-anim"></span>
+      <div class="pj-cta-stage">
+        <a class="pj-cta-card" href="mailto:alex@foster.com" aria-label="Contact me"><img src="images/projects/cta-vanquish.webp" alt="" decoding="async" /></a>
+        <span class="pj-cta-label" aria-hidden="true">Contact me</span>
+        <h2 class="pj-cta-word">FUTURE VENTURES</h2>
+      </div>
     </section>
 
     <!--PJ-SECTIONS-->
@@ -2029,6 +2117,11 @@
     </footer>
 
   <script>
+    /* On refresh, always start at the hero (don't restore the previous scroll position).
+       Skip when a hash is present so in-page/debug anchors still work. */
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    if (!location.hash) { window.scrollTo(0, 0); addEventListener("load", () => window.scrollTo(0, 0)); }
+
     /* ---------- Menu open/close (Osmo-style staggered reveal) ---------- */
     (() => {
       const body = document.body;
@@ -2197,6 +2290,7 @@
         }
         ticking = false;
       };
+      window.__syncHeader = update;   // let the ventures scroll sequence flip the header in sync
       addEventListener("scroll", () => {
         if (!ticking) { ticking = true; requestAnimationFrame(update); }
       }, { passive: true });
@@ -2216,7 +2310,8 @@
     /* ---------- Projects: entrance reveals + light parallax ---------- */
     (() => {
       const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const anims = [...document.querySelectorAll(".pj-anim, .pj-fade")];
+      // .pj-shared is handled by its own pinned scroll reveal below — keep it out of the observer
+      const anims = [...document.querySelectorAll(".pj-anim, .pj-fade")].filter((el) => !el.closest(".pj-shared"));
       if (reduce) { anims.forEach((el) => el.classList.add("in")); }
       else {
         const io = new IntersectionObserver((entries) => {
@@ -2235,41 +2330,81 @@
   </script>
 
   <script>
-    /* ---------- Projects: scroll-driven parallax (Shared vision sweep, CTA) ---------- */
+    /* ---------- CTA / Future Ventures: pinned scroll sequence ----------
+       reveal  (p 0   → 0.18): banner wipes in top→down; FUTURE VENTURES fades in at the bottom
+       hold    (p 0.18→ 0.30): the hero state holds (Figma 78:1221)
+       leave   (p 0.30→ 0.62): the word rises to the centre + fades out behind the image, while the
+                               image moves to centre and shrinks 400×530 → 280×370 (Figma 84:1285)
+       morph   (p 0.62→ 0.92): the image shrinks/rounds 280×370 → 240×72 pill, photo dims+blurs, a
+                               translucent fill + "Contact me" label appear (Figma 84:1263) */
     (() => {
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      const shared = document.querySelector(".pj-shared");
-      const sL = shared && shared.querySelector(".pj-bigword.left");
-      const sR = shared && shared.querySelector(".pj-bigword.right");
-      const cta = document.querySelector(".pj-cta");
-      const box = cta && cta.querySelector(".pj-cta-lightbox");
-      const word = cta && cta.querySelector(".pj-cta-word");
-      // signed progress of a section's centre vs the viewport centre: -1 below → 0 centred → 1 above
-      const prog = (el) => {
-        const r = el.getBoundingClientRect(), vh = innerHeight;
-        return Math.max(-1, Math.min(1, (vh / 2 - (r.top + r.height / 2)) / (vh / 2 + r.height / 2)));
+      const sec  = document.querySelector(".pj-cta");
+      if (!sec) return;
+      const card = sec.querySelector(".pj-cta-card");
+      const img  = card.querySelector("img");
+      const word = sec.querySelector(".pj-cta-word");
+      const label= sec.querySelector(".pj-cta-label");
+
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const map   = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+      const lerp  = (a, b, t) => a + (b - a) * t;
+      const eInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const eOut   = (t) => 1 - (1 - t) * (1 - t);
+      const mobile = () => innerWidth <= 768;
+      const els = [card, img, word, label];
+      const clearInline = () => els.forEach((e) => e.removeAttribute("style"));
+
+      const apply = (p) => {
+        const H = innerHeight;
+        const reveal = eOut(map(p, 0.0, 0.18));        // top→down wipe
+        const wIn    = map(p, 0.04, 0.20);             // word fades in
+        const shift  = eInOut(map(p, 0.30, 0.62));     // 400×530@40% → 280×370@50%
+        const wRise  = eOut(map(p, 0.30, 0.62));       // word rises to centre
+        const wFade  = map(p, 0.34, 0.58);             // word fades to 0 (behind the image)
+        const ms     = eInOut(map(p, 0.62, 0.92));     // image → "Contact me" pill (one element)
+
+        // card: top→down clip reveal, then move to centre + shrink, then morph to the pill
+        const cw = lerp(lerp(400, 280, shift), 240, ms);
+        const ch = lerp(lerp(530, 370, shift), 72, ms);
+        const cardY = lerp(-0.10 * H, 0, shift);       // centre 40% → 50%
+        card.style.width  = cw.toFixed(1) + "px";
+        card.style.height = ch.toFixed(1) + "px";
+        card.style.transform = `translate(-50%, -50%) translateY(${cardY.toFixed(1)}px)`;
+        card.style.clipPath = `inset(0 0 ${(100 * (1 - reveal)).toFixed(2)}% 0)`;
+        card.style.borderRadius = lerp(10, 36, ms).toFixed(1) + "px";
+        card.style.background = `rgba(255,255,255,${(0.10 * ms).toFixed(3)})`;
+        card.style.boxShadow = ms > 0
+          ? `0 ${lerp(0, 8, ms).toFixed(1)}px ${lerp(0, 40, ms).toFixed(1)}px rgba(0,0,0,${(0.20 * ms).toFixed(3)})`
+          : "none";
+        card.style.pointerEvents = ms > 0.5 ? "auto" : "none";
+        img.style.opacity = lerp(1, 0.30, ms).toFixed(3);
+        img.style.filter  = `blur(${lerp(0, 2, ms).toFixed(2)}px)`;
+
+        // word: rises from 80.6% to the centre, fading out as it slips behind the image
+        const top0 = 0.806 * H, topEnd = 0.50 * H - word.offsetHeight / 2;
+        word.style.transform = `translateX(-50%) translateY(${lerp(0, topEnd - top0, wRise).toFixed(1)}px)`;
+        word.style.opacity = (clamp(wIn, 0, 1) * (1 - wFade)).toFixed(3);
+
+        // pill label
+        label.style.opacity = ms.toFixed(3);
       };
-      let ticking = false;
-      const frame = () => {
-        if (innerWidth <= 768) {                 // mobile: static stacked layout, no sweep/parallax
-          [sL, sR, box, word].forEach((e) => e && e.style.removeProperty("transform"));
-          ticking = false; return;
-        }
-        if (shared) {
-          const p = prog(shared), amt = 160;
-          if (sL) sL.style.transform = `translateX(${-amt * p}px)`;
-          if (sR) sR.style.transform = `translateX(${amt * p}px)`;
-        }
-        if (cta) {
-          const p = prog(cta);
-          if (box) box.style.transform = `translate(-50%, -50%) scale(${1 + 0.05 * (1 - Math.abs(p))})`;
-          if (word) word.style.transform = `translateX(-50%) translateY(${-22 * p}px)`;
-        }
-        ticking = false;
+
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      const tick = () => {
+        raf = 0; if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.0004) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur); raf = requestAnimationFrame(tick);
       };
-      addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
-      addEventListener("resize", frame);
-      frame();
+      const onScroll = () => {
+        if (mobile()) { clearInline(); return; }       // mobile: static stacked layout
+        target = clamp(-sec.getBoundingClientRect().top / (sec.offsetHeight - innerHeight), 0, 1);
+        if (!raf) raf = requestAnimationFrame(tick);
+      };
+      addEventListener("scroll", onScroll, { passive: true });
+      addEventListener("resize", () => { cur = null; onScroll(); });
+      onScroll();
     })();
   </script>
 
@@ -2287,10 +2422,21 @@
       const square  = sec.querySelector(".pjv-square");
       const sqFrame = sec.querySelector(".sq-frame");
       const sqFill  = sec.querySelector(".sq-fill");
+      const hit     = sec.querySelector(".pjv-hit");
+      const pill    = sec.querySelector(".pjv-pill");
+      const white   = sec.querySelector(".pjv-white");
+      const svWrap  = sec.querySelector(".pjv-shared");
+      const svEls   = [...(svWrap?.children || [])];                              // Shared-vision reveal pieces
+      const svPill  = svWrap?.querySelector(".pj-eyebrow");
+      const svLeft  = svWrap?.querySelector(".pj-bigword.left");
+      const svRight = svWrap?.querySelector(".pj-bigword.right");
+      const svPoster= svWrap?.querySelector(".pj-shared-poster");
+      const svCopy  = svWrap?.querySelector(".pj-shared-copy");
+      const VEN_URL = { vertus: "https://www.vertus.ai/", alpha: "https://www.alphaledger.ai/", vanq: "https://www.vanquish.so/" };
       const slides  = { vertus: sec.querySelector(".s-vertus"), alpha: sec.querySelector(".s-alpha"), vanq: sec.querySelector(".s-vanq") };
       const logoEl   = (n) => slides[n].querySelector(".pjv-logo");
-      const textInEl = (n) => slides[n].querySelector(".pjv-text-in");
-      const pillEl   = (n) => slides[n].querySelector(".pjv-explore");
+      const headEl   = (n) => slides[n].querySelector(".pj-h3").parentElement;   // heading mask line
+      const descEl   = (n) => slides[n].querySelector(".pj-desc").parentElement; // description mask line
 
       const clamp  = (v, a, b) => Math.max(a, Math.min(b, v));
       const map    = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
@@ -2309,29 +2455,105 @@
       const visOf = (s, inA, inB, outA, outB) =>
         clamp(map(s, inA, inB), 0, 1) * (outB != null ? (1 - map(s, outA, outB)) : 1);
 
-      const animated = () => [fill, intro, scrollT, square,
+      const animated = () => [fill, intro, scrollT, square, pill, white, ...svEls,
         slides.vertus, slides.alpha, slides.vanq,
         logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
-        textInEl("vertus"), textInEl("alpha"), textInEl("vanq"),
-        pillEl("vertus"), pillEl("alpha"), pillEl("vanq")];
+        headEl("vertus"), headEl("alpha"), headEl("vanq"),
+        descEl("vertus"), descEl("alpha"), descEl("vanq")];
       const clearInline = () => animated().forEach((e) => e.removeAttribute("style"));
 
-      const setSlide = (name, logoOp, topPct, textTy, pillOp) => {
+      const setSlide = (name, logoOp, topPct, headTy, descTy) => {
         const sl = slides[name];
         sl.style.opacity = "1";
-        sl.style.pointerEvents = (logoOp > 0.5 || pillOp > 0.5) ? "auto" : "none";
+        sl.style.pointerEvents = logoOp > 0.5 ? "auto" : "none";
         const lg = logoEl(name);
         lg.style.opacity = logoOp.toFixed(3);
         lg.style.top = topPct.toFixed(2) + "%";
-        textInEl(name).style.setProperty("--ty", textTy);
-        pillEl(name).style.opacity = pillOp.toFixed(3);
+        headEl(name).style.setProperty("--ty", headTy);   // heading rises first
+        descEl(name).style.setProperty("--ty", descTy);   // description follows
       };
+
+      // The single Explore pill stays off-screen until the cursor enters the stage AND a venture is
+      // up; the FIRST time that happens it flies in once from the top-right corner to the cursor.
+      // After that it just rides the cursor and its href swaps per venture (no fade, no re-fly).
+      // It's always fully solid — visibility is purely position (parked off-screen = hidden).
+      let mx = innerWidth / 2, my = innerHeight / 2, active = null, moved = false, flownIn = false, pillVisible = false;
+      let cur = null, target = 0, raf = 0;            // smoothed scroll progress (declared early so
+                                                      // the pointermove handler can safely read cur)
+      const toCursor = () => { pill.style.transform = `translate(${mx.toFixed(1)}px, ${my.toFixed(1)}px) translate(-50%, -50%)`; };
+      const parkPill = () => { pill.style.transform = `translate(${(innerWidth + 160)}px, -160px) translate(-50%, -50%)`; };
+      const syncPill = () => { pillVisible ? toCursor() : parkPill(); };
+
+      // Shared-vision reveal on the white canvas (Figma 72:705 → 84:1380 → 84:1390).
+      //   Phase A (q 0 → ~0.58): the eyebrow fades in; the two words slide in from the far left/right
+      //     edges out of a blur ("emerging from shadow") to their spread positions; the poster fades
+      //     in centred and starts growing; the paragraph fades in at the bottom.
+      //   Phase B (q ~0.56 → 1): the words converge toward the centre until they sit side by side,
+      //     while the poster keeps growing to its large size behind them.
+      const svReveal = (q) => {
+        if (!svWrap) return;
+        const W = innerWidth, H = innerHeight;
+
+        // The whole cluster — the two words, the card, and the paragraph beneath the card — starts
+        // LOW (centred at ~78.6% of the height, matching Figma 72:705) and rises to the centre as it
+        // reveals, carrying the paragraph (which sits under the card) up with it. Only the eyebrow
+        // stays pinned at the top throughout (Figma 72:705 → 84:1380 → 84:1390 all keep it at y=100).
+        const rise = lerp(0.286 * H, 0, eOut(map(q, 0.05, 0.60)));
+
+        // eyebrow pill — first in, small upward settle (stays at the top)
+        const eP = clamp(map(q, 0.0, 0.14), 0, 1);
+        svPill.style.opacity = eP.toFixed(3);
+        svPill.style.transform = `translateX(-50%) translateY(${lerp(18, 0, eOut(eP)).toFixed(1)}px)`;
+
+        // poster — grows small → large while riding the cluster rise up from the bottom
+        const grow = eInOut(map(q, 0.05, 1.0));
+        svPoster.style.opacity = clamp(map(q, 0.03, 0.20), 0, 1).toFixed(3);
+        svPoster.style.width  = lerp(172, 432, grow).toFixed(1) + "px";
+        svPoster.style.height = lerp(186, 468, grow).toFixed(1) + "px";
+        svPoster.style.transform = `translate(-50%, -50%) translateY(${rise.toFixed(1)}px)`;
+
+        // words — X is each word's LEFT edge measured from the viewport centre
+        const LW = svLeft.offsetWidth, RW = svRight.offsetWidth, peek = 230, inner = 196, gap = 26;
+        const startL = -(W / 2) - LW + peek, startR = (W / 2) - peek;   // only an inner sliver peeks in
+        const spreadL = -inner - LW,         spreadR = inner;           // spread apart (poster between)
+        const mergeL  = -(LW + gap / 2),     mergeR  = gap / 2;         // meeting at the centre
+        const a = eOut(map(q, 0.08, 0.58));        // slide-in / reveal
+        const b = eInOut(map(q, 0.56, 1.0));       // converge
+        const xL = lerp(lerp(startL, spreadL, a), mergeL, b);
+        const xR = lerp(lerp(startR, spreadR, a), mergeR, b);
+
+        // shadow reveal — blur + opacity ramp tied to the slide-in
+        const rev = map(q, 0.08, 0.5), op = clamp(rev, 0, 1), blur = lerp(16, 0, eOut(rev));
+        svLeft.style.opacity = svRight.style.opacity = op.toFixed(3);
+        svLeft.style.filter  = svRight.style.filter  = `blur(${blur.toFixed(1)}px)`;
+        svLeft.style.transform  = `translate(${xL.toFixed(1)}px, -50%) translateY(${rise.toFixed(1)}px)`;
+        svRight.style.transform = `translate(${xR.toFixed(1)}px, -50%) translateY(${rise.toFixed(1)}px)`;
+
+        // paragraph — sits under the card and is carried up by the same cluster rise, fading in as
+        // it travels into place (Figma 84:1380 → 84:1390 hold it at the bottom, ~87%).
+        if (svCopy) {
+          const c = clamp(map(q, 0.32, 0.72), 0, 1);
+          svCopy.style.opacity = c.toFixed(3);
+          svCopy.style.transform = `translateX(-50%) translateY(${rise.toFixed(1)}px)`;
+        }
+      };
+      stage.addEventListener("pointermove", (e) => {
+        if (mobile()) return;
+        const r = stage.getBoundingClientRect();
+        mx = e.clientX - r.left; my = e.clientY - r.top;
+        if (!moved) { moved = true; if (cur != null) apply(cur); }   // first entry → fly in
+        syncPill();
+      }, { passive: true });
 
       function apply(s) {
         // black fills up from the bottom (Figma 78:906 — black bottom panel)
         const bgP = eInOut(map(s, 0.6, 1.25));
         fill.style.height = (bgP * 100).toFixed(2) + "%";
-        sec.setAttribute("data-header", bgP > 0.5 ? "light" : "dark");
+        // The header flips only once the black has actually risen to the header band at the TOP
+        // (not at the halfway point) — otherwise the light header sits over a still-white top and
+        // briefly goes invisible. (1-bgP)*H is the fill's top edge measured from the viewport top.
+        sec.setAttribute("data-header", (1 - bgP) * innerHeight <= 90 ? "light" : "dark");
+        if (window.__syncHeader) window.__syncHeader();
 
         // intro heading + scroll cue leave
         intro.style.opacity = (1 - map(s, 0.45, 0.95)).toFixed(3);
@@ -2345,33 +2567,91 @@
         const vLogo = 1 - map(s, 2.05, 2.18);
         const aLogo = clamp(map(s, 2.05, 2.18), 0, 1) * (1 - map(s, 2.88, 3.00));
         const nLogo = clamp(map(s, 2.88, 3.00), 0, 1);
-        // Text rises from the bottom (no fade); the pill appears together with it.
-        setSlide("vertus", vLogo, riseY,
-          revealTy(s, 0.95, 1.30, 2.00, 2.18), visOf(s, 0.98, 1.28, 2.00, 2.18));
-        setSlide("alpha",  aLogo, 18,
-          revealTy(s, 2.08, 2.42, 2.78, 2.95), visOf(s, 2.10, 2.40, 2.78, 2.93));
-        setSlide("vanq",   nLogo, 18,
-          revealTy(s, 2.82, 3.12, null, null), visOf(s, 2.85, 3.08, null, null));
+        // Text rises from the bottom (no fade); heading first, description lagged behind it (D),
+        // so the two lines reveal one after the other.
+        const D = 0.12, lag = (a) => a == null ? null : a + D;
+        const headTy = (inA, inB, outA, outB) => revealTy(s, inA, inB, outA, outB);
+        const descTy = (inA, inB, outA, outB) => revealTy(s, lag(inA), lag(inB), lag(outA), lag(outB));
+        setSlide("vertus", vLogo, riseY, headTy(0.95, 1.30, 2.00, 2.18), descTy(0.95, 1.30, 2.00, 2.18));
+        setSlide("alpha",  aLogo, 18,   headTy(2.08, 2.42, 2.78, 2.95), descTy(2.08, 2.42, 2.78, 2.95));
+        setSlide("vanq",   nLogo, 18,   headTy(2.82, 3.12, null, null), descTy(2.82, 3.12, null, null));
 
-        // travelling square — corners first, then the outline draws along the line, then a solid fill
-        // (same sequence as #ecosystem), rotating on scroll and ending bottom-centre (Figma 78:923)
-        square.style.opacity = clamp(map(s, 1.0, 1.12), 0, 1).toFixed(3);
-        sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.2, 1.9)))).toFixed(2);
-        sqFill.style.fillOpacity = eInOut(map(s, 2.5, 3.0)).toFixed(3);
-        const rot = lerp(0, 180, eInOut(map(s, 1.2, 3.0)));
+        // square expands to fill the screen white (leg 3, see below). The pill + click target switch
+        // off once that starts so nothing rides on top of the white as the next section takes over.
+        // Vanquish is fully revealed by ~3.12 and holds briefly before the white starts at 3.25.
+        const expandP = clamp(map(s, 3.25, 3.70), 0, 1);
+        // Shared vision then plays ON the white, immediately after it fills (slide-in → converge)
+        svReveal(map(s, 3.80, 5.05));
+
+        // nearest venture (by how open its window is) — drives the pill / click-target href
+        const pVertus = visOf(s, 0.98, 1.28, 2.00, 2.18);
+        const pAlpha  = visOf(s, 2.10, 2.40, 2.78, 2.93);
+        const pVanq   = visOf(s, 2.85, 3.08, null, null);
+        let best = "vertus", bestV = pVertus;
+        if (pAlpha > bestV) { best = "alpha"; bestV = pAlpha; }
+        if (pVanq  > bestV) { best = "vanq";  bestV = pVanq; }
+
+        // The pill is live across the WHOLE venture span (so it never blinks off between ventures)
+        // AND stays through the white fill — it must not fly away. It simply leaves with the pinned
+        // section when that scrolls off. It appears exactly once: flownIn latches on the first cursor
+        // entry while the ventures are up, after which it just rides the cursor and swaps href.
+        const inVentures = s >= 1.05;
+        active = inVentures ? best : null;
+        if (inVentures && moved && !flownIn) flownIn = true;
+        pillVisible = flownIn && inVentures;
+        syncPill();                                  // keeps it riding the cursor (no fly-away)
+        // as the square starts expanding, the pill fades out in place (opacity) — it does not move
+        pill.style.opacity = (1 - clamp(map(s, 3.25, 3.55), 0, 1)).toFixed(3);
+        if (active) pill.href = VEN_URL[active];
+        if (active && expandP < 0.3) { hit.href = VEN_URL[active]; hit.style.pointerEvents = "auto"; }
+        else { hit.removeAttribute("href"); hit.style.pointerEvents = "none"; }
+
+        // travelling square (ecosystem-style SVG outline). Three legs:
+        //   0) FLY-IN — drops in from above the screen and settles at the top-right (like #ecosystem);
+        //   1) top-right → bottom-right, straight DOWN the right edge — no rotation;
+        //   2) bottom-right → bottom-centre — now it fills white AND rotates (Figma 78:923).
+        square.style.opacity = clamp(map(s, 1.0, 1.08), 0, 1).toFixed(3);
+        sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.25, 1.95)))).toFixed(2);
+        sqFill.style.fillOpacity = eInOut(map(s, 2.3, 3.0)).toFixed(3);
         const W = innerWidth, H = innerHeight, g = Math.max(24, W / 2 - 640) + 50;
-        const P0 = [W - g, H * 0.13], P1 = [g, H * 0.50], P2 = [W * 0.50, H * 0.86];
-        let sx, sy;
-        if (s < 2.2) { const t = eInOut(map(s, 1.2, 2.2)); sx = lerp(P0[0], P1[0], t); sy = lerp(P0[1], P1[1], t); }
-        else { const t = eInOut(map(s, 2.2, 3.0)); sx = lerp(P1[0], P2[0], t); sy = lerp(P1[1], P2[1], t); }
+        const rx = W - g;                                   // right-edge x (content frame edge)
+        const PIN = [rx, -120];                             // off-screen above the right edge (fly-in origin)
+        const P0  = [rx, H * 0.13];                         // top-right (settled)
+        const P1  = [rx, H * 0.86];                         // bottom-right
+        const P2  = [W * 0.50, H * 0.86];                   // bottom-centre
+        let sx, sy, rot;
+        if (s < 1.25) {                                     // leg 0 — fly in from above, decelerate in
+          const t = eOut(map(s, 1.0, 1.25));
+          sx = lerp(PIN[0], P0[0], t); sy = lerp(PIN[1], P0[1], t); rot = 0;
+        } else if (s < 2.2) {                               // leg 1 — down the right edge, no spin
+          const t = eInOut(map(s, 1.25, 2.2));
+          sx = lerp(P0[0], P1[0], t); sy = lerp(P0[1], P1[1], t); rot = 0;
+        } else {                                            // leg 2 — to centre, fills + rotates
+          const t = eInOut(map(s, 2.2, 3.0));
+          sx = lerp(P1[0], P2[0], t); sy = lerp(P1[1], P2[1], t); rot = lerp(0, 180, t);
+        }
         square.style.transform = `translate(${(sx - 31).toFixed(1)}px, ${(sy - 31).toFixed(1)}px) rotate(${rot.toFixed(1)}deg)`;
+
+        // leg 3 — the FILLED square itself expands to cover the screen. The white panel starts exactly
+        // on top of the 62px square at the bottom-centre (so it reads as that square growing, not a new
+        // one) and then animates its four insets to 0 on one eased progress, so every edge reaches the
+        // viewport together (far top edge fills faster, near bottom edge slower). Header flips to dark.
+        if (expandP > 0) {
+          const cx = W * 0.5, cy = H * 0.86, half = 31, ep = eInOut(expandP);
+          white.style.left   = lerp(cx - half, 0, ep).toFixed(1) + "px";
+          white.style.right  = lerp(W - cx - half, 0, ep).toFixed(1) + "px";
+          white.style.top    = lerp(cy - half, 0, ep).toFixed(1) + "px";
+          white.style.bottom = lerp(H - cy - half, 0, ep).toFixed(1) + "px";
+        } else {                                     // before the fill: collapse to a point (hidden)
+          white.style.left = "50%"; white.style.right = "50%"; white.style.top = "86%"; white.style.bottom = "14%";
+        }
+        if (expandP > 0.5) { sec.setAttribute("data-header", "dark"); if (window.__syncHeader) window.__syncHeader(); }
       }
 
       // debug: open projects.html#s=2.0 to freeze the sequence at a given progress (for screenshots)
       const dbg = location.hash.match(/s=([\d.]+)/);
       if (dbg) { apply(parseFloat(dbg[1])); return; }
 
-      let cur = null, target = 0, raf = 0;
       const SMOOTH = 0.2;
       const tick = () => {
         raf = 0; if (cur === null) cur = target;

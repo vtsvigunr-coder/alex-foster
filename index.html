@@ -4,6 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Alex Foster</title>
+<script>
+  /* If the intro already played this session, mark the document so CSS hides the
+     preloader and reveals the site synchronously (keeps the incoming page-transition
+     snapshot showing the hero, not a flash of preloader). */
+  try { if (sessionStorage.getItem('introPlayed')) document.documentElement.classList.add('intro-done'); } catch (e) {}
+</script>
 <link rel="icon" type="image/webp" href="images/main page/alex.webp" />
 <style>
   /* ---------- Satoshi ---------- */
@@ -34,6 +40,19 @@
     text-rendering: optimizeLegibility;
   }
   body.preloading { overflow: hidden; }
+
+  /* ---------- Cross-page transition: new page slides up over the old ---------- */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: none; }                 /* old stays put underneath */
+  ::view-transition-new(root) { animation: vt-slide-up .5s var(--ease) both; }
+  @keyframes vt-slide-up { from { transform: translateY(100%); } to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-new(root) { animation: none; }
+  }
+
+  /* Intro already seen this session → don't render the preloader at all */
+  html.intro-done .preloader { opacity: 0; visibility: hidden; pointer-events: none; }
+  html.intro-done body.preloading { overflow: visible; }
 
   /* ============ Site (hero + menu) ============ */
   .site { position: relative; background: #000; color: #fff; }
@@ -1581,8 +1600,8 @@
           <div class="m-card">
             <span class="m-label fade">Build</span>
             <nav class="m-nav">
-              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Home</span></span></a>
-              <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Projects</span></span></a>
+              <a class="m-link" href="index.html"><span class="rv-mask"><span class="rv">Home</span></span></a>
+              <a class="m-link" href="projects.html"><span class="rv-mask"><span class="rv">Projects</span></span></a>
               <a class="m-link" href="#"><span class="rv-mask"><span class="rv">Blog</span></span></a>
               <a class="m-link" href="#">
                 <span class="rv-mask"><span class="rv">AWF chapters</span></span>
@@ -2228,6 +2247,12 @@
 
     /* ---------- timeline ---------- */
     async function run() {
+      if (document.documentElement.classList.contains('intro-done')) {
+        // already revealed by CSS this session — just settle state and stop
+        preloader.classList.add("done");
+        document.body.classList.remove("preloading");
+        return;
+      }
       await preload();
 
       // 1 — "Driven by ambition," (white screen, black)
@@ -2263,6 +2288,7 @@
       // 5 — reveal the site
       preloader.classList.add("done");
       document.body.classList.remove("preloading");
+      try { sessionStorage.setItem('introPlayed', '1'); } catch (e) {}
     }
 
     window.addEventListener("load", run);
