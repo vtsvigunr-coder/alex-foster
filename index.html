@@ -41,13 +41,36 @@
   }
   body.preloading { overflow: hidden; }
 
-  /* ---------- Cross-page transition: new page slides up over the old ---------- */
+  /* ---------- Cross-page transition: the new page rises as a card sheet ---------- */
   @view-transition { navigation: auto; }
-  ::view-transition-old(root) { animation: none; }                 /* old stays put underneath */
-  ::view-transition-new(root) { animation: vt-slide-up .5s var(--ease) both; }
-  @keyframes vt-slide-up { from { transform: translateY(100%); } to { transform: none; } }
+
+  /* the floating header is shared across pages → it stays put instead of jumping/sliding */
+  .panel { view-transition-name: site-header; }
+
+  /* old page eases back & dims, like it sits behind the sheet */
+  ::view-transition-old(root) {
+    transform-origin: 50% 0;
+    animation: vt-recede .5s var(--ease) both;
+  }
+  @keyframes vt-recede {
+    from { transform: none; filter: brightness(1); }
+    to   { transform: scale(.94) translateY(14px); filter: brightness(.55); }
+  }
+
+  /* new page slides up from the bottom as a rounded card on top */
+  ::view-transition-new(root) {
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -24px 60px rgba(0,0,0,.45);
+    animation: vt-card-rise .5s var(--ease) both;
+  }
+  @keyframes vt-card-rise {
+    from { transform: translateY(100%); }
+    to   { transform: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(root) { animation: none; }
+    ::view-transition-old(root), ::view-transition-new(root),
+    ::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
   }
 
   /* Intro already seen this session → don't render the preloader at all */
@@ -135,6 +158,7 @@
   .panel-bar .brand {
     position: absolute; left: 50%; transform: translateX(-50%);
     font-size: 20px; font-weight: 500; letter-spacing: -0.02em; white-space: nowrap;
+    color: inherit; text-decoration: none;
   }
   .nav-cta {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
@@ -1589,7 +1613,7 @@
           </span>
           <span>Menu</span>
         </button>
-        <div class="brand">Alex Foster</div>
+        <a class="brand" href="index.html">Alex Foster</a>
         <a class="nav-cta" href="mailto:alex@foster.com">Let's Talk</a>
       </header>
 

@@ -39,13 +39,36 @@
   }
   body.preloading { overflow: hidden; }
 
-  /* ---------- Cross-page transition: new page slides up over the old ---------- */
+  /* ---------- Cross-page transition: the new page rises as a card sheet ---------- */
   @view-transition { navigation: auto; }
-  ::view-transition-old(root) { animation: none; }                 /* old stays put underneath */
-  ::view-transition-new(root) { animation: vt-slide-up .5s var(--ease) both; }
-  @keyframes vt-slide-up { from { transform: translateY(100%); } to { transform: none; } }
+
+  /* the floating header is shared across pages → it stays put instead of jumping/sliding */
+  .panel { view-transition-name: site-header; }
+
+  /* old page eases back & dims, like it sits behind the sheet */
+  ::view-transition-old(root) {
+    transform-origin: 50% 0;
+    animation: vt-recede .5s var(--ease) both;
+  }
+  @keyframes vt-recede {
+    from { transform: none; filter: brightness(1); }
+    to   { transform: scale(.94) translateY(14px); filter: brightness(.55); }
+  }
+
+  /* new page slides up from the bottom as a rounded card on top */
+  ::view-transition-new(root) {
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -24px 60px rgba(0,0,0,.45);
+    animation: vt-card-rise .5s var(--ease) both;
+  }
+  @keyframes vt-card-rise {
+    from { transform: translateY(100%); }
+    to   { transform: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(root) { animation: none; }
+    ::view-transition-old(root), ::view-transition-new(root),
+    ::view-transition-old(site-header), ::view-transition-new(site-header) { animation: none; }
   }
 
   /* ============ Site (hero + menu) ============ */
@@ -2032,11 +2055,6 @@
         <a class="pjv-hit" target="_blank" rel="noopener" aria-label="Explore venture" tabindex="-1"></a>
         <a class="pjv-pill pj-explore" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">Explore Venture</a>
 
-        <div class="pjv-scroll">
-          scroll to explore
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-
       </div>
     </section>
 
@@ -2418,7 +2436,6 @@
       const stage   = sec.querySelector(".pjv-stage");
       const fill    = sec.querySelector(".pjv-fill");
       const intro   = sec.querySelector(".pjv-intro");
-      const scrollT = sec.querySelector(".pjv-scroll");
       const square  = sec.querySelector(".pjv-square");
       const sqFrame = sec.querySelector(".sq-frame");
       const sqFill  = sec.querySelector(".sq-fill");
@@ -2455,7 +2472,7 @@
       const visOf = (s, inA, inB, outA, outB) =>
         clamp(map(s, inA, inB), 0, 1) * (outB != null ? (1 - map(s, outA, outB)) : 1);
 
-      const animated = () => [fill, intro, scrollT, square, pill, white, ...svEls,
+      const animated = () => [fill, intro, square, pill, white, ...svEls,
         slides.vertus, slides.alpha, slides.vanq,
         logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
         headEl("vertus"), headEl("alpha"), headEl("vanq"),
@@ -2558,7 +2575,6 @@
         // intro heading + scroll cue leave
         intro.style.opacity = (1 - map(s, 0.45, 0.95)).toFixed(3);
         intro.style.transform = `translateX(-50%) translateY(${lerp(0, -30, map(s, 0.45, 1.0)).toFixed(1)}px)`;
-        scrollT.style.opacity = (1 - map(s, 0.3, 0.7)).toFixed(3);
 
         // logo rises from centre (42%) to up (18%) between 1.3 and 1.9 (Vertus only; others sit up)
         const riseY = lerp(42, 18, eInOut(map(s, 1.3, 1.9)));
