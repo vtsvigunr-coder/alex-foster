@@ -1794,16 +1794,21 @@
 
     .pjv-cta-line { display: block; }
 
-    /* ---- Shared vision ON the white square (Figma 268:1603) — stacked, white bg, black text ---- */
+    /* ---- Shared vision ON the white square (Figma 268:1603) — stacked, white bg, black text.
+       Per-element spacing matches the Figma frame: 80 top → eyebrow, 60 → poster, 40 → heading,
+       0 between the two heading lines (line-height 40), 20 → paragraph. ---- */
     .pjv-shared { display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      gap: 24px; padding: 80px 20px 40px; overflow-y: auto; }
-    .pjv-shared > * { position: static; left: auto; right: auto; top: auto;
-      transform: none; width: auto; height: auto; }
-    .pjv-shared .pj-eyebrow { order: 0; color: #000; }
-    .pjv-shared .pj-shared-poster { order: 1; width: min(353px, 92vw); height: auto; aspect-ratio: 353 / 382; border-radius: 12px; }
+      gap: 0; padding: 80px 20px 40px; overflow-y: auto; }
+    /* force every piece into the flex stack — the base reveal rules position the eyebrow and
+       paragraph absolutely, so !important is needed to pull them back into normal flow on mobile */
+    .pjv-shared > * { position: static !important; left: auto !important; right: auto !important;
+      top: auto !important; transform: none !important; width: auto; height: auto; }
+    .pjv-shared .pj-eyebrow { order: 0; color: #000; margin-bottom: 60px; }
+    .pjv-shared .pj-shared-poster { order: 1; width: min(353px, 92vw); height: auto; aspect-ratio: 353 / 382; border-radius: 8px; margin-bottom: 40px; }
     .pjv-shared .pj-bigword.left  { order: 2; }
-    .pjv-shared .pj-bigword.right { order: 3; }
-    .pjv-shared .pj-shared-copy { order: 4; position: static; top: auto; width: min(305px, 86vw); margin: 0 auto; }
+    .pjv-shared .pj-bigword.right { order: 3; margin-bottom: 20px; }
+    .pjv-shared .pj-shared-copy { order: 4; position: static; top: auto; width: min(305px, 86vw); margin: 0 auto;
+      font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
     .pjv-shared .pj-bigword { font-size: 36px; line-height: 40px; letter-spacing: -0.02em; text-align: center; }
   }
 
