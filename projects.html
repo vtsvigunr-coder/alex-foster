@@ -1505,7 +1505,7 @@
   .ft-prog-fg {
     width: 0; align-items: flex-start; overflow: hidden; white-space: nowrap;
     background: linear-gradient(to left, rgba(255,255,255,0.20), rgba(255,255,255,0));
-    transition: width .45s var(--ease);
+    transition: width .2s var(--ease);
   }
   .ft-prog-t1 { font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px; color: #fff; }
   .ft-prog-t2 { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; color: #b2b2b2; text-transform: uppercase; }
@@ -2268,18 +2268,21 @@
       const fg = document.getElementById("ftProgFg");
       if (!footer || !prog || !bg || !fg) return;
 
-      // Five separate scroll gestures fill the pill (not continuous px). Each gesture advances
-      // exactly one step; you must pause (input goes quiet for IDLE_MS) before the next counts.
-      // When full, the pill holds for HOLD_MS, then the next page rises (native view transition).
-      const STEPS = 5;
-      const STEP_DELTA = 60;                // overscroll within one gesture needed to register a step
-      const IDLE_MS = 250;                  // input must go quiet this long before the next step can arm
-      const HOLD_MS = 2000;                 // hold the filled pill this long before the page rises
-      let step = 0, gestureDelta = 0, armed = true, navigating = false, prefetched = false, idleTimer = 0;
+      // Continuous fill: while the footer is locked at the bottom, keep scrolling and the pill
+      // grows smoothly toward THRESHOLD (≈5 scrolls) so you watch the progress. At 100% the
+      // screen darkens, then the next page rises (native view transition).
+      const THRESHOLD = 650;                // overscroll to fill the pill (≈5 scrolls; raise = slower)
+      const TOUCH_MULT = 0.8;               // swipe → fill sensitivity on mobile
+      const FADE_MS = 320;                  // screen darken before the next page slides in
+      let acc = 0, navigating = false, prefetched = false;
 
       const maxW = () => bg.getBoundingClientRect().width;
 
-      function render() { fg.style.width = (step / STEPS) * maxW() + "px"; }
+      function render() {
+        const p = Math.max(0, Math.min(1, acc / THRESHOLD));
+        fg.style.width = p * maxW() + "px";
+        if (p >= 1) finish();
+      }
 
       function atBottom() {                 // footer fully in view at the page end
         return footer.getBoundingClientRect().bottom <= window.innerHeight + 2;
@@ -2287,29 +2290,25 @@
 
       function go() { window.location.href = NEXT_PAGE_URL; }
 
-      function complete() {                 // hold the full pill, then rise to the next page
+      // full-screen darken layer used right before the page transition
+      const fade = document.createElement("div");
+      fade.style.cssText = "position:fixed;inset:0;background:#000;opacity:0;z-index:2147483647;" +
+        "pointer-events:none;transition:opacity " + FADE_MS + "ms var(--ease)";
+      document.body.appendChild(fade);
+
+      function finish() {                   // darken the screen, then rise to the next page
         if (navigating) return;
         navigating = true;
         fg.style.width = maxW() + "px";
-        setTimeout(go, HOLD_MS);
-      }
-
-      function bump(dir) {                  // dir +1 fills a step, -1 unfills one
-        step = Math.max(0, Math.min(STEPS, step + dir));
-        gestureDelta = 0; armed = false;    // a step counts once; re-arms after the input pauses
-        render();
-        if (step >= STEPS) complete();
+        fade.style.opacity = "1";
+        setTimeout(go, FADE_MS);
       }
 
       function feed(dy) {                   // dy>0 = scrolling down
         if (navigating) return;
         if (dy > 0 && !atBottom()) return;  // downward input only counts once the footer bottoms out
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => { armed = true; gestureDelta = 0; }, IDLE_MS);
-        if (!armed) return;
-        gestureDelta += dy;
-        if (gestureDelta >= STEP_DELTA) bump(+1);
-        else if (gestureDelta <= -STEP_DELTA) bump(-1);
+        acc = Math.max(0, Math.min(THRESHOLD, acc + dy));
+        render();
       }
 
       // prefetch the target the moment the footer scrolls into view
@@ -2333,14 +2332,14 @@
       let ty = 0;
       window.addEventListener("touchstart", (e) => { ty = e.touches[0].clientY; }, { passive: true });
       window.addEventListener("touchmove", (e) => {
-        const y = e.touches[0].clientY, dy = (ty - y) * 2.4; ty = y;   // dy>0 = swiping up/scroll down
+        const y = e.touches[0].clientY, dy = (ty - y) * TOUCH_MULT; ty = y;   // dy>0 = swiping up/scroll down
         if (dy > 0 && atBottom()) e.preventDefault();         // lock the page at the footer
         feed(dy);
       }, { passive: false });
 
-      // direct click / keyboard skips the gate and transitions immediately
-      prog.addEventListener("click", () => { if (!navigating) { navigating = true; go(); } });
-      prog.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && !navigating) { e.preventDefault(); navigating = true; go(); } });
+      // direct click / keyboard skips straight to the darken + transition
+      prog.addEventListener("click", finish);
+      prog.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); finish(); } });
     })();
   </script>
 
