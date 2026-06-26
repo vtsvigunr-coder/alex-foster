@@ -1505,7 +1505,7 @@
   .ft-prog-fg {
     width: 0; align-items: flex-start; overflow: hidden; white-space: nowrap;
     background: linear-gradient(to left, rgba(255,255,255,0.20), rgba(255,255,255,0));
-    transition: width .12s linear;
+    transition: width .45s var(--ease);
   }
   .ft-prog-t1 { font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: -0.16px; color: #fff; }
   .ft-prog-t2 { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; color: #b2b2b2; text-transform: uppercase; }
@@ -1526,8 +1526,6 @@
     .ft-progress { width: min(353px, calc(100% - 40px)); bottom: auto; top: calc(50% + 64px); }
     .ft-prog-t1 { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
     .ft-prog-t2 { font-size: 14px; line-height: 16px; }
-    /* mobile: the fill snaps step-by-step (jerky), no smooth tween between the 5 steps */
-    .ft-prog-fg { transition: none; }
 
     /* Continuation on mobile — two chained phases driven by scroll position:
        Phase 1 (Figma 17:1904 → 17:1923): ONE photo (.bk-mcard) shrinks from full-bleed to the
@@ -2327,14 +2325,18 @@
       }, { threshold: 0.35 });
       io.observe(footer);
 
-      window.addEventListener("wheel", (e) => { feed(e.deltaY); }, { passive: true });
+      window.addEventListener("wheel", (e) => {
+        if (e.deltaY > 0 && atBottom()) e.preventDefault();   // lock the page at the footer — no bounce/rise
+        feed(e.deltaY);
+      }, { passive: false });
 
       let ty = 0;
       window.addEventListener("touchstart", (e) => { ty = e.touches[0].clientY; }, { passive: true });
       window.addEventListener("touchmove", (e) => {
         const y = e.touches[0].clientY, dy = (ty - y) * 2.4; ty = y;   // dy>0 = swiping up/scroll down
+        if (dy > 0 && atBottom()) e.preventDefault();         // lock the page at the footer
         feed(dy);
-      }, { passive: true });
+      }, { passive: false });
 
       // direct click / keyboard skips the gate and transitions immediately
       prog.addEventListener("click", () => { if (!navigating) { navigating = true; go(); } });
