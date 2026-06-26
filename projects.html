@@ -48,7 +48,7 @@
   /* old page eases back & dims, like it sits behind the sheet */
   ::view-transition-old(root) {
     transform-origin: 50% 0;
-    animation: vt-recede .5s var(--ease) both;
+    animation: vt-recede .75s var(--ease) both;
   }
   @keyframes vt-recede {
     from { transform: none; filter: brightness(1); }
@@ -59,7 +59,7 @@
   ::view-transition-new(root) {
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -24px 60px rgba(0,0,0,.45);
-    animation: vt-card-rise .5s var(--ease) both;
+    animation: vt-card-rise .75s var(--ease) both;
   }
   @keyframes vt-card-rise {
     from { transform: translateY(100%); }
