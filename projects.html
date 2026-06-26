@@ -1526,6 +1526,8 @@
     .ft-progress { width: min(353px, calc(100% - 40px)); bottom: auto; top: calc(50% + 64px); }
     .ft-prog-t1 { font-size: 15px; line-height: 20px; letter-spacing: -0.15px; }
     .ft-prog-t2 { font-size: 14px; line-height: 16px; }
+    /* mobile: the fill snaps step-by-step (jerky), no smooth tween between the 5 steps */
+    .ft-prog-fg { transition: none; }
 
     /* Continuation on mobile — two chained phases driven by scroll position:
        Phase 1 (Figma 17:1904 → 17:1923): ONE photo (.bk-mcard) shrinks from full-bleed to the
@@ -1756,22 +1758,55 @@
   .pjv-square svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .sq-frame { stroke-dasharray: 100; stroke-dashoffset: 100; }
 
+  /* static Explore pill — Vertus/Alpha/Vanquish each carry one inside their text block.
+     Desktop hides it (the cursor-following .pjv-pill is used instead); it shows only on mobile. */
+  .pjv-cta-line { display: none; }
+  .pjv-cta { display: inline-flex; align-items: center; justify-content: center;
+    height: 44px; padding: 10px 24px; border-radius: 10px;
+    background: rgba(255,255,255,0.15); box-shadow: 0 8px 40px 0 rgba(0,0,0,0.20);
+    color: #fff; font-weight: 500; font-size: 15px; line-height: 18px; letter-spacing: -0.15px;
+    text-decoration: none; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    transition: background .3s var(--ease); }
+  .pjv-cta:hover { background: rgba(255,255,255,0.24); }
+
+  /* ============================================================
+     Ventures — MOBILE (Figma 268:1472 / 1932 / 1975 / 2015).
+     The phone reuses the SAME pinned sequence as desktop (#pj-ventures): the logo is
+     pinned and swaps Vertus→Alpha→Vanquish, the black wave fills from the bottom, the
+     sharp square draws + fills white + rotates → expands → Shared vision on the white.
+     Only the layout is reflowed here: venture text is centred at the top with a static
+     Explore pill, the logo art is full-width below, and the heading shrinks to fit.
+     ============================================================ */
   @media (max-width: 768px) {
-    .pjv { height: auto; background: #000; }
-    .pjv-stage { position: static; height: auto; overflow: visible; background: #000;
-      display: flex; flex-direction: column; align-items: center; text-align: center; padding: 100px 20px 48px; gap: 44px; }
-    .pjv-intro { position: static; transform: none; width: 100%; color: #fff; gap: 20px; }
-    .pjv-intro .pj-eyebrow, .pjv-headline { color: #fff; }
-    .pjv-fill, .pjv-scroll, .pjv-square, .pjv-pill, .pjv-white, .pjv-hit, .pjv-shared { display: none; }
-    .pjv-slide { position: static; opacity: 1; pointer-events: auto; width: 100%;
-      display: flex; flex-direction: column; align-items: center; gap: 20px; }
-    .pjv-logo { position: static; transform: none; top: auto; order: 2; width: min(300px, 72vw); margin: 0 auto; }
+    /* intro — eyebrow + heading centred at the top, logo below, scroll cue centred at the bottom */
+    .pjv-intro { top: 80px; width: min(320px, 86vw); gap: 20px; }
+    .pjv-scroll { left: 50%; transform: translateX(-50%); bottom: 6.5%; }
+
+    /* full-width logo; its vertical position is pinned by JS (a constant — it does NOT scroll away) */
+    .pjv-logo { width: min(393px, 100vw); }
+
+    /* venture text — a centred column near the top (heading → description → Explore pill).
+       top:92px clears the floating header pill (top:20px, ~50px tall) so the heading isn't tucked. */
     .s-vertus .pjv-text, .s-alpha .pjv-text, .s-vanq .pjv-text {
-      position: static; left: auto; right: auto; top: auto; transform: none;
-      order: 1; width: 100%; overflow: visible; }
+      left: 50%; right: auto; transform: translateX(-50%); top: 92px; width: min(353px, 92vw); }
     .s-vertus .pjv-text-in, .s-alpha .pjv-text-in, .s-vanq .pjv-text-in {
-      transform: none; text-align: center; align-items: center; }
-    .s-alpha .pjv-text .pj-desc, .s-vanq .pjv-text .pj-desc { width: auto; max-width: 320px; }
+      text-align: center; align-items: center; gap: 20px; }
+    .s-vertus .pjv-text .pj-desc, .s-alpha .pjv-text .pj-desc, .s-vanq .pjv-text .pj-desc {
+      width: min(300px, 86vw); }
+
+    .pjv-cta-line { display: block; }
+
+    /* ---- Shared vision ON the white square (Figma 268:1603) — stacked, white bg, black text ---- */
+    .pjv-shared { display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      gap: 24px; padding: 80px 20px 40px; overflow-y: auto; }
+    .pjv-shared > * { position: static; left: auto; right: auto; top: auto;
+      transform: none; width: auto; height: auto; }
+    .pjv-shared .pj-eyebrow { order: 0; color: #000; }
+    .pjv-shared .pj-shared-poster { order: 1; width: min(353px, 92vw); height: auto; aspect-ratio: 353 / 382; border-radius: 12px; }
+    .pjv-shared .pj-bigword.left  { order: 2; }
+    .pjv-shared .pj-bigword.right { order: 3; }
+    .pjv-shared .pj-shared-copy { order: 4; position: static; top: auto; width: min(305px, 86vw); margin: 0 auto; }
+    .pjv-shared .pj-bigword { font-size: 36px; line-height: 40px; letter-spacing: -0.02em; text-align: center; }
   }
 
   /* ============ Shared vision (Figma 72:705) ============ */
@@ -1829,10 +1864,21 @@
      Mobile (Figma 268:1462) — single-column stacks
      ============================================================ */
   @media (max-width: 768px) {
-    .pj-hero-title { font-size: clamp(34px, 8.6vw, 44px); }
+    /* ---- Hero (Figma 268:1465) ---- */
+    /* zoom the background to the Figma mobile framing (figure prominent, bottom-anchored) */
+    .pj-hero-bg img { object-position: center bottom; transform: scale(1.54); }
+    .pj-hero-veil { background: rgba(0,0,0,0.6); }                 /* flat 60% overlay */
+    .pj-hero-inner { gap: 24px; max-width: 360px; padding: 0 20px; }  /* 320px text column */
+    .pj-hero-title { font-size: 36px; line-height: 40px; letter-spacing: -0.02em; }
+    .pj-hero-inner .pj-pill {                                      /* Explore Ventures (Figma 268:1917) */
+      padding: 13px 24px; border-radius: 10px; background: rgba(255,255,255,0.15);
+      font-size: 15px; line-height: 18px; letter-spacing: -0.15px;
+    }
+    .pj-hero-inner .pj-pill:hover { background: rgba(255,255,255,0.24); }
 
-    /* sections become auto-height stacked columns */
-    .pj-vintro, .pj-vertus, .pj-alpha, .pj-vanq, .pj-shared, .pj-cta {
+    /* sections become auto-height stacked columns (the standalone .pj-shared stays hidden —
+       mobile shows Shared vision inside the pinned sequence, on the white the square leaves) */
+    .pj-cta {
       height: auto; min-height: 100svh; overflow: visible;
       display: flex; flex-direction: column; align-items: center; text-align: center;
       padding: 96px 20px 56px; gap: 0;
@@ -2016,6 +2062,7 @@
           <div class="pjv-text"><div class="pjv-text-in">
             <div class="pjv-line"><h3 class="pj-h3">Vertus</h3></div>
             <div class="pjv-line"><p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br />Every detail reflects a commitment to quality.</p></div>
+            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.vertus.ai/" target="_blank" rel="noopener">Explore Venture</a></div>
           </div></div>
         </div>
 
@@ -2024,6 +2071,7 @@
           <div class="pjv-text"><div class="pjv-text-in">
             <div class="pjv-line"><h3 class="pj-h3">Alpha Ledger</h3></div>
             <div class="pjv-line"><p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p></div>
+            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.alphaledger.ai/" target="_blank" rel="noopener">Explore Venture</a></div>
           </div></div>
         </div>
 
@@ -2032,6 +2080,7 @@
           <div class="pjv-text"><div class="pjv-text-in">
             <div class="pjv-line"><h3 class="pj-h3">Vanquish</h3></div>
             <div class="pjv-line"><p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p></div>
+            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.vanquish.so/" target="_blank" rel="noopener">Explore Venture</a></div>
           </div></div>
         </div>
 
@@ -2221,27 +2270,48 @@
       const fg = document.getElementById("ftProgFg");
       if (!footer || !prog || !bg || !fg) return;
 
-      const THRESHOLD = 1100;               // px of overscroll to fill the bar
-      let acc = 0, navigating = false, prefetched = false;
+      // Five separate scroll gestures fill the pill (not continuous px). Each gesture advances
+      // exactly one step; you must pause (input goes quiet for IDLE_MS) before the next counts.
+      // When full, the pill holds for HOLD_MS, then the next page rises (native view transition).
+      const STEPS = 5;
+      const STEP_DELTA = 60;                // overscroll within one gesture needed to register a step
+      const IDLE_MS = 250;                  // input must go quiet this long before the next step can arm
+      const HOLD_MS = 2000;                 // hold the filled pill this long before the page rises
+      let step = 0, gestureDelta = 0, armed = true, navigating = false, prefetched = false, idleTimer = 0;
 
       const maxW = () => bg.getBoundingClientRect().width;
-      const minW = () => 0;                 // front pill starts empty, fills 0 → 100%
 
-      function render() {
-        const p = Math.max(0, Math.min(1, acc / THRESHOLD));
-        fg.style.width = (minW() + p * (maxW() - minW())) + "px";
-        if (p >= 1) go();
-      }
+      function render() { fg.style.width = (step / STEPS) * maxW() + "px"; }
 
       function atBottom() {                 // footer fully in view at the page end
         return footer.getBoundingClientRect().bottom <= window.innerHeight + 2;
       }
 
-      function go() {
+      function go() { window.location.href = NEXT_PAGE_URL; }
+
+      function complete() {                 // hold the full pill, then rise to the next page
         if (navigating) return;
         navigating = true;
         fg.style.width = maxW() + "px";
-        window.location.href = NEXT_PAGE_URL;
+        setTimeout(go, HOLD_MS);
+      }
+
+      function bump(dir) {                  // dir +1 fills a step, -1 unfills one
+        step = Math.max(0, Math.min(STEPS, step + dir));
+        gestureDelta = 0; armed = false;    // a step counts once; re-arms after the input pauses
+        render();
+        if (step >= STEPS) complete();
+      }
+
+      function feed(dy) {                   // dy>0 = scrolling down
+        if (navigating) return;
+        if (dy > 0 && !atBottom()) return;  // downward input only counts once the footer bottoms out
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => { armed = true; gestureDelta = 0; }, IDLE_MS);
+        if (!armed) return;
+        gestureDelta += dy;
+        if (gestureDelta >= STEP_DELTA) bump(+1);
+        else if (gestureDelta <= -STEP_DELTA) bump(-1);
       }
 
       // prefetch the target the moment the footer scrolls into view
@@ -2257,25 +2327,18 @@
       }, { threshold: 0.35 });
       io.observe(footer);
 
-      window.addEventListener("wheel", (e) => {
-        if (navigating) return;
-        if (e.deltaY > 0 ? atBottom() : true) acc += e.deltaY;
-        acc = Math.max(0, Math.min(THRESHOLD, acc));
-        render();
-      }, { passive: true });
+      window.addEventListener("wheel", (e) => { feed(e.deltaY); }, { passive: true });
 
       let ty = 0;
       window.addEventListener("touchstart", (e) => { ty = e.touches[0].clientY; }, { passive: true });
       window.addEventListener("touchmove", (e) => {
-        if (navigating) return;
         const y = e.touches[0].clientY, dy = (ty - y) * 2.4; ty = y;   // dy>0 = swiping up/scroll down
-        if (dy > 0 ? atBottom() : true) acc += dy;
-        acc = Math.max(0, Math.min(THRESHOLD, acc));
-        render();
+        feed(dy);
       }, { passive: true });
 
-      prog.addEventListener("click", go);
-      prog.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      // direct click / keyboard skips the gate and transitions immediately
+      prog.addEventListener("click", () => { if (!navigating) { navigating = true; go(); } });
+      prog.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && !navigating) { e.preventDefault(); navigating = true; go(); } });
     })();
   </script>
 
@@ -2454,6 +2517,7 @@
       const logoEl   = (n) => slides[n].querySelector(".pjv-logo");
       const headEl   = (n) => slides[n].querySelector(".pj-h3").parentElement;   // heading mask line
       const descEl   = (n) => slides[n].querySelector(".pj-desc").parentElement; // description mask line
+      const ctaEl    = (n) => slides[n].querySelector(".pjv-cta").parentElement; // mobile Explore-pill mask line
 
       const clamp  = (v, a, b) => Math.max(a, Math.min(b, v));
       const map    = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
@@ -2476,10 +2540,11 @@
         slides.vertus, slides.alpha, slides.vanq,
         logoEl("vertus"), logoEl("alpha"), logoEl("vanq"),
         headEl("vertus"), headEl("alpha"), headEl("vanq"),
-        descEl("vertus"), descEl("alpha"), descEl("vanq")];
+        descEl("vertus"), descEl("alpha"), descEl("vanq"),
+        ctaEl("vertus"), ctaEl("alpha"), ctaEl("vanq")];
       const clearInline = () => animated().forEach((e) => e.removeAttribute("style"));
 
-      const setSlide = (name, logoOp, topPct, headTy, descTy) => {
+      const setSlide = (name, logoOp, topPct, headTy, descTy, ctaTy) => {
         const sl = slides[name];
         sl.style.opacity = "1";
         sl.style.pointerEvents = logoOp > 0.5 ? "auto" : "none";
@@ -2488,6 +2553,7 @@
         lg.style.top = topPct.toFixed(2) + "%";
         headEl(name).style.setProperty("--ty", headTy);   // heading rises first
         descEl(name).style.setProperty("--ty", descTy);   // description follows
+        ctaEl(name).style.setProperty("--ty", ctaTy);     // mobile Explore pill follows the description
       };
 
       // The single Explore pill stays off-screen until the cursor enters the stage AND a venture is
@@ -2509,6 +2575,17 @@
       //     while the poster keeps growing to its large size behind them.
       const svReveal = (q) => {
         if (!svWrap) return;
+        // Mobile (Figma 268:1603): the pieces are a static stacked column (CSS handles layout) on the
+        // white the square leaves — eyebrow, poster, CREATE IMPACT / SHARED VISION, paragraph. JS only
+        // fades the whole cluster in together; it clears any desktop transforms/sizes it may have set.
+        if (mobile()) {
+          const op = clamp(map(q, 0.04, 0.32), 0, 1).toFixed(3);
+          svEls.forEach((e) => {
+            e.style.opacity = op;
+            e.style.transform = ""; e.style.filter = ""; e.style.width = ""; e.style.height = "";
+          });
+          return;
+        }
         const W = innerWidth, H = innerHeight;
 
         // The whole cluster — the two words, the card, and the paragraph beneath the card — starts
@@ -2576,21 +2653,26 @@
         intro.style.opacity = (1 - map(s, 0.45, 0.95)).toFixed(3);
         intro.style.transform = `translateX(-50%) translateY(${lerp(0, -30, map(s, 0.45, 1.0)).toFixed(1)}px)`;
 
-        // logo rises from centre (42%) to up (18%) between 1.3 and 1.9 (Vertus only; others sit up)
-        const riseY = lerp(42, 18, eInOut(map(s, 1.3, 1.9)));
+        // logo rises from centre (42%) to up (18%) between 1.3 and 1.9 (Vertus only; others sit up).
+        // Mobile reflow: the logo is PINNED at a constant top (it never scrolls away) and sits below
+        // the centred venture text, full-width (Figma 268:1932 / 1975 / 2015).
+        const isM = mobile();
+        const LOGO_TOP = 34;                         // mobile: constant logo top (% of viewport)
+        const riseY = isM ? LOGO_TOP : lerp(42, 18, eInOut(map(s, 1.3, 1.9)));
 
         // Logo swaps are quick & sharp (~0.12 windows). Vertus logo is present from the intro.
         const vLogo = 1 - map(s, 2.05, 2.18);
         const aLogo = clamp(map(s, 2.05, 2.18), 0, 1) * (1 - map(s, 2.88, 3.00));
         const nLogo = clamp(map(s, 2.88, 3.00), 0, 1);
-        // Text rises from the bottom (no fade); heading first, description lagged behind it (D),
-        // so the two lines reveal one after the other.
+        // Text rises from the bottom (no fade); heading first, description lagged behind it (D), and
+        // the mobile Explore pill lagged once more (2D) — so head → desc → button reveal in turn.
         const D = 0.12, lag = (a) => a == null ? null : a + D;
         const headTy = (inA, inB, outA, outB) => revealTy(s, inA, inB, outA, outB);
         const descTy = (inA, inB, outA, outB) => revealTy(s, lag(inA), lag(inB), lag(outA), lag(outB));
-        setSlide("vertus", vLogo, riseY, headTy(0.95, 1.30, 2.00, 2.18), descTy(0.95, 1.30, 2.00, 2.18));
-        setSlide("alpha",  aLogo, 18,   headTy(2.08, 2.42, 2.78, 2.95), descTy(2.08, 2.42, 2.78, 2.95));
-        setSlide("vanq",   nLogo, 18,   headTy(2.82, 3.12, null, null), descTy(2.82, 3.12, null, null));
+        const ctaTy  = (inA, inB, outA, outB) => revealTy(s, lag(lag(inA)), lag(lag(inB)), lag(lag(outA)), lag(lag(outB)));
+        setSlide("vertus", vLogo, riseY,           headTy(0.95, 1.30, 2.00, 2.18), descTy(0.95, 1.30, 2.00, 2.18), ctaTy(0.95, 1.30, 2.00, 2.18));
+        setSlide("alpha",  aLogo, isM?LOGO_TOP:18, headTy(2.08, 2.42, 2.78, 2.95), descTy(2.08, 2.42, 2.78, 2.95), ctaTy(2.08, 2.42, 2.78, 2.95));
+        setSlide("vanq",   nLogo, isM?LOGO_TOP:18, headTy(2.82, 3.12, null, null), descTy(2.82, 3.12, null, null), ctaTy(2.82, 3.12, null, null));
 
         // square expands to fill the screen white (leg 3, see below). The pill + click target switch
         // off once that starts so nothing rides on top of the white as the next section takes over.
@@ -2603,6 +2685,11 @@
         const pVertus = visOf(s, 0.98, 1.28, 2.00, 2.18);
         const pAlpha  = visOf(s, 2.10, 2.40, 2.78, 2.93);
         const pVanq   = visOf(s, 2.85, 3.08, null, null);
+        // mobile static pills also fade with their venture so the glass blur never leaks through
+        // the mask while parked (overflow:hidden does not always clip a backdrop-filter in Chrome).
+        ctaEl("vertus").style.opacity = pVertus.toFixed(3);
+        ctaEl("alpha").style.opacity  = pAlpha.toFixed(3);
+        ctaEl("vanq").style.opacity   = pVanq.toFixed(3);
         let best = "vertus", bestV = pVertus;
         if (pAlpha > bestV) { best = "alpha"; bestV = pAlpha; }
         if (pVanq  > bestV) { best = "vanq";  bestV = pVanq; }
@@ -2619,7 +2706,9 @@
         // as the square starts expanding, the pill fades out in place (opacity) — it does not move
         pill.style.opacity = (1 - clamp(map(s, 3.25, 3.55), 0, 1)).toFixed(3);
         if (active) pill.href = VEN_URL[active];
-        if (active && expandP < 0.3) { hit.href = VEN_URL[active]; hit.style.pointerEvents = "auto"; }
+        // Desktop: the whole stage is a click target (follows the cursor pill). Mobile: only the
+        // static Explore pill is tappable, so the full-stage hit stays off (it would hijack scrolls).
+        if (!isM && active && expandP < 0.3) { hit.href = VEN_URL[active]; hit.style.pointerEvents = "auto"; }
         else { hit.removeAttribute("href"); hit.style.pointerEvents = "none"; }
 
         // travelling square (ecosystem-style SVG outline). Three legs:
@@ -2676,7 +2765,8 @@
         cur += d * SMOOTH; apply(cur); raf = requestAnimationFrame(tick);
       };
       const onScroll = () => {
-        if (mobile()) { clearInline(); return; }
+        // Mobile reuses the SAME pinned sequence as desktop (reflowed via CSS + the isM branches in
+        // apply()) — so it is NOT bailed out here anymore; only the cursor pill stays desktop-only.
         target = clamp(-sec.getBoundingClientRect().top / innerHeight, 0, 12);
         if (!raf) raf = requestAnimationFrame(tick);
       };
