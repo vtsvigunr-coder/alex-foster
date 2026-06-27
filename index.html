@@ -452,7 +452,7 @@
   }
   .ab-dark { position: absolute; inset: 0; background: #000; opacity: 0; z-index: 3; }
 
-  /* "More than a founder." with scanning bars */
+  /* "Creative founder turning" with scanning bars */
   .ab-founder {
     position: absolute; inset: 0; z-index: 5;
     display: flex; align-items: center; justify-content: center;
@@ -611,7 +611,7 @@
   .cs-intro-text {
     position: absolute;
     top: 160px;
-    left: 60px;
+    left: 80px;   /* align to the 80px grid gutter (matches Ventures 03 / cs-counter-left) */
     z-index: 5;
   }
   .cs-title {
@@ -1694,7 +1694,7 @@
 
         <div class="ab-founder">
           <span class="ab-ftext">
-            <span class="ftxt">More&nbsp;than&nbsp;a&nbsp;founder.</span>
+            <span class="ftxt">Creative&nbsp;founder&nbsp;turning</span>
           </span>
         </div>
 
@@ -2489,7 +2489,7 @@
         plaque: $(".ab-plaque"), block2: $(".ab-block2"),
       };
 
-      // Split "More than a founder." into per-character spans, each with an overlay block
+      // Split "Creative founder turning" into per-character spans, each with an overlay block
       const charBlocks = [];
       const charSpans = [];
       (() => {
