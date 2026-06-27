@@ -6,3 +6,6 @@ node_modules/
 
 # Local backup (fonts package + originals — not part of the live site)
 _originals_backup/
+
+# Source-resolution image originals — only the optimized .webp ships
+images/detail/*.png

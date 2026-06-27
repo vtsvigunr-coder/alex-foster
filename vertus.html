@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Projects — Alex Foster</title>
-<link rel="preload" as="image" href="images/projects/hero.webp" fetchpriority="high" />
+<title>Vertus — Venture detail — Alex Foster</title>
+<link rel="preload" as="image" href="images/detail/detail-hero-1.webp" fetchpriority="high" />
 <script>
   /* Landing here counts as "the site is open" — so a later jump to Home won't replay the intro. */
   try { sessionStorage.setItem('introPlayed', '1'); } catch (e) {}
@@ -1953,6 +1953,69 @@
       white-space: normal; font-size: clamp(34px, 9.5vw, 46px); }
   }
 
+  /* ============================================================
+     Venture detail — pinned hero sequence (Figma 102:534 → 106:1295 → 1331 → 1367 → 1401)
+     One sticky stage drives the whole story by scroll progress p (0→1):
+       hero (p 0→.18)   five posters; satellites fly up into a triangle, hero text fades out
+       wave (p .08→.26) black fill rises bottom→top (recolours bg, same idea as #pj-ventures);
+                        the centre photo (image 1) is NEVER swapped — it just relocates
+       dark (p .30→1)   photo travels top-centre → door-ajar (rotateY) → settles lower-left,
+                        while the statement + Project idea / Core focus columns scroll up
+     The 1440×900 Figma frame is reproduced 1:1 inside .vd-frame and scaled to the viewport,
+     so every coordinate below is a raw Figma px value. ============================================================ */
+  .vd { position: relative; height: 600vh; background: #fff; }
+  .vd-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #fff; }
+
+  /* black wave that fills up from the bottom (mirrors .pjv-fill) */
+  .vd-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #000; z-index: 0; }
+
+  /* the Figma frame, reproduced 1:1 then scaled to fit the viewport (letterboxed) */
+  .vd-frame { position: absolute; left: 50%; top: 50%; width: 1440px; height: 900px;
+    margin: -450px 0 0 -720px; transform: scale(var(--vds, 1)); transform-origin: 50% 50%; z-index: 1; }
+  .vd-world { position: absolute; inset: 0; }
+  /* page-entrance — the whole composition arrives at once (same feel as .pj-hero-reveal) */
+  .vd-world { animation: vd-in .7s var(--ease) both; }
+  @keyframes vd-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .vd-world { animation: none; } }
+
+  /* posters */
+  .vd-sat, .vd-photo { position: absolute; border-radius: 8px; overflow: hidden; }
+  .vd-sat img, .vd-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vd-sat { will-change: transform, opacity; }
+  .vd-sat.s2 { left: 80px;   top: 408px; width: 74px;  height: 84px;  }
+  .vd-sat.s3 { left: 320px;  top: 370px; width: 140px; height: 160px; }
+  .vd-sat.s4 { left: 980px;  top: 370px; width: 140px; height: 160px; }
+  .vd-sat.s5 { left: 1286px; top: 408px; width: 74px;  height: 84px;  }
+  /* image 1 — the persistent centre photo; JS owns its transform (position/rotate) */
+  .vd-photo { left: 0; top: 0; width: 188px; height: 216px; z-index: 3; will-change: transform; }
+
+  /* shared eyebrow (dot + label) */
+  .vd-eyebrow { display: inline-flex; align-items: center; gap: 16px; color: inherit; }
+  .vd-eyebrow .dot { width: 6px; height: 6px; flex: 0 0 6px; background: currentColor; }
+  .vd-eyebrow > span { font-size: 20px; font-weight: 700; line-height: 24px; letter-spacing: -0.6px; text-transform: uppercase; }
+
+  /* ---- hero-state text (black on white) ---- */
+  .vd-hero-eye { position: absolute; left: 630px; top: 203px; color: #000; }
+  .vd-leadin { position: absolute; left: 80px; top: 804px; width: 310px; color: #000;
+    font-size: 16px; line-height: 18px; letter-spacing: -0.16px; }
+  .vd-word { position: absolute; left: 596px; top: 730px; display: inline-flex; align-items: flex-start; color: #000; }
+  .vd-word b { font-weight: 500; font-size: 116px; line-height: 104px; letter-spacing: -0.04em; font-style: normal; }
+  .vd-word i { font-weight: 400; font-size: 22px; line-height: 40px; letter-spacing: -0.02em; font-style: normal; margin-left: 4px; }
+  .vd-scroll { position: absolute; left: 1186px; top: 820px; display: inline-flex; align-items: center; gap: 16px;
+    color: #000; font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: -0.14px; text-transform: uppercase; }
+  .vd-scroll svg { width: 20px; height: 20px; display: block; }
+  .vd-hero-eye, .vd-leadin, .vd-word, .vd-scroll { will-change: opacity; }
+
+  /* ---- dark-state text (revealed after the wave; JS owns opacity + top) ---- */
+  .vd-statement { position: absolute; left: 460px; top: 678px; width: 520px; text-align: center; color: #fff;
+    font-weight: 500; font-size: 30px; line-height: 34px; letter-spacing: -0.02em; opacity: 0;
+    will-change: transform, opacity; }
+  .vd-block { position: absolute; left: 980px; top: 402px; width: 342px; color: #fff; opacity: 0;
+    will-change: transform, opacity; }
+  .vd-block .vd-eyebrow { color: #fff; }
+  .vd-block p { margin-top: 32px; color: #808080; font-size: 16px; line-height: 20px; letter-spacing: -0.16px; }
+  .vd-block p + p { margin-top: 20px; }
+
 </style>
 </head>
 <body>
@@ -2040,105 +2103,50 @@
       </div>
     </div>
 
-  <main class="projects">
+  <main class="projects vd-page">
 
-    <!-- Hero (Figma 72:479) -->
-    <section class="pj-hero" data-header="light">
-      <div class="pj-hero-bg pj-hero-reveal"><img src="images/projects/hero.webp" alt="" decoding="async" fetchpriority="high" /></div>
-      <div class="pj-hero-veil"></div>
-      <div class="pj-hero-inner pj-hero-reveal">
-        <h1 class="pj-hero-title">Built with intention. Designed to create lasting impact.</h1>
-        <a class="pj-pill" href="#pj-ventures">Explore ventures</a>
-      </div>
-    </section>
+    <!-- Venture detail — pinned hero sequence (Figma 102:534 → 106:1295 → 1331 → 1367 → 1401) -->
+    <section id="vd" class="vd">
+      <div class="vd-stage">
+        <div class="vd-fill" aria-hidden="true"></div>
 
-    <!-- Ventures — pinned scroll sequence (Figma 78:886 / 906 / 917 / 923 / 239:2518) -->
-    <section id="pj-ventures" class="pjv" data-header="dark">
-      <div class="pjv-stage">
+        <div class="vd-frame">
+          <div class="vd-world">
 
-        <div class="pjv-fill" aria-hidden="true"></div>
+            <!-- hero state: five posters (image 1 is the persistent .vd-photo below) -->
+            <div class="vd-hero" aria-hidden="true">
+              <img class="vd-sat s2" src="images/detail/detail-hero-2.webp" alt="" decoding="async" />
+              <img class="vd-sat s3" src="images/detail/detail-hero-3.webp" alt="" decoding="async" />
+              <img class="vd-sat s4" src="images/detail/detail-hero-4.webp" alt="" decoding="async" />
+              <img class="vd-sat s5" src="images/detail/detail-hero-5.webp" alt="" decoding="async" />
+            </div>
 
-        <div class="pjv-intro">
-          <span class="pj-eyebrow"><i class="dot"></i><span>Ventures Overview</span></span>
-          <h2 class="pjv-headline pj-h3">Beyond individual projects</h2>
+            <span class="vd-eyebrow vd-hero-eye"><i class="dot"></i><span>Venture detail</span></span>
+            <p class="vd-leadin">A digital venture built around ownership, access, and long-term value</p>
+            <div class="vd-word"><b>Vertus</b><i>01</i></div>
+            <div class="vd-scroll">scroll to explore
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.167 10h11.666M11.667 5.833 15.833 10l-4.166 4.167" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- image 1 — the same photo throughout; relocates and rotates, never swapped -->
+            <div class="vd-photo"><img src="images/detail/detail-hero-1.webp" alt="" decoding="async" fetchpriority="high" /></div>
+
+            <!-- dark state: statement + Project idea / Core focus columns -->
+            <div class="vd-statement">The project moves beyond transactions, creating a broader environment where users interact with lasting digital value</div>
+
+            <div class="vd-block vd-idea">
+              <span class="vd-eyebrow"><i class="dot"></i><span>Project idea</span></span>
+              <p>Vertus turns digital products into connected systems built around access and ownership</p>
+            </div>
+
+            <div class="vd-block vd-focus">
+              <span class="vd-eyebrow"><i class="dot"></i><span>Core focus</span></span>
+              <p>It connects participation, utility, and ecosystem thinking into one scalable venture structure</p>
+              <p>The goal is to make digital ownership feel clear, practical, and connected</p>
+            </div>
+
+          </div>
         </div>
-
-        <div class="pjv-square" aria-hidden="true">
-          <svg viewBox="0 0 62 62" width="62" height="62">
-            <rect class="sq-fill"  x="1" y="1" width="60" height="60" fill="#fff" fill-opacity="0" />
-            <rect class="sq-frame" x="1" y="1" width="60" height="60" fill="none" stroke="#fff" stroke-width="1" pathLength="100" />
-            <path class="sq-corners" fill="none" stroke="#fff" stroke-width="1" d="M1 11V1H11 M1 51V61H11 M61 11V1H51 M61 51V61H51" />
-          </svg>
-        </div>
-
-        <div class="pjv-slide s-vertus">
-          <div class="pjv-logo"><img src="images/projects/logo-vertus.webp" alt="Vertus" decoding="async" /></div>
-          <div class="pjv-text"><div class="pjv-text-in">
-            <div class="pjv-line"><h3 class="pj-h3">Vertus</h3></div>
-            <div class="pjv-line"><p class="pj-desc">Designed to create meaningful solutions through thoughtful execution and distinctive design.<br />Every detail reflects a commitment to quality.</p></div>
-            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.vertus.ai/" target="_blank" rel="noopener">Explore Venture</a></div>
-          </div></div>
-        </div>
-
-        <div class="pjv-slide s-alpha">
-          <div class="pjv-logo"><img src="images/projects/logo-alpha.webp" alt="Alpha Ledger" decoding="async" /></div>
-          <div class="pjv-text"><div class="pjv-text-in">
-            <div class="pjv-line"><h3 class="pj-h3">Alpha Ledger</h3></div>
-            <div class="pjv-line"><p class="pj-desc">A venture shaped by innovation and precision, bringing together technology and strategy to build for the future.</p></div>
-            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.alphaledger.ai/" target="_blank" rel="noopener">Explore Venture</a></div>
-          </div></div>
-        </div>
-
-        <div class="pjv-slide s-vanq">
-          <div class="pjv-logo"><img src="images/projects/logo-vanquish.webp" alt="Vanquish" decoding="async" /></div>
-          <div class="pjv-text"><div class="pjv-text-in">
-            <div class="pjv-line"><h3 class="pj-h3">Vanquish</h3></div>
-            <div class="pjv-line"><p class="pj-desc">A modern platform focused on delivering seamless digital experiences. Built with clarity, performance and a long-term vision.</p></div>
-            <div class="pjv-line pjv-cta-line"><a class="pjv-cta" href="https://www.vanquish.so/" target="_blank" rel="noopener">Explore Venture</a></div>
-          </div></div>
-        </div>
-
-        <!-- white panel the square expands into (fills the screen at the end), then the next section
-             fades in on top of it -->
-        <div class="pjv-white" aria-hidden="true"></div>
-
-        <!-- Shared vision revealed ON the white canvas the square leaves (same pattern as the main
-             page's Projects inside #ecosystem) — fades in immediately, in place, bottom-to-top.
-             Desktop only; mobile uses the standalone .pj-shared section below. -->
-        <div class="pjv-shared" aria-hidden="true">
-          <span class="pj-eyebrow"><i class="dot"></i><span>Shared vision</span></span>
-          <div class="pj-bigword left">CREATE IMPACT</div>
-          <div class="pj-shared-poster"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
-          <div class="pj-bigword right">SHARED VISION</div>
-          <p class="pj-shared-copy">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
-        </div>
-
-        <!-- single cursor-following pill (always solid — never fades) + full-stage click target.
-             Both point at the active venture; JS swaps the href as the sequence advances. -->
-        <a class="pjv-hit" target="_blank" rel="noopener" aria-label="Explore venture" tabindex="-1"></a>
-        <a class="pjv-pill pj-explore" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">Explore Venture</a>
-
-      </div>
-    </section>
-
-    <!-- Shared vision (Figma 72:705) — pinned: content holds at its positions and fades in on the
-         white the venture square leaves behind (it does NOT scroll up into view) -->
-    <section class="pj-sec pj-shared" data-header="dark">
-      <div class="pj-shared-stage">
-        <span class="pj-eyebrow pj-fade"><i class="dot"></i><span>Shared vision</span></span>
-        <div class="pj-bigword left pj-fade">CREATE IMPACT</div>
-        <div class="pj-shared-poster pj-fade"><img src="images/projects/shared-poster.webp" alt="" decoding="async" /></div>
-        <div class="pj-bigword right pj-fade">SHARED VISION</div>
-        <p class="pj-shared-copy pj-fade">Whether you&rsquo;re launching a company, exploring a new direction, or seeking strategic collaboration, let&rsquo;s start the conversation.</p>
-      </div>
-    </section>
-
-    <!-- CTA / Future Ventures (Figma 78:1221 → 84:1285 → 84:1263) — pinned reveal → text leaves → pill -->
-    <section class="pj-sec pj-cta" data-header="light">
-      <div class="pj-cta-stage">
-        <a class="pj-cta-card" href="mailto:alex@foster.com" aria-label="Contact me"><img src="images/projects/cta-vanquish.webp" alt="" decoding="async" /></a>
-        <span class="pj-cta-label" aria-hidden="true">Contact me</span>
-        <h2 class="pj-cta-word">FUTURE VENTURES</h2>
       </div>
     </section>
 
@@ -2181,9 +2189,9 @@
         </a>
       </div>
 
-      <div class="ft-progress" id="ftProgress" role="link" tabindex="0" aria-label="Keep scrolling to Project Detail — next page">
+      <div class="ft-progress" id="ftProgress" role="link" tabindex="0" aria-label="Keep scrolling to Projects — next page">
         <div class="ft-prog-pill ft-prog-bg">
-          <span class="ft-prog-t1">Project Detail</span>
+          <span class="ft-prog-t1">Projects</span>
           <span class="ft-prog-t2">next page</span>
         </div>
         <div class="ft-prog-pill ft-prog-fg" id="ftProgFg">
@@ -2277,7 +2285,7 @@
        is prefetched as soon as the footer appears so the transition is instant. The pill is
        also directly clickable. */
     (() => {
-      const NEXT_PAGE_URL = "vertus.html";   // from Projects, the next-page pill goes to the venture detail
+      const NEXT_PAGE_URL = "projects.html";   // from a venture detail, the next-page pill goes back to Projects
       const footer = document.getElementById("footer");
       const prog = document.getElementById("ftProgress");
       const bg = prog && prog.querySelector(".ft-prog-bg");
@@ -2811,6 +2819,123 @@
   </script>
 
   <!--PJ-ANIM-JS-->
+
+  <script>
+    /* ---------- Venture detail: pinned hero sequence ----------
+       Drives the whole story from one sticky stage by scroll progress p (0→1):
+         hero (p 0→.18)   five posters; satellites fly up into a triangle + hero text fades out
+         wave (p .08→.26) the black fill rises bottom→top (recolours the bg); the centre photo
+                          (image 1) is NEVER swapped — it just relocates
+         dark (p .30→1)   photo: top-centre → door-ajar (rotateY) → settles lower-left, while the
+                          statement + Project idea / Core focus columns scroll up
+       Coordinates are raw Figma px inside the 1440×900 .vd-frame (scaled to the viewport). */
+    (() => {
+      const sec = document.getElementById("vd");
+      if (!sec) return;
+      const frame     = sec.querySelector(".vd-frame");
+      const fill      = sec.querySelector(".vd-fill");
+      const photo     = sec.querySelector(".vd-photo");
+      const statement = sec.querySelector(".vd-statement");
+      const idea      = sec.querySelector(".vd-idea");
+      const focus     = sec.querySelector(".vd-focus");
+      const sats      = [...sec.querySelectorAll(".vd-sat")];
+      const heroTexts = [...sec.querySelectorAll(".vd-hero-eye, .vd-leadin, .vd-word, .vd-scroll")];
+      const panel     = document.getElementById("panel");
+
+      const clamp  = (v, a, b) => Math.max(a, Math.min(b, v));
+      const map    = (v, a, b) => clamp((v - a) / (b - a), 0, 1);
+      const lerp   = (a, b, t) => a + (b - a) * t;
+      const eOut   = (t) => 1 - (1 - t) * (1 - t);
+      const eInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+      // per-satellite upward travel into the triangle (Figma 106:1295: inner posters settle high,
+      // the far/small ones fly clean off the top) + their resting opacity (the far pair sits faded)
+      const SAT_UP   = { s2: -520, s3: -330, s4: -330, s5: -520 };
+      const SAT_BASE = { s2: 0.4,  s3: 1,    s4: 1,    s5: 0.4  };
+
+      // image-1 path keyframes: [p, centreX, centreY, rotateY°, scale] in Figma coords
+      const KF = [
+        [0.00, 720, 450,   0, 1.00],   // hero centre
+        [0.30, 720, 148,   0, 1.00],   // settled top-centre (106:1350)
+        [0.66, 510, 360, -34, 1.05],   // door ajar (106:1385)
+        [1.00, 460, 651,   0, 1.00],   // settled lower-left (106:1419)
+      ];
+      const photoAt = (p) => {
+        let i = 0; while (i < KF.length - 1 && p > KF[i + 1][0]) i++;
+        const a = KF[i], b = KF[Math.min(i + 1, KF.length - 1)];
+        const t = (a === b || a[0] === b[0]) ? 0 : eInOut(map(p, a[0], b[0]));
+        return { cx: lerp(a[1], b[1], t), cy: lerp(a[2], b[2], t),
+                 ry: lerp(a[3], b[3], t), sc: lerp(a[4], b[4], t) };
+      };
+
+      // dark-column vertical travel A(ds 0) → B(ds .5) → C(ds 1)
+      const triY = (yA, yB, yC, ds) =>
+        ds < 0.5 ? lerp(yA, yB, eInOut(ds / 0.5)) : lerp(yB, yC, eInOut((ds - 0.5) / 0.5));
+
+      const apply = (p) => {
+        // hero scatter + fade
+        const scatter = eOut(map(p, 0.0, 0.20));
+        const satFade = 1 - map(p, 0.14, 0.30);
+        sats.forEach((s) => {
+          const key = [...s.classList].find((c) => SAT_UP[c]);
+          const up = lerp(0, SAT_UP[key] || -440, scatter);
+          s.style.transform = `translateY(${up.toFixed(1)}px)`;
+          s.style.opacity = ((SAT_BASE[key] ?? 1) * satFade).toFixed(3);
+        });
+        const heroFade = 1 - map(p, 0.06, 0.20);
+        heroTexts.forEach((t) => { t.style.opacity = heroFade.toFixed(3); });
+
+        // black wave rises bottom→top
+        const wave = eInOut(map(p, 0.08, 0.26));
+        fill.style.height = (wave * 100).toFixed(2) + "%";
+
+        // header theme — dark text on the white hero, flipping to white only once the rising fill has
+        // actually reached the header band at the top (otherwise white text sits on still-white space)
+        const onDark = wave > 0.9;
+        panel.classList.toggle("header-on-dark", onDark);
+        panel.classList.toggle("header-on-light", !onDark);
+
+        // image 1 — translate so its centre lands on (cx,cy), plus the door-ajar rotateY
+        const { cx, cy, ry, sc } = photoAt(p);
+        photo.style.transform =
+          `translate(${(cx - 94).toFixed(1)}px, ${(cy - 108).toFixed(1)}px) ` +
+          `perspective(1400px) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+
+        // dark-state text: fade in behind the wave, then scroll up with progress
+        const ds = map(p, 0.30, 1.0);
+        const darkIn = map(p, 0.18, 0.32);
+        statement.style.opacity = darkIn.toFixed(3);
+        statement.style.transform = `translateY(${(triY(678, 399, 240, ds) - 678).toFixed(1)}px)`;
+        idea.style.opacity = (darkIn * (1 - map(ds, 0.52, 0.78))).toFixed(3);
+        idea.style.transform = `translateY(${(triY(402, 93, -240, ds) - 402).toFixed(1)}px)`;
+        focus.style.opacity = map(ds, 0.40, 0.62).toFixed(3);
+        focus.style.transform = `translateY(${(triY(900, 718, 604, ds) - 402).toFixed(1)}px)`;
+      };
+
+      // fit the 1440×900 frame to the viewport (letterboxed)
+      const fit = () => frame.style.setProperty("--vds", Math.min(innerWidth / 1440, innerHeight / 900));
+
+      // debug: open vertus.html#p=0.66 to freeze the sequence at a given progress (for screenshots)
+      const dbg = location.hash.match(/p=([\d.]+)/);
+      if (dbg) { fit(); apply(parseFloat(dbg[1])); return; }
+
+      let cur = null, target = 0, raf = 0;
+      const SMOOTH = 0.18;
+      const tick = () => {
+        raf = 0; if (cur === null) cur = target;
+        const d = target - cur;
+        if (Math.abs(d) <= 0.0004) { cur = target; apply(cur); return; }
+        cur += d * SMOOTH; apply(cur); raf = requestAnimationFrame(tick);
+      };
+      const onScroll = () => {
+        target = clamp(-sec.getBoundingClientRect().top / (sec.offsetHeight - innerHeight), 0, 1);
+        if (!raf) raf = requestAnimationFrame(tick);
+      };
+      addEventListener("scroll", onScroll, { passive: true });
+      addEventListener("resize", () => { fit(); cur = null; onScroll(); });
+      fit(); onScroll();
+    })();
+  </script>
 
 </body>
 </html>
