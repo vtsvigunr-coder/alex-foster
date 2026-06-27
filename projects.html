@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Projects — Alex Foster</title>
+<link rel="preload" as="image" href="images/projects/hero.webp" fetchpriority="high" />
 <script>
   /* Landing here counts as "the site is open" — so a later jump to Home won't replay the intro. */
   try { sessionStorage.setItem('introPlayed', '1'); } catch (e) {}
@@ -1792,7 +1793,17 @@
     .s-vertus .pjv-text .pj-desc, .s-alpha .pjv-text .pj-desc, .s-vanq .pjv-text .pj-desc {
       width: min(300px, 86vw); }
 
-    .pjv-cta-line { display: block; }
+    /* One persistent Explore pill — fixed in place across all ventures; only its href swaps
+       (the per-slide pills are hidden; the single .pjv-pill is repositioned + restyled here). */
+    .pjv-cta-line { display: none; }
+    /* compound selector (.pjv-pill.pj-explore) so the placement beats the stray single-class
+       `.pj-explore { position: static; top: auto }` rule further down — otherwise the pill
+       collapses to the top-left corner and hides behind the header. */
+    .pjv-pill.pj-explore { position: absolute; left: 50%; top: 244px; bottom: auto; z-index: 4;
+      transform: translateX(-50%) !important; pointer-events: auto;
+      height: 44px; padding: 10px 24px; border-radius: 12px;
+      font-size: 15px; line-height: 18px; letter-spacing: -0.15px; background: rgba(255,255,255,0.15); }
+    .pjv-pill.pj-explore:hover { background: rgba(255,255,255,0.24); }
 
     /* ---- Shared vision ON the white square (Figma 268:1603) — stacked, white bg, black text.
        Per-element spacing matches the Figma frame: 80 top → eyebrow, 60 → poster, 40 → heading,
@@ -2033,7 +2044,7 @@
 
     <!-- Hero (Figma 72:479) -->
     <section class="pj-hero" data-header="light">
-      <div class="pj-hero-bg pj-hero-reveal"><img src="images/projects/hero.webp" alt="" decoding="async" /></div>
+      <div class="pj-hero-bg pj-hero-reveal"><img src="images/projects/hero.webp" alt="" decoding="async" fetchpriority="high" /></div>
       <div class="pj-hero-veil"></div>
       <div class="pj-hero-inner pj-hero-reveal">
         <h1 class="pj-hero-title">Built with intention. Designed to create lasting impact.</h1>
@@ -2706,12 +2717,23 @@
         // entry while the ventures are up, after which it just rides the cursor and swaps href.
         const inVentures = s >= 1.05;
         active = inVentures ? best : null;
-        if (inVentures && moved && !flownIn) flownIn = true;
-        pillVisible = flownIn && inVentures;
-        syncPill();                                  // keeps it riding the cursor (no fly-away)
-        // as the square starts expanding, the pill fades out in place (opacity) — it does not move
-        pill.style.opacity = (1 - clamp(map(s, 3.25, 3.55), 0, 1)).toFixed(3);
-        if (active) pill.href = VEN_URL[active];
+        if (isM) {
+          // Mobile: ONE pill, fixed in place (CSS-positioned). It does not ride the cursor or swap
+          // per venture — it fades in with the first venture, holds across all three, and only its
+          // href changes. It fades out as the square starts expanding into the white.
+          pill.style.transform = "";                 // clear any desktop transform → CSS holds it
+          const vis = clamp(map(s, 1.05, 1.30), 0, 1) * (1 - clamp(map(s, 3.25, 3.55), 0, 1));
+          pill.style.opacity = vis.toFixed(3);
+          pill.style.pointerEvents = (inVentures && s < 3.25) ? "auto" : "none";
+          if (active) pill.href = VEN_URL[active];
+        } else {
+          if (inVentures && moved && !flownIn) flownIn = true;
+          pillVisible = flownIn && inVentures;
+          syncPill();                                // keeps it riding the cursor (no fly-away)
+          // as the square starts expanding, the pill fades out in place (opacity) — it does not move
+          pill.style.opacity = (1 - clamp(map(s, 3.25, 3.55), 0, 1)).toFixed(3);
+          if (active) pill.href = VEN_URL[active];
+        }
         // Desktop: the whole stage is a click target (follows the cursor pill). Mobile: only the
         // static Explore pill is tappable, so the full-stage hit stays off (it would hijack scrolls).
         if (!isM && active && expandP < 0.3) { hit.href = VEN_URL[active]; hit.style.pointerEvents = "auto"; }
@@ -2721,9 +2743,12 @@
         //   0) FLY-IN — drops in from above the screen and settles at the top-right (like #ecosystem);
         //   1) top-right → bottom-right, straight DOWN the right edge — no rotation;
         //   2) bottom-right → bottom-centre — now it fills white AND rotates (Figma 78:923).
-        square.style.opacity = clamp(map(s, 1.0, 1.08), 0, 1).toFixed(3);
+        // Mobile: the square stays OFF-screen (hidden) and parked at the bottom-right corner through
+        // Vertus + Alpha; it only enters view at Vanquish (s≈2.80), flying out of that corner into the
+        // centre while it fills + rotates. Desktop keeps the full three-leg journey down the right edge.
+        square.style.opacity = (isM ? clamp(map(s, 2.80, 2.95), 0, 1) : clamp(map(s, 1.0, 1.08), 0, 1)).toFixed(3);
         sqFrame.style.strokeDashoffset = (100 * (1 - eOut(map(s, 1.25, 1.95)))).toFixed(2);
-        sqFill.style.fillOpacity = eInOut(map(s, 2.3, 3.0)).toFixed(3);
+        sqFill.style.fillOpacity = (isM ? eInOut(map(s, 2.80, 3.10)) : eInOut(map(s, 2.3, 3.0))).toFixed(3);
         const W = innerWidth, H = innerHeight, g = Math.max(24, W / 2 - 640) + 50;
         const rx = W - g;                                   // right-edge x (content frame edge)
         const PIN = [rx, -120];                             // off-screen above the right edge (fly-in origin)
@@ -2731,7 +2756,10 @@
         const P1  = [rx, H * 0.86];                         // bottom-right
         const P2  = [W * 0.50, H * 0.86];                   // bottom-centre
         let sx, sy, rot;
-        if (s < 1.25) {                                     // leg 0 — fly in from above, decelerate in
+        if (isM) {                                          // mobile — hold at the corner, then fly to centre at Vanquish
+          if (s < 2.80) { sx = P1[0]; sy = P1[1]; rot = 0; }
+          else { const t = eInOut(map(s, 2.80, 3.20)); sx = lerp(P1[0], P2[0], t); sy = lerp(P1[1], P2[1], t); rot = lerp(0, 180, t); }
+        } else if (s < 1.25) {                              // leg 0 — fly in from above, decelerate in
           const t = eOut(map(s, 1.0, 1.25));
           sx = lerp(PIN[0], P0[0], t); sy = lerp(PIN[1], P0[1], t); rot = 0;
         } else if (s < 2.2) {                               // leg 1 — down the right edge, no spin
