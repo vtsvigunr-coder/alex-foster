@@ -471,7 +471,8 @@
   /* Per-character cover: each letter gets its own block that scales in left→right */
   .char { position: relative; display: inline-block; }
   .char-block {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    position: absolute; left: 0; width: 100%;
+    top: -0.1em; bottom: -0.3em;   /* overshoot the line box so descenders (e.g. the 'g' tail) stay covered */
     background: #1a1a1a; transform: scaleX(0); transform-origin: left center;
     pointer-events: none; z-index: 2;
   }
@@ -920,7 +921,8 @@
     width: 100%; height: 100%; object-fit: cover; display: block;
     mix-blend-mode: luminosity;
   }
-  .eco-dup { display: none; }   /* duplicate marquee set: shown only on mobile */
+  /* duplicate set: extends the strip past the viewport so it reads as a seamless cyclic
+     loop and never ends on screen (used on both desktop pan and the mobile marquee) */
   /* slow, cyclic marquee for the mobile ecosystem strip (content is doubled → -50% loops seamlessly) */
   @keyframes ecoMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   /* Vector plus → solid white square → fullscreen white (immersion). The morph
